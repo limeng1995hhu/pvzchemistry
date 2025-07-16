@@ -80,17 +80,15 @@ export class InventoryPanel {
 
         buttonContainer.add([background, symbol, name, price]);
 
-        // 悬停效果
+        // 悬停效果 (移除提示文字，保留视觉效果)
         background.on('pointerover', () => {
             background.setAlpha(1.0);
             buttonContainer.setScale(1.1);
-            this.showToolTooltip(toolData, x, y);
         });
 
         background.on('pointerout', () => {
             background.setAlpha(0.8);
             buttonContainer.setScale(1.0);
-            this.hideToolTooltip();
         });
 
         // 点击事件
@@ -244,7 +242,6 @@ export class InventoryPanel {
     }
 
     destroy() {
-        this.hideToolTooltip();
         if (this.container) {
             this.container.destroy();
         }
