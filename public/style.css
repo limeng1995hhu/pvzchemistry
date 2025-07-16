@@ -4,20 +4,46 @@ body {
     color: rgba(255, 255, 255, 0.87);
     background-color: #000000; 
     font-family: Arial, Helvetica, sans-serif;
+    overflow: hidden; /* 防止滚动条 */
+    width: 100vw;
+    height: 100vh;
 }
 
 #app {
-    width: 100%;
+    width: 100vw;
     height: 100vh;
     overflow: hidden;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    display: block; /* 改为block以占满全屏 */
+    position: relative;
+}
+
+#game-container {
+    width: 100vw !important;
+    height: 100vh !important;
+    display: block;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+#game-container canvas {
+    display: block;
+    margin: 0;
+    padding: 0;
+    image-rendering: auto; /* 高分辨率渲染 */
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+    image-rendering: pixelated;
 }
 
 .spritePosition {
-    margin: 10px 0 0 10px;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    margin: 0;
     font-size: 0.8em;
+    z-index: 1000;
+    pointer-events: none;
 }
 
 .button {
@@ -29,6 +55,8 @@ body {
     border: 1px solid rgba(255, 255, 255, 0.87);
     cursor: pointer;
     transition: all 0.3s;
+    position: relative;
+    z-index: 1000;
 
     &:hover {
         border: 1px solid #0ec3c9;

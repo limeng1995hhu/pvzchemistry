@@ -9,10 +9,21 @@ import { Preloader } from './scenes/Preloader';
 // https://docs.phaser.io/api-documentation/typedef/types-core#gameconfig
 const config = {
     type: Phaser.AUTO,
-    width: 1024,
-    height: 768,
+    width: window.innerWidth,
+    height: window.innerHeight,
     parent: 'game-container',
     backgroundColor: '#028af8',
+    scale: {
+        mode: Phaser.Scale.RESIZE,
+        autoCenter: Phaser.Scale.CENTER_BOTH,
+        width: window.innerWidth,
+        height: window.innerHeight
+    },
+    render: {
+        antialias: true,
+        pixelArt: false,
+        roundPixels: false
+    },
     scene: [
         Boot,
         Preloader,
@@ -23,8 +34,14 @@ const config = {
 };
 
 const StartGame = (parent) => {
-
-    return new Phaser.Game({ ...config, parent });
+    const game = new Phaser.Game({ ...config, parent });
+    
+    // 监听窗口大小变化
+    window.addEventListener('resize', () => {
+        game.scale.resize(window.innerWidth, window.innerHeight);
+    });
+    
+    return game;
 }
 
 export default StartGame;
