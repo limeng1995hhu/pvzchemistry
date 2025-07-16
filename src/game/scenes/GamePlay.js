@@ -47,6 +47,9 @@ export class GamePlay extends Scene
         
         // 设置敌人测试控制
         this.setupEnemyTestControls();
+        
+        // 设置游戏控制（包括暂停）
+        this.setupGameControls();
 
         // 监听屏幕尺寸变化
         this.scale.on('resize', this.handleResize, this);
@@ -228,6 +231,28 @@ export class GamePlay extends Scene
         console.log('数字3：生成氯化钠');
         console.log('S键：切换自动生成');
         console.log('C键：清除所有敌人');
+    }
+    
+    setupGameControls()
+    {
+        // ESC键：切换暂停状态
+        this.input.keyboard.on('keydown-ESC', () => {
+            if (this.hud) {
+                this.hud.togglePause();
+                console.log('ESC键切换暂停状态');
+            }
+        });
+        
+        // P键：备用暂停键
+        this.input.keyboard.on('keydown-P', () => {
+            if (this.hud) {
+                this.hud.togglePause();
+                console.log('P键切换暂停状态');
+            }
+        });
+        
+        console.log('游戏控制设置完成：');
+        console.log('ESC/P键：暂停/恢复游戏');
     }
 
     addPassiveEnergy()

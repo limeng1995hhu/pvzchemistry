@@ -5,6 +5,7 @@ import { GameOver } from './scenes/GameOver';
 import { MainMenu } from './scenes/MainMenu';
 import Phaser from 'phaser';
 import { Preloader } from './scenes/Preloader';
+import { PauseUI } from './scenes/PauseUI';
 
 // Find out more information about the Game Config at:
 // https://docs.phaser.io/api-documentation/typedef/types-core#gameconfig
@@ -37,6 +38,7 @@ const config = {
         MainMenu,
         Game,
         GamePlay,
+        PauseUI,
         GameOver
     ]
 };

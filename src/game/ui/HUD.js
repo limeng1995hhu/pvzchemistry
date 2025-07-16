@@ -1,8 +1,12 @@
+import { EventBus } from '../EventBus.js';
+// import { PauseOverlay } from './PauseOverlay.js'; // 不再需要
+
 export class HUD {
     constructor(scene) {
         this.scene = scene;
         this.currentEnergy = 100;
         this.isPaused = false;
+        // this.pauseOverlay = new PauseOverlay(scene); // 不再需要
         
         this.create();
     }
@@ -83,13 +87,38 @@ export class HUD {
         this.isPaused = !this.isPaused;
         
         if (this.isPaused) {
-            this.scene.scene.pause();
-            this.pauseButton.setText('▶ 继续');
-            this.showMessage('游戏已暂停');
+            this.pauseGame();
         } else {
-            this.scene.scene.resume();
-            this.pauseButton.setText('⏸ 暂停');
+            this.resumeGame();
         }
+    }
+    
+    pauseGame() {
+        this.isPaused = true;
+        
+        // 启动PauseUI场景并暂停主场景
+        this.scene.scene.launch('PauseUI');
+        this.scene.scene.pause();
+        
+        // 更新按钮状态
+        this.pauseButton.setText('▶ 继续');
+        
+        // 通知所有系统暂停
+        EventBus.emit('game-pause');
+        
+        console.log('游戏已暂停');
+    }
+    
+    resumeGame() {
+        this.isPaused = false;
+        
+        // 由PauseUI场景resume主场景并stop自身
+        this.pauseButton.setText('⏸ 暂停');
+        
+        // 通知所有系统恢复
+        EventBus.emit('game-resume');
+        
+        console.log('游戏已恢复');
     }
 
     openChemicalGuide() {
@@ -197,6 +226,11 @@ export class HUD {
         // 更新按钮位置 (增加间距避免重叠)
         this.pauseButton.x = width - 350;
         this.chemicalButton.x = width - 180;
+        
+        // 更新暂停覆盖层尺寸
+        // if (this.pauseOverlay) { // 不再需要
+        //     this.pauseOverlay.resize(width, height);
+        // }
     }
 
     destroy() {
@@ -206,5 +240,8 @@ export class HUD {
         if (this.currentMessage) {
             this.currentMessage.destroy();
         }
+        // if (this.pauseOverlay) { // 不再需要
+        //     this.pauseOverlay.destroy();
+        // }
     }
 } 

@@ -33,6 +33,10 @@ export class EnemyManager {
         this.maxEnemies = 50; // 最大同时敌人数量
         this.updateCounter = 0; // 用于分帧更新
         
+        // 暂停状态
+        this.isPaused = false;
+        this.pausedSpawnTime = 0; // 暂停时保存的生成时间
+        
         this.init();
     }
     
@@ -55,6 +59,15 @@ export class EnemyManager {
         // 监听敌人被消灭事件
         EventBus.on('enemy-killed', (enemyData) => {
             this.onEnemyKilled(enemyData);
+        });
+        
+        // 监听游戏暂停/恢复事件
+        EventBus.on('game-pause', () => {
+            this.onGamePause();
+        });
+        
+        EventBus.on('game-resume', () => {
+            this.onGameResume();
         });
     }
     
@@ -154,6 +167,11 @@ export class EnemyManager {
     
     // 更新所有敌人
     update(time, delta) {
+        // 如果游戏暂停，跳过更新
+        if (this.isPaused) {
+            return;
+        }
+        
         // 处理敌人生成
         this.updateSpawning(time);
         
@@ -305,6 +323,31 @@ export class EnemyManager {
         return this.activeEnemies.map(enemy => enemy.getInfo());
     }
     
+    // 游戏暂停处理
+    onGamePause() {
+        this.isPaused = true;
+        
+        // 保存当前生成时间状态
+        if (this.isSpawning && this.nextSpawnTime > 0) {
+            this.pausedSpawnTime = this.nextSpawnTime - this.scene.time.now;
+        }
+        
+        console.log('EnemyManager: 游戏已暂停');
+    }
+    
+    // 游戏恢复处理
+    onGameResume() {
+        this.isPaused = false;
+        
+        // 恢复生成时间状态
+        if (this.isSpawning && this.pausedSpawnTime > 0) {
+            this.nextSpawnTime = this.scene.time.now + this.pausedSpawnTime;
+            this.pausedSpawnTime = 0;
+        }
+        
+        console.log('EnemyManager: 游戏已恢复');
+    }
+    
     // 销毁管理器
     destroy() {
         console.log('销毁 EnemyManager');
@@ -318,6 +361,8 @@ export class EnemyManager {
         // 清理事件监听器
         EventBus.off('enemy-reached-end');
         EventBus.off('enemy-killed');
+        EventBus.off('game-pause');
+        EventBus.off('game-resume');
         
         // 清理引用
         this.scene = null;

@@ -24,22 +24,37 @@ export class BuildingPlacementSystem {
         // 预览图形
         this.previewGraphics = null;
         
+        // 暂停状态
+        this.isPaused = false;
+        
         this.setupEventListeners();
     }
 
     setupEventListeners() {
         this.eventBus.on('drag-start', (data) => {
+            if (this.isPaused) return; // 暂停时忽略拖拽
             console.log(`[${this.instanceId}] 接收drag-start:`, data.type);
             this.handleDragStart(data);
         });
         
         this.eventBus.on('drag-move', (data) => {
+            if (this.isPaused) return; // 暂停时忽略拖拽
             this.handleDragMove(data);
         });
         
         this.eventBus.on('drag-end', (data) => {
+            if (this.isPaused) return; // 暂停时忽略拖拽
             console.log(`[${this.instanceId}] 接收drag-end`);
             this.handleDragEnd(data);
+        });
+        
+        // 监听游戏暂停/恢复事件
+        this.eventBus.on('game-pause', () => {
+            this.onGamePause();
+        });
+        
+        this.eventBus.on('game-resume', () => {
+            this.onGameResume();
         });
     }
 
@@ -523,6 +538,24 @@ export class BuildingPlacementSystem {
             const screenPos = this.gridSystem.gridToScreen(row, col);
             building.setPosition(screenPos.x, screenPos.y);
         });
+    }
+    
+    // 游戏暂停处理
+    onGamePause() {
+        this.isPaused = true;
+        
+        // 取消当前拖拽操作
+        if (this.isDragging) {
+            this.endDrag();
+        }
+        
+        console.log('BuildingPlacementSystem: 游戏已暂停');
+    }
+    
+    // 游戏恢复处理
+    onGameResume() {
+        this.isPaused = false;
+        console.log('BuildingPlacementSystem: 游戏已恢复');
     }
     
     // 销毁系统
