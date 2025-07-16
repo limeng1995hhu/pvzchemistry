@@ -46,16 +46,23 @@ export class BuildingPlacementSystem {
     handleDragStart(data) {
         console.log('处理拖拽开始:', data.type, '当前isDragging:', this.isDragging);
         
-        // 处理建筑类型和元素类型
-        if (!this.isBuildingType(data.type) && !this.isElementType(data.type)) {
-            console.log('不是建筑或元素类型，忽略:', data.type);
+        // 处理建筑类型、元素类型和铲子类型
+        if (!this.isBuildingType(data.type) && !this.isElementType(data.type) && !this.isShovelType(data.type)) {
+            console.log('不是建筑、元素或铲子类型，忽略:', data.type);
             return;
         }
         
         this.isDragging = true;
         this.dragType = data.type;
         this.dragData = data.toolData;
-        this.dragCategory = this.isBuildingType(data.type) ? 'building' : 'element';
+        
+        if (this.isBuildingType(data.type)) {
+            this.dragCategory = 'building';
+        } else if (this.isElementType(data.type)) {
+            this.dragCategory = 'element';
+        } else if (this.isShovelType(data.type)) {
+            this.dragCategory = 'shovel';
+        }
         
         console.log('拖拽状态设置完成，类别:', this.dragCategory, 'isDragging:', this.isDragging);
     }
@@ -69,6 +76,9 @@ export class BuildingPlacementSystem {
         } else if (this.dragCategory === 'element') {
             // 元素放置逻辑
             this.handleElementDragMove(data);
+        } else if (this.dragCategory === 'shovel') {
+            // 铲子移除逻辑
+            this.handleShovelDragMove(data);
         }
     }
 
@@ -86,6 +96,9 @@ export class BuildingPlacementSystem {
         } else if (this.dragCategory === 'element') {
             // 元素放置逻辑
             this.handleElementDragEnd(data);
+        } else if (this.dragCategory === 'shovel') {
+            // 铲子移除逻辑
+            this.handleShovelDragEnd(data);
         }
         
         // 清理拖拽状态
@@ -382,9 +395,89 @@ export class BuildingPlacementSystem {
         this.showGridPreview(row, col, canAdd);
     }
 
+    // 处理铲子拖拽移动
+    handleShovelDragMove(data) {
+        const gridPos = this.gridSystem.screenToGrid(data.x, data.y);
+        
+        if (gridPos) {
+            const building = this.getBuildingAt(gridPos.row, gridPos.col);
+            if (building) {
+                // 显示红色高亮 - 表示将要移除
+                this.showBuildingHighlightForRemoval(gridPos.row, gridPos.col);
+            } else {
+                // 没有建筑可移除
+                this.clearGridPreview();
+            }
+        } else {
+            this.clearGridPreview();
+        }
+    }
+
+    // 处理铲子拖拽结束
+    handleShovelDragEnd(data) {
+        const gridPos = this.gridSystem.screenToGrid(data.x, data.y);
+        
+        if (gridPos) {
+            const building = this.getBuildingAt(gridPos.row, gridPos.col);
+            if (building) {
+                console.log('移除建筑:', building.type, '在位置:', gridPos.row, gridPos.col);
+                this.removeBuildingAt(gridPos.row, gridPos.col);
+                
+                if (this.scene.hud) {
+                    this.scene.hud.showMessage(`${building.type}已移除`, '#ff6b6b');
+                }
+            } else {
+                console.log('此位置没有建筑可移除');
+                if (this.scene.hud) {
+                    this.scene.hud.showMessage('此位置没有建筑可移除', '#ff0000');
+                }
+            }
+        }
+    }
+
+    // 显示建筑移除高亮
+    showBuildingHighlightForRemoval(row, col) {
+        // 如果没有预览图形对象，创建一个
+        if (!this.previewGraphics) {
+            this.previewGraphics = this.scene.add.graphics();
+            this.previewGraphics.setDepth(5);
+        }
+        
+        this.previewGraphics.clear();
+        
+        // 获取网格单元的屏幕位置和大小
+        const screenPos = this.gridSystem.gridToScreen(row, col);
+        const cellSize = this.gridSystem.cellSize;
+        
+        // 红色预览 - 表示将要移除
+        this.previewGraphics.lineStyle(3, 0xff0000, 0.8);
+        this.previewGraphics.fillStyle(0xff0000, 0.3);
+        
+        const size = cellSize * 0.9;
+        const x = screenPos.x - size / 2;
+        const y = screenPos.y - size / 2;
+        
+        this.previewGraphics.fillRect(x, y, size, size);
+        this.previewGraphics.strokeRect(x, y, size, size);
+    }
+
+    // 移除指定位置的建筑
+    removeBuildingAt(row, col) {
+        const success = this.removeBuilding(row, col);
+        if (!success) {
+            console.warn('移除建筑失败:', row, col);
+        }
+        return success;
+    }
+
     // 检查是否是建筑类型
     isBuildingType(type) {
         return type === 'recycler' || type === 'reactor';
+    }
+    
+    // 检查是否是铲子类型
+    isShovelType(type) {
+        return type === 'shovel';
     }
     
     // 更新系统（在GamePlay的update中调用）

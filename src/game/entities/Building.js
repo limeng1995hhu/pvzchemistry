@@ -61,10 +61,8 @@ export class Building {
         // 创建元素标签（初始为空）
         this.elementLabel = this.scene.add.text(0, -size/2 - 15, '', {
             fontFamily: 'Arial Bold',
-            fontSize: '14px',
+            fontSize: '21px', // 从14px增大50%到21px
             color: '#ffffff',
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            padding: { x: 6, y: 3 },
             resolution: 2
         }).setOrigin(0.5);
         this.elementLabel.setVisible(false);
