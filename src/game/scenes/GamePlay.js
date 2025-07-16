@@ -4,6 +4,7 @@ import { HUD } from '../ui/HUD';
 import { InventoryPanel } from '../ui/InventoryPanel';
 import { GridSystem } from '../systems/GridSystem';
 import { BuildingPlacementSystem } from '../systems/BuildingPlacementSystem';
+import { EnemyManager } from '../systems/EnemyManager';
 
 export class GamePlay extends Scene
 {
@@ -31,6 +32,9 @@ export class GamePlay extends Scene
         // 创建建筑放置系统 - 修复构造函数参数
         this.buildingPlacementSystem = new BuildingPlacementSystem(this, this.gridSystem, EventBus);
         
+        // 创建敌人管理系统
+        this.enemyManager = new EnemyManager(this);
+        
         // 创建UI组件
         this.hud = new HUD(this);
         this.inventoryPanel = new InventoryPanel(this);
@@ -40,6 +44,9 @@ export class GamePlay extends Scene
         
         // 设置网格事件监听
         this.setupGridEventHandlers();
+        
+        // 设置敌人测试控制
+        this.setupEnemyTestControls();
 
         // 监听屏幕尺寸变化
         this.scale.on('resize', this.handleResize, this);
@@ -60,6 +67,11 @@ export class GamePlay extends Scene
         // 更新建筑放置系统
         if (this.buildingPlacementSystem) {
             this.buildingPlacementSystem.update(time, delta);
+        }
+        
+        // 更新敌人管理系统
+        if (this.enemyManager) {
+            this.enemyManager.update(time, delta);
         }
     }
 
@@ -152,6 +164,72 @@ export class GamePlay extends Scene
         graphics.fillRect(this.gameArea.x, this.gameArea.y + this.gridSize.height * 4, this.gameArea.width, this.gridSize.height * 2);
     }
 
+    setupEnemyTestControls()
+    {
+        // 添加键盘控制用于测试敌人系统
+        this.input.keyboard.on('keydown-SPACE', () => {
+            if (this.enemyManager) {
+                // 空格键：生成随机敌人
+                this.enemyManager.spawnEnemy();
+                console.log('手动生成敌人 (空格键)');
+            }
+        });
+        
+        this.input.keyboard.on('keydown-ONE', () => {
+            if (this.enemyManager) {
+                // 数字1：生成氢气
+                this.enemyManager.spawnEnemy('H2');
+                console.log('生成氢气 (数字1)');
+            }
+        });
+        
+        this.input.keyboard.on('keydown-TWO', () => {
+            if (this.enemyManager) {
+                // 数字2：生成水
+                this.enemyManager.spawnEnemy('H2O');
+                console.log('生成水 (数字2)');
+            }
+        });
+        
+        this.input.keyboard.on('keydown-THREE', () => {
+            if (this.enemyManager) {
+                // 数字3：生成氯化钠
+                this.enemyManager.spawnEnemy('NaCl');
+                console.log('生成氯化钠 (数字3)');
+            }
+        });
+        
+        this.input.keyboard.on('keydown-S', () => {
+            if (this.enemyManager) {
+                // S键：停止/开始自动生成
+                if (this.enemyManager.isSpawning) {
+                    this.enemyManager.stopSpawning();
+                    console.log('停止自动生成敌人 (S键)');
+                } else {
+                    this.enemyManager.startTestSpawning();
+                    console.log('开始自动生成敌人 (S键)');
+                }
+            }
+        });
+        
+        this.input.keyboard.on('keydown-C', () => {
+            if (this.enemyManager) {
+                // C键：清除所有敌人
+                this.enemyManager.clearAllEnemies();
+                console.log('清除所有敌人 (C键)');
+            }
+        });
+        
+        // 显示控制提示
+        console.log('敌人系统测试控制：');
+        console.log('空格键：生成随机敌人');
+        console.log('数字1：生成氢气');
+        console.log('数字2：生成水');
+        console.log('数字3：生成氯化钠');
+        console.log('S键：切换自动生成');
+        console.log('C键：清除所有敌人');
+    }
+
     addPassiveEnergy()
     {
         // 被动能量增长
@@ -188,6 +266,8 @@ export class GamePlay extends Scene
             this.buildingPlacementSystem.resize();
         }
         
+        // 敌人管理系统不需要resize，因为它使用网格系统的坐标
+        
         // 更新UI组件
         if (this.hud) {
             this.hud.resize(width, height);
@@ -213,6 +293,9 @@ export class GamePlay extends Scene
         }
         if (this.buildingPlacementSystem) {
             this.buildingPlacementSystem.destroy();
+        }
+        if (this.enemyManager) {
+            this.enemyManager.destroy();
         }
         if (this.hud) {
             this.hud.destroy();
