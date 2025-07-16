@@ -47,9 +47,9 @@ export class GamePlay extends Scene
         const sideMargin = width * 0.1; // 10%留白
         this.gameArea = {
             x: sideMargin,
-            y: 210, // 调整Y位置适应更大的HUD (105+90=195 + 15像素间距)
+            y: 140, // 调整Y位置适应更高的HUD (70+60=130 + 10像素间距)
             width: width - (sideMargin * 2),
-            height: height - 350, // 相应调整高度 (210 + 140 = 350)
+            height: height - 260, // 相应调整高度 (140 + 120 = 260)
             rows: 6,
             cols: 12
         };
@@ -148,9 +148,9 @@ export class GamePlay extends Scene
         // 更新游戏区域（左右各留白10%）
         const sideMargin = width * 0.1;
         this.gameArea.x = sideMargin;
-        this.gameArea.y = 210; // 适应更大的HUD
+        this.gameArea.y = 140; // 适应更高的HUD
         this.gameArea.width = width - (sideMargin * 2);
-        this.gameArea.height = height - 350; // 适应更大的HUD
+        this.gameArea.height = height - 260; // 适应更高的HUD
         
         // 重新计算网格尺寸
         this.gridSize = {

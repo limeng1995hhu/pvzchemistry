@@ -22,10 +22,10 @@ export class InventoryPanel {
 
     createToolButtons() {
         const { width, height } = this.scene.cameras.main;
-        const buttonY = 105; // 与更高的HUD中心对齐
-        const buttonSize = 105; // 再增大1.5倍
-        const buttonSpacing = 110; // 略微减少间距避免重叠
-        const startX = 280; // 进一步左移避免与右侧按钮重叠
+        const buttonY = 70; // 与更高的HUD中心对齐
+        const buttonSize = 70; // 增大按钮尺寸
+        const buttonSpacing = 80; // 增加间距适应更大按钮
+        const startX = 320; // 向右移动避免与能量文字重叠
 
         // 定义工具数据
         const toolsData = [
@@ -54,26 +54,26 @@ export class InventoryPanel {
         background.setStrokeStyle(2, 0xffffff);
         background.setInteractive();
 
-        // 按钮符号 (再增大1.5倍)
-        const symbol = this.scene.add.text(0, -12, toolData.symbol, {
+        // 按钮符号 (增大图标)
+        const symbol = this.scene.add.text(0, -8, toolData.symbol, {
             fontFamily: 'Arial Bold',
-            fontSize: '48px', // 再增大1.5倍
+            fontSize: '32px', // 增大图标字体
             color: '#ffffff',
             resolution: 2 // 强制高分辨率渲染
         }).setOrigin(0.5);
 
         // 按钮名称
-        const name = this.scene.add.text(0, 22, toolData.name, {
+        const name = this.scene.add.text(0, 15, toolData.name, {
             fontFamily: 'Arial',
-            fontSize: '18px', // 再增大1.5倍
+            fontSize: '12px', // 增大字体
             color: '#ffffff',
             resolution: 2 // 强制高分辨率渲染
         }).setOrigin(0.5);
 
         // 价格显示
-        const price = this.scene.add.text(0, 38, `${toolData.price}⚡`, {
+        const price = this.scene.add.text(0, 26, `${toolData.price}⚡`, {
             fontFamily: 'Arial',
-            fontSize: '15px', // 再增大1.5倍
+            fontSize: '10px', // 增大字体
             color: '#e94560',
             resolution: 2 // 强制高分辨率渲染
         }).setOrigin(0.5);
@@ -210,20 +210,20 @@ export class InventoryPanel {
         // 动态添加新工具
         const toolCount = this.tools.size;
         const { width, height } = this.scene.cameras.main;
-        const buttonSpacing = 110; // 略微减少间距避免重叠
-        const startX = 280; // 进一步左移避免与右侧按钮重叠
+        const buttonSpacing = 80; // 增加间距适应更大按钮
+        const startX = 320; // 向右移动避免重叠
         const x = startX + toolCount * buttonSpacing;
-        const y = 105; // 与更高的HUD中心对齐
+        const y = 70; // 与更高的HUD中心对齐
         
-        const button = this.createToolButton(x, y, 105, toolData); // 再增大1.5倍按钮尺寸
+        const button = this.createToolButton(x, y, 70, toolData); // 使用更大的按钮尺寸
         this.tools.set(toolData.id, { ...toolData, button, x, y });
     }
 
     resize(width, height) {
         // 重新定位所有工具按钮到顶部HUD区域
-        const buttonSpacing = 110; // 略微减少间距避免重叠
-        const startX = 280; // 进一步左移避免与右侧按钮重叠
-        const buttonY = 105; // 与更高的HUD中心对齐
+        const buttonSpacing = 80; // 增加间距适应更大按钮
+        const startX = 320; // 向右移动避免重叠
+        const buttonY = 70; // 与更高的HUD中心对齐
         
         let index = 0;
         this.tools.forEach((tool) => {

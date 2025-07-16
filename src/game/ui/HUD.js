@@ -13,22 +13,22 @@ export class HUD {
         // 创建HUD容器
         this.container = this.scene.add.container(0, 0);
         
-        // HUD背景 (再增大1.5倍)
-        this.background = this.scene.add.rectangle(width / 2, 105, width - 20, 180, 0x0f3460, 0.8);
+        // HUD背景 (高度提高两倍)
+        this.background = this.scene.add.rectangle(width / 2, 70, width - 20, 120, 0x0f3460, 0.8);
         this.background.setStrokeStyle(2, 0x87CEEB);
         this.container.add(this.background);
 
-        // 能量显示 (再增大1.5倍)
-        this.energyIcon = this.scene.add.text(Math.round(30), Math.round(105), '⚡', {
+        // 能量显示 (文本大小扩大1倍)
+        this.energyIcon = this.scene.add.text(Math.round(30), Math.round(70), '⚡', {
             fontFamily: 'Arial',
-            fontSize: '72px',
+            fontSize: '48px',
             color: '#e94560',
             resolution: 2 // 强制高分辨率渲染
         }).setOrigin(0, 0.5);
         
-        this.energyText = this.scene.add.text(Math.round(110), Math.round(105), `能量: ${this.currentEnergy}`, {
+        this.energyText = this.scene.add.text(Math.round(90), Math.round(70), `能量: ${this.currentEnergy}`, {
             fontFamily: 'Arial Bold',
-            fontSize: '60px',
+            fontSize: '40px',
             color: '#e94560',
             resolution: 2 // 强制高分辨率渲染
         }).setOrigin(0, 0.5);
@@ -43,14 +43,14 @@ export class HUD {
         const { width } = this.scene.cameras.main;
         const buttonStyle = {
             fontFamily: 'Arial',
-            fontSize: '48px', // 再增大1.5倍
+            fontSize: '32px', // 文本大小扩大1倍
             color: '#ffffff',
             backgroundColor: '#16213e',
-            padding: { x: 36, y: 18 } // 相应调整padding
+            padding: { x: 24, y: 12 } // 相应调整padding
         };
 
-        // 暂停按钮 (进一步右移避免重叠)
-        this.pauseButton = this.scene.add.text(width - 520, 105, '⏸ 暂停', buttonStyle)
+        // 暂停按钮
+        this.pauseButton = this.scene.add.text(width - 300, 70, '⏸ 暂停', buttonStyle)
             .setOrigin(0.5)
             .setInteractive()
             .on('pointerover', () => this.onButtonHover(this.pauseButton))
@@ -58,22 +58,14 @@ export class HUD {
             .on('pointerdown', () => this.togglePause());
 
         // 化学表按钮
-        this.chemicalButton = this.scene.add.text(width - 330, 105, '🧪 化学表', buttonStyle)
+        this.chemicalButton = this.scene.add.text(width - 160, 70, '🧪 化学表', buttonStyle)
             .setOrigin(0.5)
             .setInteractive()
             .on('pointerover', () => this.onButtonHover(this.chemicalButton))
             .on('pointerout', () => this.onButtonOut(this.chemicalButton))
             .on('pointerdown', () => this.openChemicalGuide());
 
-        // 设置按钮
-        this.settingsButton = this.scene.add.text(width - 160, 105, '⚙ 设置', buttonStyle)
-            .setOrigin(0.5)
-            .setInteractive()
-            .on('pointerover', () => this.onButtonHover(this.settingsButton))
-            .on('pointerout', () => this.onButtonOut(this.settingsButton))
-            .on('pointerdown', () => this.openSettings());
-
-        this.container.add([this.pauseButton, this.chemicalButton, this.settingsButton]);
+        this.container.add([this.pauseButton, this.chemicalButton]);
     }
 
     onButtonHover(button) {
@@ -105,11 +97,7 @@ export class HUD {
         // this.scene.scene.launch('ChemicalGuide');
     }
 
-    openSettings() {
-        this.showMessage('设置功能开发中...');
-        // 后续可以启动设置场景
-        // this.scene.scene.launch('Settings');
-    }
+
 
     updateEnergy(amount) {
         this.currentEnergy = Math.max(0, amount);
@@ -173,14 +161,14 @@ export class HUD {
 
         this.currentMessage = this.scene.add.text(
             this.scene.cameras.main.width / 2, 
-            220, // 调整位置避免与更高的HUD重叠
+            160, // 调整位置避免与更高的HUD重叠
             text, 
             {
                 fontFamily: 'Arial',
-                fontSize: '48px', // 再增大1.5倍
+                fontSize: '32px', // 文本大小扩大1倍
                 color: color,
                 backgroundColor: '#000000',
-                padding: { x: 45, y: 24 } // 相应调整padding
+                padding: { x: 30, y: 16 } // 相应调整padding
             }
         ).setOrigin(0.5);
 
@@ -194,15 +182,14 @@ export class HUD {
     }
 
     resize(width, height) {
-        // 更新HUD位置和尺寸 (新的高度180)
-        this.background.setSize(width - 20, 180);
+        // 更新HUD位置和尺寸 (新的高度120)
+        this.background.setSize(width - 20, 120);
         this.background.x = width / 2;
-        this.background.y = 105;
+        this.background.y = 70;
         
-        // 更新按钮位置 (进一步右移避免重叠)
-        this.pauseButton.x = width - 520;
-        this.chemicalButton.x = width - 330;
-        this.settingsButton.x = width - 160;
+        // 更新按钮位置
+        this.pauseButton.x = width - 300; // 调整位置，因为没有设置按钮了
+        this.chemicalButton.x = width - 160;
     }
 
     destroy() {
