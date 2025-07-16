@@ -15,6 +15,6 @@ export default defineConfig({
     }
   },
   server: {
-      port: 8080
+      port: 3000  // 修改为你想要的端口号，比如 3000, 4000, 5173 等
   }
 })

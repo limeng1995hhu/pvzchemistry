@@ -19,7 +19,7 @@ const phasermsg = () => {
 }
 
 export default defineConfig({
-    base: './',
+    base: '/pvzmath/',  // GitHub Pages 需要仓库名作为基础路径
     plugins: [
         vue(),
         phasermsg()
