@@ -46,7 +46,8 @@ export class HUD {
             fontSize: '32px', // 文本大小扩大1倍
             color: '#ffffff',
             backgroundColor: '#16213e',
-            padding: { x: 24, y: 12 } // 相应调整padding
+            padding: { x: 24, y: 12 }, // 相应调整padding
+            resolution: 2 // 添加高分辨率渲染，与其他文字保持一致
         };
 
         // 暂停按钮 (增加间距避免重叠)
@@ -168,7 +169,8 @@ export class HUD {
                 fontSize: '32px', // 文本大小扩大1倍
                 color: color,
                 backgroundColor: '#000000',
-                padding: { x: 30, y: 16 } // 相应调整padding
+                padding: { x: 30, y: 16 }, // 相应调整padding
+                resolution: 2 // 添加高分辨率渲染
             }
         ).setOrigin(0.5);
 
