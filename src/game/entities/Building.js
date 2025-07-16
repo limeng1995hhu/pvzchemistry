@@ -19,6 +19,7 @@ export class Building {
         this.container = null;
         this.sprite = null;
         this.healthBar = null;
+        this.elementLabel = null; // 显示元素的标签
         
         this.create();
     }
@@ -57,8 +58,19 @@ export class Building {
             resolution: 2
         }).setOrigin(0.5);
         
-        // 不再添加建筑名称文字
-        this.container.add([this.background, this.icon]);
+        // 创建元素标签（初始为空）
+        this.elementLabel = this.scene.add.text(0, -size/2 - 15, '', {
+            fontFamily: 'Arial Bold',
+            fontSize: '14px',
+            color: '#ffffff',
+            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+            padding: { x: 6, y: 3 },
+            resolution: 2
+        }).setOrigin(0.5);
+        this.elementLabel.setVisible(false);
+        
+        // 添加到容器
+        this.container.add([this.background, this.icon, this.elementLabel]);
     }
     
     createHealthBar() {
@@ -98,7 +110,7 @@ export class Building {
     getColor() {
         switch (this.type) {
             case 'recycler': return 0x16213e;
-            case 'reactor': return 0xe94560;
+            case 'reactor': return 0x000000; // 改为黑色
             default: return 0x666666;
         }
     }
@@ -190,6 +202,21 @@ export class Building {
         this.sprite = null;
         this.healthBar = null;
     }
+
+    // 显示元素标签
+    showElementLabel(text) {
+        if (this.elementLabel) {
+            this.elementLabel.setText(text);
+            this.elementLabel.setVisible(true);
+        }
+    }
+
+    // 隐藏元素标签
+    hideElementLabel() {
+        if (this.elementLabel) {
+            this.elementLabel.setVisible(false);
+        }
+    }
 }
 
 // 回收器类
@@ -211,10 +238,18 @@ export class Recycler extends Building {
     }
     
     updateDisplay() {
-        // 不再显示文字信息，可以考虑通过图标颜色或其他方式显示状态
-        // 例如：如果设置了目标物质，可以改变图标颜色
-        if (this.targetSubstance && this.icon) {
-            this.icon.setTint(0x00ff00); // 绿色表示已设置目标
+        // 显示目标物质在建筑上方
+        if (this.targetSubstance) {
+            this.showElementLabel(this.targetSubstance);
+            // 设置图标颜色表示已设置目标
+            if (this.icon) {
+                this.icon.setTint(0x00ff00); // 绿色表示已设置目标
+            }
+        } else {
+            this.hideElementLabel();
+            if (this.icon) {
+                this.icon.clearTint();
+            }
         }
     }
     
@@ -279,15 +314,20 @@ export class Reactor extends Building {
     }
     
     updateDisplay() {
-        // 不再显示文字信息，可以考虑通过图标效果显示状态
-        // 例如：根据存储的元素数量改变图标颜色
-        if (this.icon) {
-            if (this.elements.length === 0) {
-                this.icon.clearTint(); // 无元素时恢复原色
-            } else {
+        // 显示存储的元素在建筑上方
+        if (this.elements.length > 0) {
+            const elementStr = this.elements.join(' + ');
+            this.showElementLabel(elementStr);
+            // 根据存储的元素数量改变图标颜色
+            if (this.icon) {
                 const intensity = this.elements.length / this.maxElements;
                 const tint = Math.floor(255 * intensity);
                 this.icon.setTint((tint << 16) | (tint << 8) | 255); // 蓝色渐变
+            }
+        } else {
+            this.hideElementLabel();
+            if (this.icon) {
+                this.icon.clearTint(); // 无元素时恢复原色
             }
         }
     }

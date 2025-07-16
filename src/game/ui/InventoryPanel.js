@@ -36,12 +36,12 @@ export class InventoryPanel {
 
         // 定义工具数据
         const toolsData = [
-            { id: 'hydrogen', symbol: 'H', name: '氢', color: '#87CEEB', price: 10 },
-            { id: 'oxygen', symbol: 'O', name: '氧', color: '#4169E1', price: 10 },
+            { id: 'hydrogen', symbol: 'H₂', name: '氢气', color: '#87CEEB', price: 10 },
+            { id: 'oxygen', symbol: 'O₂', name: '氧气', color: '#4169E1', price: 10 },
             { id: 'carbon', symbol: 'C', name: '碳', color: '#8B4513', price: 15 },
-            { id: 'nitrogen', symbol: 'N', name: '氮', color: '#90EE90', price: 15 },
+            { id: 'nitrogen', symbol: 'N₂', name: '氮气', color: '#90EE90', price: 15 },
             { id: 'recycler', symbol: '♻', name: '回收器', color: '#16213e', price: 10 },
-            { id: 'reactor', symbol: '⚗', name: '反应器', color: '#e94560', price: 10 }
+            { id: 'reactor', symbol: '⚗', name: '反应器', color: '#000000', price: 10 }
         ];
 
         // 创建按钮

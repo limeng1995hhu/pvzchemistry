@@ -16,6 +16,7 @@ export class BuildingPlacementSystem {
         this.dragType = null;
         this.dragData = null;
         this.dragSprite = null;
+        this.dragCategory = null; // 'building' | 'element'
         
         // 建筑管理
         this.buildings = new Map(); // 存储网格位置 -> 建筑实例的映射
@@ -45,57 +46,46 @@ export class BuildingPlacementSystem {
     handleDragStart(data) {
         console.log('处理拖拽开始:', data.type, '当前isDragging:', this.isDragging);
         
-        // 只处理建筑类型
-        if (!this.isBuildingType(data.type)) {
-            console.log('不是建筑类型，忽略:', data.type);
+        // 处理建筑类型和元素类型
+        if (!this.isBuildingType(data.type) && !this.isElementType(data.type)) {
+            console.log('不是建筑或元素类型，忽略:', data.type);
             return;
         }
         
         this.isDragging = true;
         this.dragType = data.type;
         this.dragData = data.toolData;
+        this.dragCategory = this.isBuildingType(data.type) ? 'building' : 'element';
         
-        console.log('拖拽状态设置完成，isDragging:', this.isDragging);
+        console.log('拖拽状态设置完成，类别:', this.dragCategory, 'isDragging:', this.isDragging);
     }
 
     handleDragMove(data) {
         if (!this.isDragging) return;
         
-        // 检查是否在有效的网格位置，并发送网格预览事件
-        const gridPos = this.gridSystem.screenToGrid(data.x, data.y);
-        
-        if (gridPos && this.canPlaceBuilding(gridPos.row, gridPos.col)) {
-            // 显示绿色网格预览
-            this.showGridPreview(gridPos.row, gridPos.col, true);
-        } else {
-            // 显示红色网格预览或清除预览
-            if (gridPos) {
-                this.showGridPreview(gridPos.row, gridPos.col, false);
-            } else {
-                this.clearGridPreview();
-            }
+        if (this.dragCategory === 'building') {
+            // 建筑放置逻辑
+            this.handleBuildingDragMove(data);
+        } else if (this.dragCategory === 'element') {
+            // 元素放置逻辑
+            this.handleElementDragMove(data);
         }
     }
 
     handleDragEnd(data) {
-        console.log('处理拖拽结束，isDragging:', this.isDragging);
+        console.log('处理拖拽结束，isDragging:', this.isDragging, '类别:', this.dragCategory);
         
         if (!this.isDragging) {
             console.log('当前不在拖拽状态，忽略拖拽结束');
             return;
         }
         
-        // 检查是否可以在此位置放置建筑
-        const gridPos = this.gridSystem.screenToGrid(data.x, data.y);
-        
-        if (gridPos && this.canPlaceBuilding(gridPos.row, gridPos.col)) {
-            console.log('放置建筑:', this.dragType, '在位置:', gridPos.row, gridPos.col);
-            this.placeBuilding(gridPos.row, gridPos.col);
-        } else {
-            console.log('无法放置建筑');
-            if (this.scene.hud) {
-                this.scene.hud.showMessage('无法在此位置放置建筑', '#ff0000');
-            }
+        if (this.dragCategory === 'building') {
+            // 建筑放置逻辑
+            this.handleBuildingDragEnd(data);
+        } else if (this.dragCategory === 'element') {
+            // 元素放置逻辑
+            this.handleElementDragEnd(data);
         }
         
         // 清理拖拽状态
@@ -251,6 +241,147 @@ export class BuildingPlacementSystem {
         console.log('拖拽状态清理完成');
     }
     
+    // 处理建筑拖拽移动
+    handleBuildingDragMove(data) {
+        // 检查是否在有效的网格位置，并发送网格预览事件
+        const gridPos = this.gridSystem.screenToGrid(data.x, data.y);
+        
+        if (gridPos && this.canPlaceBuilding(gridPos.row, gridPos.col)) {
+            // 显示绿色网格预览
+            this.showGridPreview(gridPos.row, gridPos.col, true);
+        } else {
+            // 显示红色网格预览或清除预览
+            if (gridPos) {
+                this.showGridPreview(gridPos.row, gridPos.col, false);
+            } else {
+                this.clearGridPreview();
+            }
+        }
+    }
+
+    // 处理元素拖拽移动
+    handleElementDragMove(data) {
+        // 检查是否悬停在建筑上
+        const gridPos = this.gridSystem.screenToGrid(data.x, data.y);
+        
+        if (gridPos) {
+            const building = this.getBuildingAt(gridPos.row, gridPos.col);
+            if (building && this.canAddElementToBuilding(building, this.dragData)) {
+                // 显示绿色预览 - 可以添加元素
+                this.showBuildingHighlight(gridPos.row, gridPos.col, true);
+            } else if (building) {
+                // 显示红色预览 - 建筑存在但不能添加
+                this.showBuildingHighlight(gridPos.row, gridPos.col, false);
+            } else {
+                // 清除预览 - 没有建筑
+                this.clearGridPreview();
+            }
+        } else {
+            this.clearGridPreview();
+        }
+    }
+
+    // 处理建筑拖拽结束
+    handleBuildingDragEnd(data) {
+        const gridPos = this.gridSystem.screenToGrid(data.x, data.y);
+        
+        if (gridPos && this.canPlaceBuilding(gridPos.row, gridPos.col)) {
+            console.log('放置建筑:', this.dragType, '在位置:', gridPos.row, gridPos.col);
+            this.placeBuilding(gridPos.row, gridPos.col);
+        } else {
+            console.log('无法放置建筑');
+            if (this.scene.hud) {
+                this.scene.hud.showMessage('无法在此位置放置建筑', '#ff0000');
+            }
+        }
+    }
+
+    // 处理元素拖拽结束
+    handleElementDragEnd(data) {
+        const gridPos = this.gridSystem.screenToGrid(data.x, data.y);
+        
+        if (gridPos) {
+            const building = this.getBuildingAt(gridPos.row, gridPos.col);
+            if (building && this.canAddElementToBuilding(building, this.dragData)) {
+                console.log('添加元素', this.dragData.name, '到建筑:', building.type);
+                this.addElementToBuilding(building, this.dragData);
+            } else {
+                console.log('无法添加元素到此位置');
+                if (this.scene.hud) {
+                    this.scene.hud.showMessage('无法在此位置添加元素', '#ff0000');
+                }
+            }
+        }
+    }
+
+    // 检查是否是元素类型
+    isElementType(type) {
+        return ['hydrogen', 'oxygen', 'carbon', 'nitrogen'].includes(type);
+    }
+
+    // 检查是否可以将元素添加到建筑
+    canAddElementToBuilding(building, elementData) {
+        // 检查能量是否足够
+        if (this.scene.hud && !this.scene.hud.canAfford(elementData.price)) {
+            return false;
+        }
+        
+        // 回收器：可以设置目标物质
+        if (building.type === 'recycler') {
+            return !building.targetSubstance; // 只有未设置目标时才能添加
+        }
+        
+        // 反应器：可以添加元素
+        if (building.type === 'reactor') {
+            return building.elements.length < building.maxElements;
+        }
+        
+        return false;
+    }
+
+    // 将元素添加到建筑
+    addElementToBuilding(building, elementData) {
+        try {
+            // 消耗能量
+            if (this.scene.hud && !this.scene.hud.spendEnergy(elementData.price)) {
+                if (this.scene.hud) {
+                    this.scene.hud.showMessage('能量不足！', '#ff0000');
+                }
+                return;
+            }
+            
+            if (building.type === 'recycler') {
+                // 设置回收器的目标物质
+                building.setTargetSubstance(elementData.name);
+                console.log('回收器目标设置为:', elementData.name);
+                
+                if (this.scene.hud) {
+                    this.scene.hud.showMessage(`回收器目标设置为${elementData.name}！(-${elementData.price}⚡)`, '#4ecdc4');
+                }
+            } else if (building.type === 'reactor') {
+                // 添加元素到反应器
+                building.addElement(elementData.symbol);
+                console.log('反应器添加元素:', elementData.symbol);
+                
+                if (this.scene.hud) {
+                    this.scene.hud.showMessage(`反应器添加${elementData.name}！(-${elementData.price}⚡)`, '#4ecdc4');
+                }
+            }
+        } catch (error) {
+            console.error('添加元素到建筑时出错:', error);
+            // 如果出错，退还能量
+            if (this.scene.hud) {
+                this.scene.hud.addEnergy(elementData.price);
+            }
+        }
+    }
+
+    // 显示建筑高亮
+    showBuildingHighlight(row, col, canAdd) {
+        // 复用网格预览逻辑
+        this.showGridPreview(row, col, canAdd);
+    }
+
     // 检查是否是建筑类型
     isBuildingType(type) {
         return type === 'recycler' || type === 'reactor';
