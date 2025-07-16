@@ -48,23 +48,17 @@ export class Building {
         this.background = this.scene.add.rectangle(0, 0, size, size, this.getColor(), 0.8);
         this.background.setStrokeStyle(2, 0xffffff);
         
-        // 建筑图标
-        this.icon = this.scene.add.text(0, -5, this.getIcon(), {
+        // 建筑图标 - 增大字体占满网格
+        const iconSize = Math.max(size * 0.6, 32); // 图标大小为网格的60%，最小32px
+        this.icon = this.scene.add.text(0, 0, this.getIcon(), {
             fontFamily: 'Arial Bold',
-            fontSize: '24px',
+            fontSize: `${iconSize}px`,
             color: '#ffffff',
             resolution: 2
         }).setOrigin(0.5);
         
-        // 建筑名称
-        this.nameText = this.scene.add.text(0, 15, this.getName(), {
-            fontFamily: 'Arial',
-            fontSize: '10px',
-            color: '#ffffff',
-            resolution: 2
-        }).setOrigin(0.5);
-        
-        this.container.add([this.background, this.icon, this.nameText]);
+        // 不再添加建筑名称文字
+        this.container.add([this.background, this.icon]);
     }
     
     createHealthBar() {
@@ -217,8 +211,10 @@ export class Recycler extends Building {
     }
     
     updateDisplay() {
-        if (this.targetSubstance) {
-            this.nameText.setText(`回收器\n${this.targetSubstance}`);
+        // 不再显示文字信息，可以考虑通过图标颜色或其他方式显示状态
+        // 例如：如果设置了目标物质，可以改变图标颜色
+        if (this.targetSubstance && this.icon) {
+            this.icon.setTint(0x00ff00); // 绿色表示已设置目标
         }
     }
     
@@ -283,8 +279,17 @@ export class Reactor extends Building {
     }
     
     updateDisplay() {
-        const elementStr = this.elements.join('+');
-        this.nameText.setText(`反应器\n${elementStr || '空'}`);
+        // 不再显示文字信息，可以考虑通过图标效果显示状态
+        // 例如：根据存储的元素数量改变图标颜色
+        if (this.icon) {
+            if (this.elements.length === 0) {
+                this.icon.clearTint(); // 无元素时恢复原色
+            } else {
+                const intensity = this.elements.length / this.maxElements;
+                const tint = Math.floor(255 * intensity);
+                this.icon.setTint((tint << 16) | (tint << 8) | 255); // 蓝色渐变
+            }
+        }
     }
     
     // 尝试反应
