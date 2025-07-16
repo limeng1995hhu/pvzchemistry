@@ -19,10 +19,10 @@ export class MainMenu extends Scene
         // 设置深蓝色背景
         this.cameras.main.setBackgroundColor(0x1a1a2e);
 
-        // 游戏标题 "Digit Shoot"
+        // 游戏标题 "Elemental Shoot（元素射击）"
         const titleFontSize = Math.min(screenWidth, screenHeight) * 0.12; // 更大的标题字体
         
-        const titleText = this.add.text(centerX, centerY - screenHeight * 0.1, 'Digit Shoot', {
+        const titleText = this.add.text(centerX, centerY - screenHeight * 0.1, 'Elemental Shoot', {
             fontFamily: 'Arial Black', 
             fontSize: titleFontSize, 
             color: '#ffffff',
@@ -71,7 +71,7 @@ export class MainMenu extends Scene
         // 重新定位和缩放所有元素
         this.children.list.forEach(child => {
             if (child.type === 'Text') {
-                if (child.text === 'Digit Shoot') {
+                if (child.text === 'Elemental Shoot') {
                     // 标题文字
                     child.setPosition(centerX, centerY - gameSize.height * 0.1);
                     const titleFontSize = Math.min(gameSize.width, gameSize.height) * 0.12;
