@@ -1,8 +1,8 @@
-# Phaser Vue Template
+# Elemental Shoot (元素射击)
 
-This is a Phaser 3 project template that uses the Vue framework and Vite for bundling. It includes a bridge for Vue to Phaser game communication, hot-reloading for quick development workflow and scripts to generate production-ready builds.
+一款结合化学知识的塔防策略游戏，玩家通过放置回收器和反应器，利用真实化学反应来防御和转化敌人，在娱乐中学习化学知识。
 
-**[This Template is also available as a TypeScript version.](https://github.com/phaserjs/template-vue-ts)**
+基于 Phaser 3 + Vue 3 + Vite 开发的教育游戏项目。
 
 ### Versions
 
@@ -13,6 +13,18 @@ This template has been updated for:
 - [Vite 6.3.1](https://github.com/vitejs/vite)
 
 ![screenshot](screenshot.png)
+
+## 🎮 游戏特色
+
+- **真实化学反应系统**：基于实际化学方程式的游戏机制
+- **三态分路设计**：气态、液态、固态敌人分别在不同路径移动  
+- **双重策略系统**：防御性回收 + 转化性反应
+- **教育娱乐融合**：在游戏中自然学习化学知识
+
+## 📚 项目文档
+
+- [项目设计文档](PROJECT_DESIGN.md) - 完整的游戏设计规范和技术架构
+- [开发任务清单](DEVELOPMENT_TODO.md) - 详细的开发计划和进度跟踪
 
 ## Requirements
 
