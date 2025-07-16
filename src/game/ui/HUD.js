@@ -183,6 +183,11 @@ export class HUD {
         });
     }
 
+    // 检查是否能负担指定费用
+    canAfford(cost) {
+        return this.currentEnergy >= cost;
+    }
+
     resize(width, height) {
         // 更新HUD位置和尺寸 (新的高度120)
         this.background.setSize(width - 20, 120);

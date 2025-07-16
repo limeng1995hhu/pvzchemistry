@@ -294,6 +294,22 @@ export class GridSystem {
         return true;
     }
     
+    // 检查网格是否被占用
+    isOccupied(row, col) {
+        if (!this.isValidCell(row, col)) return true; // 无效位置视为占用
+        return this.grid[row][col].occupied;
+    }
+    
+    // 网格坐标转屏幕坐标（网格中心点）- 别名方法
+    gridToScreen(row, col) {
+        return this.gridToWorld(row, col);
+    }
+    
+    // 获取网格单元大小
+    get cellSize() {
+        return this.gridSize ? Math.min(this.gridSize.width, this.gridSize.height) : 50;
+    }
+
     // 检查网格是否可以放置建筑
     canPlace(row, col) {
         if (!this.isValidCell(row, col)) return false;

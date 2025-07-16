@@ -3,6 +3,7 @@ import { Scene } from 'phaser';
 import { HUD } from '../ui/HUD';
 import { InventoryPanel } from '../ui/InventoryPanel';
 import { GridSystem } from '../systems/GridSystem';
+import { BuildingPlacementSystem } from '../systems/BuildingPlacementSystem';
 
 export class GamePlay extends Scene
 {
@@ -13,6 +14,7 @@ export class GamePlay extends Scene
 
     create ()
     {
+        console.log('GamePlay - create开始');
         // 获取屏幕尺寸
         const { width, height } = this.cameras.main;
         
@@ -22,15 +24,19 @@ export class GamePlay extends Scene
         // 创建游戏区域（6x12网格）
         this.createGameArea();
         
-        // 创建网格系统
-        this.gridSystem = new GridSystem(this, { rows: 6, cols: 12 });
-        
-        // 设置网格系统布局
+        // 创建网格系统（必须在createGameArea之后）
+        this.gridSystem = new GridSystem(this, this.gameArea, 6, 12);
         this.gridSystem.setLayout(this.gameArea, this.gridSize);
+        
+        // 创建建筑放置系统 - 修复构造函数参数
+        this.buildingPlacementSystem = new BuildingPlacementSystem(this, this.gridSystem, EventBus);
         
         // 创建UI组件
         this.hud = new HUD(this);
         this.inventoryPanel = new InventoryPanel(this);
+        
+        // 移除旧的setReferences调用，因为现在在构造函数中传递了引用
+        // this.buildingPlacementSystem.setReferences(this.gridSystem, this.hud);
         
         // 设置网格事件监听
         this.setupGridEventHandlers();
@@ -47,6 +53,14 @@ export class GamePlay extends Scene
         });
 
         EventBus.emit('current-scene-ready', this);
+        console.log('GamePlay - create完成');
+    }
+    
+    update(time, delta) {
+        // 更新建筑放置系统
+        if (this.buildingPlacementSystem) {
+            this.buildingPlacementSystem.update(time, delta);
+        }
     }
 
     createGameArea()
@@ -169,6 +183,11 @@ export class GamePlay extends Scene
             this.gridSystem.resize(this.gameArea, this.gridSize);
         }
         
+        // 更新建筑放置系统
+        if (this.buildingPlacementSystem) {
+            this.buildingPlacementSystem.resize();
+        }
+        
         // 更新UI组件
         if (this.hud) {
             this.hud.resize(width, height);
@@ -191,6 +210,9 @@ export class GamePlay extends Scene
         }
         if (this.gridSystem) {
             this.gridSystem.destroy();
+        }
+        if (this.buildingPlacementSystem) {
+            this.buildingPlacementSystem.destroy();
         }
         if (this.hud) {
             this.hud.destroy();
