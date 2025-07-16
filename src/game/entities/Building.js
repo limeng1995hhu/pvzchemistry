@@ -338,17 +338,13 @@ export class Reactor extends Building {
             const formulas = this.elements.map(element => this.getChemicalFormula(element));
             const elementStr = formulas.join(' + ');
             this.showElementLabel(elementStr);
-            // 根据存储的元素数量改变图标颜色
-            if (this.icon) {
-                const intensity = this.elements.length / this.maxElements;
-                const tint = Math.floor(255 * intensity);
-                this.icon.setTint((tint << 16) | (tint << 8) | 255); // 蓝色渐变
-            }
+            // 不改变图标颜色，保持原色
         } else {
             this.hideElementLabel();
-            if (this.icon) {
-                this.icon.clearTint(); // 无元素时恢复原色
-            }
+        }
+        // 始终保持图标原色，不应用任何色调变化
+        if (this.icon) {
+            this.icon.clearTint();
         }
     }
     
