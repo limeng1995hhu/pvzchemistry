@@ -119,7 +119,7 @@ export class Building {
     getIcon() {
         switch (this.type) {
             case 'recycler': return '♻';
-            case 'reactor': return '⚗';
+            case 'reactor': return '🔥'; // 改为火焰图标表示加热反应
             default: return '?';
         }
     }
@@ -137,6 +137,22 @@ export class Building {
     setGridPosition(row, col) {
         this.gridRow = row;
         this.gridCol = col;
+    }
+
+    // 将元素名称转换为化学式
+    getChemicalFormula(elementName) {
+        const formulaMap = {
+            '氢气': 'H₂',
+            '氧气': 'O₂', 
+            '碳': 'C',
+            '氮气': 'N₂',
+            // 可以根据需要添加更多元素映射
+            'H₂': 'H₂',
+            'O₂': 'O₂',
+            'C': 'C',
+            'N₂': 'N₂'
+        };
+        return formulaMap[elementName] || elementName;
     }
     
     // 设置世界位置
@@ -240,7 +256,9 @@ export class Recycler extends Building {
     updateDisplay() {
         // 显示目标物质在建筑上方
         if (this.targetSubstance) {
-            this.showElementLabel(this.targetSubstance);
+            // 将元素名称转换为化学式显示
+            const formula = this.getChemicalFormula(this.targetSubstance);
+            this.showElementLabel(formula);
             // 设置图标颜色表示已设置目标
             if (this.icon) {
                 this.icon.setTint(0x00ff00); // 绿色表示已设置目标
@@ -316,7 +334,9 @@ export class Reactor extends Building {
     updateDisplay() {
         // 显示存储的元素在建筑上方
         if (this.elements.length > 0) {
-            const elementStr = this.elements.join(' + ');
+            // 将元素符号转换为化学式显示
+            const formulas = this.elements.map(element => this.getChemicalFormula(element));
+            const elementStr = formulas.join(' + ');
             this.showElementLabel(elementStr);
             // 根据存储的元素数量改变图标颜色
             if (this.icon) {
