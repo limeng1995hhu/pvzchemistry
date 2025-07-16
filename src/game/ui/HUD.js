@@ -13,36 +13,27 @@ export class HUD {
         // 创建HUD容器
         this.container = this.scene.add.container(0, 0);
         
-        // HUD背景
-        this.background = this.scene.add.rectangle(width / 2, 40, width - 20, 60, 0x0f3460, 0.8);
+        // HUD背景 (再增大1.5倍)
+        this.background = this.scene.add.rectangle(width / 2, 105, width - 20, 180, 0x0f3460, 0.8);
         this.background.setStrokeStyle(2, 0x87CEEB);
         this.container.add(this.background);
 
-        // 能量显示
-        this.energyIcon = this.scene.add.text(Math.round(30), Math.round(40), '⚡', {
+        // 能量显示 (再增大1.5倍)
+        this.energyIcon = this.scene.add.text(Math.round(30), Math.round(105), '⚡', {
             fontFamily: 'Arial',
-            fontSize: '24px',
+            fontSize: '72px',
             color: '#e94560',
             resolution: 2 // 强制高分辨率渲染
         }).setOrigin(0, 0.5);
         
-        this.energyText = this.scene.add.text(Math.round(60), Math.round(40), `能量: ${this.currentEnergy}`, {
+        this.energyText = this.scene.add.text(Math.round(110), Math.round(105), `能量: ${this.currentEnergy}`, {
             fontFamily: 'Arial Bold',
-            fontSize: '20px',
+            fontSize: '60px',
             color: '#e94560',
             resolution: 2 // 强制高分辨率渲染
         }).setOrigin(0, 0.5);
 
         this.container.add([this.energyIcon, this.energyText]);
-
-        // 游戏信息显示
-        this.gameInfo = this.scene.add.text(Math.round(width / 2), Math.round(40), 'Lab Defenders', {
-            fontFamily: 'Arial Bold',
-            fontSize: '18px',
-            color: '#ffffff',
-            resolution: 2 // 强制高分辨率渲染
-        }).setOrigin(0.5);
-        this.container.add(this.gameInfo);
 
         // 创建按钮
         this.createButtons();
@@ -52,14 +43,14 @@ export class HUD {
         const { width } = this.scene.cameras.main;
         const buttonStyle = {
             fontFamily: 'Arial',
-            fontSize: '16px',
+            fontSize: '48px', // 再增大1.5倍
             color: '#ffffff',
             backgroundColor: '#16213e',
-            padding: { x: 12, y: 6 }
+            padding: { x: 36, y: 18 } // 相应调整padding
         };
 
-        // 暂停按钮
-        this.pauseButton = this.scene.add.text(width - 280, 40, '⏸ 暂停', buttonStyle)
+        // 暂停按钮 (进一步右移避免重叠)
+        this.pauseButton = this.scene.add.text(width - 520, 105, '⏸ 暂停', buttonStyle)
             .setOrigin(0.5)
             .setInteractive()
             .on('pointerover', () => this.onButtonHover(this.pauseButton))
@@ -67,7 +58,7 @@ export class HUD {
             .on('pointerdown', () => this.togglePause());
 
         // 化学表按钮
-        this.chemicalButton = this.scene.add.text(width - 190, 40, '🧪 化学表', buttonStyle)
+        this.chemicalButton = this.scene.add.text(width - 330, 105, '🧪 化学表', buttonStyle)
             .setOrigin(0.5)
             .setInteractive()
             .on('pointerover', () => this.onButtonHover(this.chemicalButton))
@@ -75,7 +66,7 @@ export class HUD {
             .on('pointerdown', () => this.openChemicalGuide());
 
         // 设置按钮
-        this.settingsButton = this.scene.add.text(width - 100, 40, '⚙ 设置', buttonStyle)
+        this.settingsButton = this.scene.add.text(width - 160, 105, '⚙ 设置', buttonStyle)
             .setOrigin(0.5)
             .setInteractive()
             .on('pointerover', () => this.onButtonHover(this.settingsButton))
@@ -182,14 +173,14 @@ export class HUD {
 
         this.currentMessage = this.scene.add.text(
             this.scene.cameras.main.width / 2, 
-            120, 
+            220, // 调整位置避免与更高的HUD重叠
             text, 
             {
                 fontFamily: 'Arial',
-                fontSize: '16px',
+                fontSize: '48px', // 再增大1.5倍
                 color: color,
                 backgroundColor: '#000000',
-                padding: { x: 15, y: 8 }
+                padding: { x: 45, y: 24 } // 相应调整padding
             }
         ).setOrigin(0.5);
 
@@ -203,16 +194,15 @@ export class HUD {
     }
 
     resize(width, height) {
-        // 更新HUD位置和尺寸
-        this.background.setSize(width - 20, 60);
+        // 更新HUD位置和尺寸 (新的高度180)
+        this.background.setSize(width - 20, 180);
         this.background.x = width / 2;
+        this.background.y = 105;
         
-        this.gameInfo.x = width / 2;
-        
-        // 更新按钮位置
-        this.pauseButton.x = width - 280;
-        this.chemicalButton.x = width - 190;
-        this.settingsButton.x = width - 100;
+        // 更新按钮位置 (进一步右移避免重叠)
+        this.pauseButton.x = width - 520;
+        this.chemicalButton.x = width - 330;
+        this.settingsButton.x = width - 160;
     }
 
     destroy() {
