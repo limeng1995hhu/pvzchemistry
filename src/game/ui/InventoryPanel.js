@@ -24,7 +24,7 @@ export class InventoryPanel {
         const { width, height } = this.scene.cameras.main;
         const buttonY = 70; // 与更高的HUD中心对齐
         const buttonSize = 70; // 增大按钮尺寸
-        const buttonSpacing = 80; // 增加间距适应更大按钮
+        const buttonSpacing = 100; // 进一步增大间距，让道具更清晰分离
         const startX = 320; // 向右移动避免与能量文字重叠
 
         // 定义工具数据
@@ -210,7 +210,7 @@ export class InventoryPanel {
         // 动态添加新工具
         const toolCount = this.tools.size;
         const { width, height } = this.scene.cameras.main;
-        const buttonSpacing = 80; // 增加间距适应更大按钮
+        const buttonSpacing = 100; // 进一步增大间距，让道具更清晰分离
         const startX = 320; // 向右移动避免重叠
         const x = startX + toolCount * buttonSpacing;
         const y = 70; // 与更高的HUD中心对齐
@@ -221,7 +221,7 @@ export class InventoryPanel {
 
     resize(width, height) {
         // 重新定位所有工具按钮到顶部HUD区域
-        const buttonSpacing = 80; // 增加间距适应更大按钮
+        const buttonSpacing = 100; // 进一步增大间距，让道具更清晰分离
         const startX = 320; // 向右移动避免重叠
         const buttonY = 70; // 与更高的HUD中心对齐
         

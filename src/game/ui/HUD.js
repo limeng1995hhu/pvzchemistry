@@ -49,8 +49,8 @@ export class HUD {
             padding: { x: 24, y: 12 } // 相应调整padding
         };
 
-        // 暂停按钮
-        this.pauseButton = this.scene.add.text(width - 300, 70, '⏸ 暂停', buttonStyle)
+        // 暂停按钮 (增加间距避免重叠)
+        this.pauseButton = this.scene.add.text(width - 350, 70, '⏸ 暂停', buttonStyle)
             .setOrigin(0.5)
             .setInteractive()
             .on('pointerover', () => this.onButtonHover(this.pauseButton))
@@ -58,7 +58,7 @@ export class HUD {
             .on('pointerdown', () => this.togglePause());
 
         // 化学表按钮
-        this.chemicalButton = this.scene.add.text(width - 160, 70, '🧪 化学表', buttonStyle)
+        this.chemicalButton = this.scene.add.text(width - 180, 70, '🧪 化学表', buttonStyle)
             .setOrigin(0.5)
             .setInteractive()
             .on('pointerover', () => this.onButtonHover(this.chemicalButton))
@@ -187,9 +187,9 @@ export class HUD {
         this.background.x = width / 2;
         this.background.y = 70;
         
-        // 更新按钮位置
-        this.pauseButton.x = width - 300; // 调整位置，因为没有设置按钮了
-        this.chemicalButton.x = width - 160;
+        // 更新按钮位置 (增加间距避免重叠)
+        this.pauseButton.x = width - 350;
+        this.chemicalButton.x = width - 180;
     }
 
     destroy() {
