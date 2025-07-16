@@ -42,7 +42,7 @@ export class InventoryPanel {
             { id: 'nitrogen', symbol: 'N₂', name: '氮气', color: '#90EE90', price: 15 },
             { id: 'recycler', symbol: '♻', name: '回收器', color: '#16213e', price: 10 },
             { id: 'reactor', symbol: '🔥', name: '反应器', color: '#000000', price: 10 },
-            { id: 'shovel', symbol: '🗑', name: '铲子', color: '#8B4513', price: 0 }
+            { id: 'shovel', symbol: '⛏️', name: '铲子', color: '#8B4513', price: 0 }
         ];
 
         // 创建按钮
