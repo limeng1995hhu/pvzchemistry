@@ -13,27 +13,25 @@ export class Game extends Scene
         // 获取屏幕中心点
         const centerX = this.cameras.main.worldView.x + this.cameras.main.width / 2;
         const centerY = this.cameras.main.worldView.y + this.cameras.main.height / 2;
+        const screenWidth = this.cameras.main.width;
+        const screenHeight = this.cameras.main.height;
 
-        this.cameras.main.setBackgroundColor(0x00ff00);
+        // 设置黑色背景
+        this.cameras.main.setBackgroundColor(0x000000);
 
-        // 背景图片适应屏幕尺寸
-        const bg = this.add.image(centerX, centerY, 'background').setAlpha(0.5);
+        // 显示炮台SVG
+        this.cannon = this.add.image(centerX, centerY + screenHeight * 0.2, 'cannon');
         
-        // 根据屏幕尺寸调整背景图片大小
-        const scaleX = this.cameras.main.width / bg.width;
-        const scaleY = this.cameras.main.height / bg.height;
-        const scale = Math.max(scaleX, scaleY); // 使用较大的缩放比例以填充屏幕
-        bg.setScale(scale);
+        // 根据屏幕尺寸调整炮台大小
+        const cannonScale = Math.min(screenWidth * 0.8 / this.cannon.width, screenHeight * 0.6 / this.cannon.height);
+        this.cannon.setScale(cannonScale);
 
-        // 响应式文字大小
-        const fontSize = Math.min(this.cameras.main.width, this.cameras.main.height) * 0.05; // 屏幕尺寸的5%
-        
-        this.add.text(centerX, centerY, 'Make something fun!\nand share it with us:\nsupport@phaser.io', {
-            fontFamily: 'Arial Black', 
+        // 添加一些测试文字（可选，用于调试）
+        const fontSize = Math.min(screenWidth, screenHeight) * 0.04;
+        this.add.text(centerX, screenHeight * 0.1, 'Digit Shoot - Game Page', {
+            fontFamily: 'Arial', 
             fontSize: fontSize, 
             color: '#ffffff',
-            stroke: '#000000', 
-            strokeThickness: Math.max(2, fontSize * 0.1),
             align: 'center'
         }).setOrigin(0.5).setDepth(100);
 
@@ -49,14 +47,19 @@ export class Game extends Scene
         const centerX = gameSize.width / 2;
         const centerY = gameSize.height / 2;
         
-        // 这里可以添加重新定位游戏对象的逻辑
+        // 重新定位炮台
+        if (this.cannon) {
+            this.cannon.setPosition(centerX, centerY + gameSize.height * 0.2);
+            const cannonScale = Math.min(gameSize.width * 0.8 / this.cannon.width, gameSize.height * 0.6 / this.cannon.height);
+            this.cannon.setScale(cannonScale);
+        }
+
+        // 重新定位文字
         this.children.list.forEach(child => {
-            if (child.texture && child.texture.key === 'background') {
-                child.setPosition(centerX, centerY);
-                const scaleX = gameSize.width / child.width;
-                const scaleY = gameSize.height / child.height;
-                const scale = Math.max(scaleX, scaleY);
-                child.setScale(scale);
+            if (child.type === 'Text') {
+                child.setPosition(centerX, gameSize.height * 0.1);
+                const fontSize = Math.min(gameSize.width, gameSize.height) * 0.04;
+                child.setFontSize(fontSize);
             }
         });
     }

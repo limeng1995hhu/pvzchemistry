@@ -3,8 +3,6 @@ import { Scene } from 'phaser';
 
 export class MainMenu extends Scene
 {
-    logoTween;
-
     constructor ()
     {
         super('MainMenu');
@@ -18,29 +16,45 @@ export class MainMenu extends Scene
         const screenWidth = this.cameras.main.width;
         const screenHeight = this.cameras.main.height;
 
-        // 背景图片适应屏幕尺寸
-        const bg = this.add.image(centerX, centerY, 'background');
-        const scaleX = screenWidth / bg.width;
-        const scaleY = screenHeight / bg.height;
-        const scale = Math.max(scaleX, scaleY);
-        bg.setScale(scale);
+        // 设置深蓝色背景
+        this.cameras.main.setBackgroundColor(0x1a1a2e);
 
-        // 响应式logo定位和大小
-        this.logo = this.add.image(centerX, centerY * 0.6, 'logo').setDepth(100);
-        const logoScale = Math.min(screenWidth, screenHeight) * 0.0008; // 根据屏幕尺寸调整logo大小
-        this.logo.setScale(logoScale);
-
-        // 响应式文字大小
-        const fontSize = Math.min(screenWidth, screenHeight) * 0.06;
+        // 游戏标题 "Digit Shoot"
+        const titleFontSize = Math.min(screenWidth, screenHeight) * 0.12; // 更大的标题字体
         
-        this.add.text(centerX, centerY * 1.2, 'Main Menu', {
+        const titleText = this.add.text(centerX, centerY - screenHeight * 0.1, 'Digit Shoot', {
             fontFamily: 'Arial Black', 
-            fontSize: fontSize, 
+            fontSize: titleFontSize, 
             color: '#ffffff',
-            stroke: '#000000', 
-            strokeThickness: Math.max(2, fontSize * 0.1),
+            stroke: '#0f3460', 
+            strokeThickness: Math.max(4, titleFontSize * 0.08),
             align: 'center'
-        }).setDepth(100).setOrigin(0.5);
+        }).setOrigin(0.5).setDepth(100);
+
+        // 点击提示文字
+        const promptFontSize = Math.min(screenWidth, screenHeight) * 0.04;
+        
+        const promptText = this.add.text(centerX, centerY + screenHeight * 0.15, '点击任意位置进入游戏', {
+            fontFamily: 'Arial', 
+            fontSize: promptFontSize, 
+            color: '#cccccc',
+            align: 'center'
+        }).setOrigin(0.5).setDepth(100);
+
+        // 添加点击提示的闪烁效果
+        this.tweens.add({
+            targets: promptText,
+            alpha: { from: 1, to: 0.3 },
+            duration: 1000,
+            yoyo: true,
+            repeat: -1,
+            ease: 'Sine.easeInOut'
+        });
+
+        // 设置点击事件监听
+        this.input.on('pointerdown', () => {
+            this.changeScene();
+        });
 
         // 监听屏幕尺寸变化
         this.scale.on('resize', this.handleResize, this);
@@ -56,70 +70,25 @@ export class MainMenu extends Scene
         
         // 重新定位和缩放所有元素
         this.children.list.forEach(child => {
-            if (child.texture) {
-                if (child.texture.key === 'background') {
-                    child.setPosition(centerX, centerY);
-                    const scaleX = gameSize.width / child.width;
-                    const scaleY = gameSize.height / child.height;
-                    const scale = Math.max(scaleX, scaleY);
-                    child.setScale(scale);
-                } else if (child.texture.key === 'logo') {
-                    child.setPosition(centerX, centerY * 0.6);
-                    const logoScale = Math.min(gameSize.width, gameSize.height) * 0.0008;
-                    child.setScale(logoScale);
+            if (child.type === 'Text') {
+                if (child.text === 'Digit Shoot') {
+                    // 标题文字
+                    child.setPosition(centerX, centerY - gameSize.height * 0.1);
+                    const titleFontSize = Math.min(gameSize.width, gameSize.height) * 0.12;
+                    child.setFontSize(titleFontSize);
+                    child.setStroke('#0f3460', Math.max(4, titleFontSize * 0.08));
+                } else {
+                    // 提示文字
+                    child.setPosition(centerX, centerY + gameSize.height * 0.15);
+                    const promptFontSize = Math.min(gameSize.width, gameSize.height) * 0.04;
+                    child.setFontSize(promptFontSize);
                 }
-            } else if (child.type === 'Text') {
-                child.setPosition(centerX, centerY * 1.2);
-                const fontSize = Math.min(gameSize.width, gameSize.height) * 0.06;
-                child.setFontSize(fontSize);
-                child.setStroke('#000000', Math.max(2, fontSize * 0.1));
             }
         });
     }
 
     changeScene ()
     {
-        if (this.logoTween)
-        {
-            this.logoTween.stop();
-            this.logoTween = null;
-        }
-
         this.scene.start('Game');
-    }
-
-    moveLogo (vueCallback)
-    {
-        if (this.logoTween)
-        {
-            if (this.logoTween.isPlaying())
-            {
-                this.logoTween.pause();
-            }
-            else
-            {
-                this.logoTween.play();
-            }
-        }
-        else
-        {
-            // 响应式动画目标位置
-            const screenWidth = this.cameras.main.width;
-            const screenHeight = this.cameras.main.height;
-            
-            this.logoTween = this.tweens.add({
-                targets: this.logo,
-                x: { value: screenWidth * 0.75, duration: 3000, ease: 'Back.easeInOut' },
-                y: { value: screenHeight * 0.1, duration: 1500, ease: 'Sine.easeOut' },
-                yoyo: true,
-                repeat: -1,
-                onUpdate: () => {
-                    vueCallback({
-                        x: Math.floor(this.logo.x),
-                        y: Math.floor(this.logo.y)
-                    });
-                }
-            });
-        }
     }
 }
