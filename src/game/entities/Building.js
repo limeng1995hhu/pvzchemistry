@@ -24,6 +24,8 @@ export class Building {
     }
     
     create() {
+        console.log('创建建筑:', this.type, 'at', this.x, this.y);
+        
         // 创建建筑容器
         this.container = this.scene.add.container(this.x, this.y);
         

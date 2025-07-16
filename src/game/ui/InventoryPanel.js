@@ -2,7 +2,6 @@ import { EventBus } from '../EventBus';
 
 export class InventoryPanel {
     constructor(scene) {
-        console.log('InventoryPanel - 构造函数开始');
         this.scene = scene;
         this.selectedTool = null;
         this.tools = new Map();
@@ -13,11 +12,9 @@ export class InventoryPanel {
         this.dragContainer = null;
         
         this.create();
-        console.log('InventoryPanel - 构造完成');
     }
 
     create() {
-        console.log('InventoryPanel - create开始');
         const { width, height } = this.scene.cameras.main;
         
         // 创建道具栏容器
@@ -28,7 +25,6 @@ export class InventoryPanel {
         
         // 创建选中指示器
         this.createSelectionIndicator();
-        console.log('InventoryPanel - create完成');
     }
 
     createToolButtons() {
@@ -57,7 +53,6 @@ export class InventoryPanel {
     }
 
     createToolButton(x, y, size, toolData) {
-        console.log('创建工具按钮:', toolData.name, 'at', x, y);
         // 按钮容器
         const buttonContainer = this.scene.add.container(x, y);
 
@@ -67,7 +62,6 @@ export class InventoryPanel {
         
         // 设置交互和拖拽
         background.setInteractive({ draggable: true });
-        console.log('按钮交互设置完成:', toolData.name);
 
         // 按钮符号 (增大图标)
         const symbol = this.scene.add.text(0, -8, toolData.symbol, {
@@ -95,9 +89,8 @@ export class InventoryPanel {
 
         buttonContainer.add([background, symbol, name, price]);
 
-        // 悬停效果 (移除提示文字，保留视觉效果)
+        // 悬停效果
         background.on('pointerover', () => {
-            console.log('按钮悬停:', toolData.name);
             background.setAlpha(1.0);
             buttonContainer.setScale(1.1);
         });
@@ -109,7 +102,6 @@ export class InventoryPanel {
 
         // 点击事件（点击选择）
         background.on('pointerdown', (pointer) => {
-            console.log('按钮点击:', toolData.name, '按钮:', pointer.button);
             if (pointer.button === 0) { // 左键点击
                 this.selectTool(toolData.id);
             }
@@ -117,22 +109,20 @@ export class InventoryPanel {
         
         // 拖拽事件
         background.on('dragstart', (pointer, dragX, dragY) => {
-            console.log('拖拽开始事件触发:', toolData.name, 'pointer位置:', pointer.x, pointer.y);
+            console.log('=== 拖拽开始 ===', toolData.name);
             this.startDrag(toolData, pointer.x, pointer.y);
         });
         
         background.on('drag', (pointer, dragX, dragY) => {
-            console.log('拖拽移动事件:', pointer.x, pointer.y);
             this.updateDrag(pointer.x, pointer.y);
         });
         
         background.on('dragend', (pointer) => {
-            console.log('拖拽结束事件触发:', pointer.x, pointer.y);
+            console.log('=== 拖拽结束 ===', toolData.name);
             this.endDrag(pointer.x, pointer.y);
         });
 
         this.container.add(buttonContainer);
-        console.log('工具按钮创建完成:', toolData.name);
         return { container: buttonContainer, background, symbol, name, price };
     }
 
@@ -159,15 +149,10 @@ export class InventoryPanel {
         this.selectedTool = toolId;
         this.updateSelectionIndicator(tool);
         
-        // 播放选择音效（如果有的话）
-        // this.scene.sound.play('select');
-        
         // 显示选择消息（不显示扣除能量）
         if (this.scene.hud) {
             this.scene.hud.showMessage(`已选择: ${tool.name}`, '#4ecdc4');
         }
-
-        console.log('选择道具:', tool.name, '需要能量:', tool.price);
     }
 
     updateSelectionIndicator(tool) {
@@ -281,8 +266,6 @@ export class InventoryPanel {
     }
 
     createDragPreview(x, y) {
-        console.log('创建拖拽预览 at:', x, y, '类型:', this.dragData.id);
-        
         // 创建预览容器
         this.dragContainer = this.scene.add.container(x, y);
         this.dragContainer.setDepth(1000); // 确保在最上层
@@ -320,8 +303,6 @@ export class InventoryPanel {
         }).setOrigin(0.5);
         
         this.dragContainer.add([background, text, name, price]);
-        
-        console.log('拖拽预览创建完成');
     }
     
     // 更新拖拽预览位置
@@ -341,11 +322,10 @@ export class InventoryPanel {
 
     // 开始拖拽
     startDrag(toolData, x, y) {
-        console.log('InventoryPanel - 开始拖拽工具:', toolData.name, 'at', x, y);
+        console.log('开始拖拽:', toolData.name);
         
         // 检查能量是否足够（但不扣除）
         if (this.scene.hud && !this.scene.hud.canAfford(toolData.price)) {
-            console.log('能量不足，无法拖拽');
             if (this.scene.hud) {
                 this.scene.hud.showMessage('能量不足！', '#ff0000');
             }
@@ -359,7 +339,6 @@ export class InventoryPanel {
         // 创建跟随鼠标的拖拽预览
         this.createDragPreview(x, y);
         
-        console.log('发送drag-start事件');
         // 发送拖拽开始事件
         EventBus.emit('drag-start', {
             type: toolData.id,
@@ -367,12 +346,11 @@ export class InventoryPanel {
             x: x,
             y: y
         });
+        console.log('已发送drag-start事件');
     }
     
     // 更新拖拽
     updateDrag(x, y) {
-        console.log('InventoryPanel - 更新拖拽位置:', x, y);
-        
         // 更新拖拽预览位置
         this.updateDragPreview(x, y);
         
@@ -385,7 +363,7 @@ export class InventoryPanel {
     
     // 结束拖拽
     endDrag(x, y) {
-        console.log('InventoryPanel - 结束拖拽 at:', x, y);
+        console.log('结束拖拽 at:', x, y);
         
         // 清理拖拽预览
         this.cleanupDragPreview();
