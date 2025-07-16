@@ -89,6 +89,6 @@ export class MainMenu extends Scene
 
     changeScene ()
     {
-        this.scene.start('Game');
+        this.scene.start('GamePlay');
     }
 }
