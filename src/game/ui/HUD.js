@@ -19,25 +19,28 @@ export class HUD {
         this.container.add(this.background);
 
         // 能量显示
-        this.energyIcon = this.scene.add.text(30, 40, '⚡', {
+        this.energyIcon = this.scene.add.text(Math.round(30), Math.round(40), '⚡', {
             fontFamily: 'Arial',
             fontSize: '24px',
-            color: '#e94560'
+            color: '#e94560',
+            resolution: 2 // 强制高分辨率渲染
         }).setOrigin(0, 0.5);
         
-        this.energyText = this.scene.add.text(60, 40, `能量: ${this.currentEnergy}`, {
+        this.energyText = this.scene.add.text(Math.round(60), Math.round(40), `能量: ${this.currentEnergy}`, {
             fontFamily: 'Arial Bold',
             fontSize: '20px',
-            color: '#e94560'
+            color: '#e94560',
+            resolution: 2 // 强制高分辨率渲染
         }).setOrigin(0, 0.5);
 
         this.container.add([this.energyIcon, this.energyText]);
 
         // 游戏信息显示
-        this.gameInfo = this.scene.add.text(width / 2, 40, 'Elemental Shoot', {
+        this.gameInfo = this.scene.add.text(Math.round(width / 2), Math.round(40), 'Lab Defenders', {
             fontFamily: 'Arial Bold',
             fontSize: '18px',
-            color: '#ffffff'
+            color: '#ffffff',
+            resolution: 2 // 强制高分辨率渲染
         }).setOrigin(0.5);
         this.container.add(this.gameInfo);
 

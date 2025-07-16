@@ -97,23 +97,24 @@ export class GamePlay extends Scene
             fontFamily: 'Arial',
             fontSize: '14px',
             color: '#ffffff',
-            alpha: 0.8
+            alpha: 0.8,
+            resolution: 2 // 强制高分辨率渲染
         };
 
         // 计算左侧标识文字的x坐标（在左侧留白区域的中心）
-        const labelX = this.gameArea.x / 2;
+        const labelX = Math.round(this.gameArea.x / 2);
 
         // 气态路径标识 (第1-2行)
-        this.add.text(labelX, this.gameArea.y + this.gridSize.height * 0.5, '气态', labelStyle).setOrigin(0.5);
-        this.add.text(labelX, this.gameArea.y + this.gridSize.height * 1.5, 'Gas', labelStyle).setOrigin(0.5);
+        this.add.text(labelX, Math.round(this.gameArea.y + this.gridSize.height * 0.5), '气态', labelStyle).setOrigin(0.5);
+        this.add.text(labelX, Math.round(this.gameArea.y + this.gridSize.height * 1.5), 'Gas', labelStyle).setOrigin(0.5);
         
         // 液态路径标识 (第3-4行)
-        this.add.text(labelX, this.gameArea.y + this.gridSize.height * 2.5, '液态', labelStyle).setOrigin(0.5);
-        this.add.text(labelX, this.gameArea.y + this.gridSize.height * 3.5, 'Liquid', labelStyle).setOrigin(0.5);
+        this.add.text(labelX, Math.round(this.gameArea.y + this.gridSize.height * 2.5), '液态', labelStyle).setOrigin(0.5);
+        this.add.text(labelX, Math.round(this.gameArea.y + this.gridSize.height * 3.5), 'Liquid', labelStyle).setOrigin(0.5);
         
         // 固态路径标识 (第5-6行)
-        this.add.text(labelX, this.gameArea.y + this.gridSize.height * 4.5, '固态', labelStyle).setOrigin(0.5);
-        this.add.text(labelX, this.gameArea.y + this.gridSize.height * 5.5, 'Solid', labelStyle).setOrigin(0.5);
+        this.add.text(labelX, Math.round(this.gameArea.y + this.gridSize.height * 4.5), '固态', labelStyle).setOrigin(0.5);
+        this.add.text(labelX, Math.round(this.gameArea.y + this.gridSize.height * 5.5), 'Solid', labelStyle).setOrigin(0.5);
 
         // 绘制路径分区背景色
         const graphics = this.add.graphics();

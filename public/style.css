@@ -30,8 +30,7 @@ body {
     display: block;
     margin: 0;
     padding: 0;
-    image-rendering: auto; /* 高分辨率渲染 */
-    image-rendering: -webkit-optimize-contrast;
-    image-rendering: crisp-edges;
-    image-rendering: pixelated;
+    image-rendering: auto; /* 保持自动渲染以获得最佳文字效果 */
+    -webkit-font-smoothing: antialiased; /* 改善文字渲染 */
+    -moz-osx-font-smoothing: grayscale;
 }

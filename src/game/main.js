@@ -18,12 +18,18 @@ const config = {
         mode: Phaser.Scale.RESIZE,
         autoCenter: Phaser.Scale.CENTER_BOTH,
         width: window.innerWidth,
-        height: window.innerHeight
+        height: window.innerHeight,
+        resolution: Math.min(window.devicePixelRatio || 1, 2), // 限制最大分辨率为2x，避免过度渲染
+        zoom: 1 / Math.min(window.devicePixelRatio || 1, 2) // 相应调整缩放
     },
     render: {
         antialias: true,
         pixelArt: false,
-        roundPixels: false
+        roundPixels: true, // 启用像素对齐，提高文字清晰度
+        powerPreference: 'high-performance',
+        transparent: false,
+        clearBeforeRender: true,
+        premultipliedAlpha: false
     },
     scene: [
         Boot,

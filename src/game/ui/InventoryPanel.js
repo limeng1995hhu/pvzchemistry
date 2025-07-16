@@ -13,20 +13,7 @@ export class InventoryPanel {
         // 创建道具栏容器
         this.container = this.scene.add.container(0, 0);
         
-        // 道具栏背景
-        this.background = this.scene.add.rectangle(width / 2, height - 50, width - 20, 80, 0x0f3460, 0.8);
-        this.background.setStrokeStyle(2, 0x87CEEB);
-        this.container.add(this.background);
-
-        // 道具栏标题
-        this.titleText = this.scene.add.text(50, height - 80, '道具栏:', {
-            fontFamily: 'Arial Bold',
-            fontSize: '16px',
-            color: '#ffffff'
-        });
-        this.container.add(this.titleText);
-
-        // 创建工具按钮
+        // 不再需要道具栏背景和标题，直接创建工具按钮
         this.createToolButtons();
         
         // 创建选中指示器
@@ -35,10 +22,10 @@ export class InventoryPanel {
 
     createToolButtons() {
         const { width, height } = this.scene.cameras.main;
-        const buttonY = height - 40;
-        const buttonSize = 60;
-        const buttonSpacing = 80;
-        const startX = 100;
+        const buttonY = 40; // 移到顶部HUD区域
+        const buttonSize = 50; // 缩小按钮尺寸
+        const buttonSpacing = 60; // 减小间距
+        const startX = 200; // 在能量值右边开始
 
         // 定义工具数据
         const toolsData = [
@@ -68,24 +55,27 @@ export class InventoryPanel {
         background.setInteractive();
 
         // 按钮符号
-        const symbol = this.scene.add.text(0, -8, toolData.symbol, {
+        const symbol = this.scene.add.text(0, -6, toolData.symbol, {
             fontFamily: 'Arial Bold',
-            fontSize: '24px',
-            color: '#ffffff'
+            fontSize: '20px', // 略微缩小字体
+            color: '#ffffff',
+            resolution: 2 // 强制高分辨率渲染
         }).setOrigin(0.5);
 
         // 按钮名称
-        const name = this.scene.add.text(0, 12, toolData.name, {
+        const name = this.scene.add.text(0, 10, toolData.name, {
             fontFamily: 'Arial',
-            fontSize: '10px',
-            color: '#ffffff'
+            fontSize: '9px', // 缩小字体
+            color: '#ffffff',
+            resolution: 2 // 强制高分辨率渲染
         }).setOrigin(0.5);
 
         // 价格显示
-        const price = this.scene.add.text(0, 25, `${toolData.price}⚡`, {
+        const price = this.scene.add.text(0, 20, `${toolData.price}⚡`, {
             fontFamily: 'Arial',
-            fontSize: '8px',
-            color: '#e94560'
+            fontSize: '7px',
+            color: '#e94560',
+            resolution: 2 // 强制高分辨率渲染
         }).setOrigin(0.5);
 
         buttonContainer.add([background, symbol, name, price]);
@@ -220,27 +210,20 @@ export class InventoryPanel {
         // 动态添加新工具
         const toolCount = this.tools.size;
         const { width, height } = this.scene.cameras.main;
-        const buttonSpacing = 80;
-        const startX = 100;
+        const buttonSpacing = 60;
+        const startX = 200;
         const x = startX + toolCount * buttonSpacing;
-        const y = height - 40;
+        const y = 40;
         
-        const button = this.createToolButton(x, y, 60, toolData);
+        const button = this.createToolButton(x, y, 50, toolData);
         this.tools.set(toolData.id, { ...toolData, button, x, y });
     }
 
     resize(width, height) {
-        // 更新道具栏位置和尺寸
-        this.background.setSize(width - 20, 80);
-        this.background.x = width / 2;
-        this.background.y = height - 50;
-        
-        this.titleText.y = height - 80;
-
-        // 重新定位所有工具按钮
-        const buttonSpacing = 80;
-        const startX = 100;
-        const buttonY = height - 40;
+        // 重新定位所有工具按钮到顶部HUD区域
+        const buttonSpacing = 60;
+        const startX = 200;
+        const buttonY = 40;
         
         let index = 0;
         this.tools.forEach((tool) => {
