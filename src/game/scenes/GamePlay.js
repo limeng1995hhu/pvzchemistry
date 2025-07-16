@@ -2,6 +2,7 @@ import { EventBus } from '../EventBus';
 import { Scene } from 'phaser';
 import { HUD } from '../ui/HUD';
 import { InventoryPanel } from '../ui/InventoryPanel';
+import { GridSystem } from '../systems/GridSystem';
 
 export class GamePlay extends Scene
 {
@@ -21,9 +22,18 @@ export class GamePlay extends Scene
         // 创建游戏区域（6x12网格）
         this.createGameArea();
         
+        // 创建网格系统
+        this.gridSystem = new GridSystem(this, { rows: 6, cols: 12 });
+        
+        // 设置网格系统布局
+        this.gridSystem.setLayout(this.gameArea, this.gridSize);
+        
         // 创建UI组件
         this.hud = new HUD(this);
         this.inventoryPanel = new InventoryPanel(this);
+        
+        // 设置网格事件监听
+        this.setupGridEventHandlers();
 
         // 监听屏幕尺寸变化
         this.scale.on('resize', this.handleResize, this);
@@ -60,35 +70,31 @@ export class GamePlay extends Scene
             height: this.gameArea.height / this.gameArea.rows
         };
 
-        // 绘制网格背景
-        this.drawGrid();
-        
         // 绘制路径分区标识
         this.drawLaneIndicators();
     }
 
-    drawGrid()
+    setupGridEventHandlers()
     {
-        const graphics = this.add.graphics();
+        // 监听网格点击事件
+        EventBus.on('grid-cell-clicked', (data) => {
+            console.log('网格被点击:', `行 ${data.row}, 列 ${data.col}`, data.cell);
+            
+            // 这里可以添加点击网格后的逻辑
+            // 例如：放置建筑、显示信息等
+        });
         
-        // 设置网格线样式
-        graphics.lineStyle(1, 0x0f3460, 0.5);
+        // 监听网格悬停事件
+        EventBus.on('grid-cell-hover', (data) => {
+            // 可以在这里添加悬停时的额外逻辑
+            // 例如：显示工具提示、预览放置效果等
+        });
         
-        // 绘制垂直线
-        for (let col = 0; col <= this.gameArea.cols; col++) {
-            const x = this.gameArea.x + col * this.gridSize.width;
-            graphics.moveTo(x, this.gameArea.y);
-            graphics.lineTo(x, this.gameArea.y + this.gameArea.height);
-        }
-        
-        // 绘制水平线
-        for (let row = 0; row <= this.gameArea.rows; row++) {
-            const y = this.gameArea.y + row * this.gridSize.height;
-            graphics.moveTo(this.gameArea.x, y);
-            graphics.lineTo(this.gameArea.x + this.gameArea.width, y);
-        }
-        
-        graphics.strokePath();
+        // 监听网格选择事件
+        EventBus.on('grid-cell-selected', (data) => {
+            // 可以在这里添加选择网格后的逻辑
+            // 例如：更新UI状态、准备建筑放置等
+        });
     }
 
     drawLaneIndicators()
@@ -158,6 +164,11 @@ export class GamePlay extends Scene
             height: this.gameArea.height / this.gameArea.rows
         };
 
+        // 更新网格系统
+        if (this.gridSystem) {
+            this.gridSystem.resize(this.gameArea, this.gridSize);
+        }
+        
         // 更新UI组件
         if (this.hud) {
             this.hud.resize(width, height);
@@ -178,11 +189,19 @@ export class GamePlay extends Scene
         if (this.energyTimer) {
             this.energyTimer.destroy();
         }
+        if (this.gridSystem) {
+            this.gridSystem.destroy();
+        }
         if (this.hud) {
             this.hud.destroy();
         }
         if (this.inventoryPanel) {
             this.inventoryPanel.destroy();
         }
+        
+        // 清理事件监听器
+        EventBus.off('grid-cell-clicked');
+        EventBus.off('grid-cell-hover');
+        EventBus.off('grid-cell-selected');
     }
 }
