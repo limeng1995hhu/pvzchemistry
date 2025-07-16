@@ -3,6 +3,8 @@ import { Scene } from 'phaser';
 
 export class MainMenu extends Scene
 {
+    logoTween;
+
     constructor ()
     {
         super('MainMenu');
@@ -10,51 +12,68 @@ export class MainMenu extends Scene
 
     create ()
     {
-        // 获取屏幕中心点和尺寸
-        const centerX = this.cameras.main.width / 2;
-        const centerY = this.cameras.main.height / 2;
-        const screenWidth = this.cameras.main.width;
-        const screenHeight = this.cameras.main.height;
+        const { width, height } = this.cameras.main;
 
-        // 设置深蓝色背景
         this.cameras.main.setBackgroundColor(0x1a1a2e);
 
-        // 游戏标题 "Lab Defenders（实验室守卫者）"
-        const titleFontSize = Math.min(screenWidth, screenHeight) * 0.12; // 更大的标题字体
-        
-        const titleText = this.add.text(centerX, centerY - screenHeight * 0.1, 'Lab Defenders', {
-            fontFamily: 'Arial Black', 
-            fontSize: titleFontSize, 
+        // 游戏标题
+        this.add.text(width / 2, height / 2 - 150, 'Lab Defenders', {
+            fontFamily: 'Arial Black',
+            fontSize: 64,
             color: '#ffffff',
-            stroke: '#0f3460', 
-            strokeThickness: Math.max(4, titleFontSize * 0.08),
+            stroke: '#000000',
+            strokeThickness: 8,
             align: 'center'
-        }).setOrigin(0.5).setDepth(100);
+        }).setOrigin(0.5);
 
-        // 点击提示文字
-        const promptFontSize = Math.min(screenWidth, screenHeight) * 0.04;
-        
-        const promptText = this.add.text(centerX, centerY + screenHeight * 0.15, '点击任意位置进入游戏', {
-            fontFamily: 'Arial', 
-            fontSize: promptFontSize, 
-            color: '#cccccc',
-            align: 'center'
-        }).setOrigin(0.5).setDepth(100);
+        // 副标题
+        this.add.text(width / 2, height / 2 - 100, '实验室守卫者', {
+            fontFamily: 'Arial',
+            fontSize: 24,
+            color: '#cccccc'
+        }).setOrigin(0.5);
 
-        // 添加点击提示的闪烁效果
-        this.tweens.add({
-            targets: promptText,
-            alpha: { from: 1, to: 0.3 },
-            duration: 1000,
-            yoyo: true,
-            repeat: -1,
-            ease: 'Sine.easeInOut'
-        });
+        // 按钮样式
+        const buttonStyle = {
+            fontFamily: 'Arial',
+            fontSize: '24px',
+            color: '#ffffff',
+            backgroundColor: '#16213e',
+            padding: { x: 20, y: 10 }
+        };
 
-        // 设置点击事件监听
-        this.input.on('pointerdown', () => {
-            this.changeScene();
-        });
+        // 关卡选择按钮
+        const levelSelectButton = this.add.text(width / 2, height / 2 + 20, '选择关卡', buttonStyle)
+            .setOrigin(0.5)
+            .setInteractive()
+            .on('pointerover', () => {
+                levelSelectButton.setStyle({ backgroundColor: '#e94560' });
+                levelSelectButton.setScale(1.05);
+            })
+            .on('pointerout', () => {
+                levelSelectButton.setStyle({ backgroundColor: '#16213e' });
+                levelSelectButton.setScale(1.0);
+            })
+            .on('pointerdown', () => {
+                this.scene.start('LevelSelect');
+            });
+
+        // 开始游戏按钮（快速开始第一关）
+        const startGameButton = this.add.text(width / 2, height / 2 + 70, '快速开始', buttonStyle)
+            .setOrigin(0.5)
+            .setInteractive()
+            .on('pointerover', () => {
+                startGameButton.setStyle({ backgroundColor: '#e94560' });
+                startGameButton.setScale(1.05);
+            })
+            .on('pointerout', () => {
+                startGameButton.setStyle({ backgroundColor: '#16213e' });
+                startGameButton.setScale(1.0);
+            })
+            .on('pointerdown', () => {
+                // 直接开始第一关
+                this.scene.start('GamePlay', { levelData: { id: 'level_01' } });
+            });
 
         // 监听屏幕尺寸变化
         this.scale.on('resize', this.handleResize, this);
@@ -73,15 +92,20 @@ export class MainMenu extends Scene
             if (child.type === 'Text') {
                 if (child.text === 'Lab Defenders') {
                     // 标题文字
-                    child.setPosition(centerX, centerY - gameSize.height * 0.1);
-                    const titleFontSize = Math.min(gameSize.width, gameSize.height) * 0.12;
-                    child.setFontSize(titleFontSize);
-                    child.setStroke('#0f3460', Math.max(4, titleFontSize * 0.08));
-                } else {
-                    // 提示文字
-                    child.setPosition(centerX, centerY + gameSize.height * 0.15);
-                    const promptFontSize = Math.min(gameSize.width, gameSize.height) * 0.04;
-                    child.setFontSize(promptFontSize);
+                    child.setPosition(centerX, centerY - 150);
+                    const titleFontSize = Math.min(gameSize.width, gameSize.height) * 0.08;
+                    child.setFontSize(Math.max(titleFontSize, 32));
+                } else if (child.text === '实验室守卫者') {
+                    // 副标题
+                    child.setPosition(centerX, centerY - 100);
+                    const subtitleFontSize = Math.min(gameSize.width, gameSize.height) * 0.03;
+                    child.setFontSize(Math.max(subtitleFontSize, 18));
+                } else if (child.text === '选择关卡') {
+                    // 关卡选择按钮
+                    child.setPosition(centerX, centerY + 20);
+                } else if (child.text === '快速开始') {
+                    // 快速开始按钮
+                    child.setPosition(centerX, centerY + 70);
                 }
             }
         });

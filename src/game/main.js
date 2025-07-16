@@ -3,6 +3,7 @@ import { Game } from './scenes/Game';
 import { GamePlay } from './scenes/GamePlay';
 import { GameOver } from './scenes/GameOver';
 import { MainMenu } from './scenes/MainMenu';
+import { LevelSelect } from './scenes/LevelSelect';
 import Phaser from 'phaser';
 import { Preloader } from './scenes/Preloader';
 import { PauseUI } from './scenes/PauseUI';
@@ -20,13 +21,13 @@ const config = {
         autoCenter: Phaser.Scale.CENTER_BOTH,
         width: window.innerWidth,
         height: window.innerHeight,
-        resolution: Math.min(window.devicePixelRatio || 1, 2), // 限制最大分辨率为2x，避免过度渲染
-        zoom: 1 / Math.min(window.devicePixelRatio || 1, 2) // 相应调整缩放
+        resolution: Math.min(window.devicePixelRatio || 1, 2),
+        zoom: 1 / Math.min(window.devicePixelRatio || 1, 2)
     },
     render: {
         antialias: true,
         pixelArt: false,
-        roundPixels: true, // 启用像素对齐，提高文字清晰度
+        roundPixels: true,
         powerPreference: 'high-performance',
         transparent: false,
         clearBeforeRender: true,
@@ -36,6 +37,7 @@ const config = {
         Boot,
         Preloader,
         MainMenu,
+        LevelSelect,
         Game,
         GamePlay,
         PauseUI,
