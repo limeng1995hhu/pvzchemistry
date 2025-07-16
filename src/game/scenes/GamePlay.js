@@ -95,7 +95,7 @@ export class GamePlay extends Scene
     {
         const labelStyle = {
             fontFamily: 'Arial',
-            fontSize: '14px',
+            fontSize: '28px', // 字体大小增加两倍 (14px -> 28px)
             color: '#ffffff',
             alpha: 0.8,
             resolution: 2 // 强制高分辨率渲染
