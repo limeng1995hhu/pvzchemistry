@@ -1,0 +1,9 @@
+id,name,equation,description,reactants,products,energy_cost,energy_gain,difficulty,unlock_level,conditions
+water_synthesis,水的合成,2H + O → H₂O,氢元素与氧元素结合形成水分子,H:2;O:1,H2O:water:liquid:#4169E1:1,0,10,1,1,temperature:normal
+methane_synthesis,甲烷合成,C + 4H → CH₄,碳与氢结合形成甲烷气体,C:1;H:4,CH4:methane:gas:#87CEEB:1,5,15,2,2,temperature:high
+ammonia_synthesis,氨气合成,N + 3H → NH₃,氮与氢在高压下合成氨气,N:1;H:3,NH3:ammonia:gas:#90EE90:1,8,20,3,3,"temperature:high,catalyst:Fe,pressure:high"
+co2_synthesis,二氧化碳合成,C + 2O → CO₂,碳与氧结合形成二氧化碳,C:1;O:2,CO2:carbon_dioxide:gas:#8B4513:1,2,12,1,2,temperature:normal
+nacl_synthesis,氯化钠合成,Na + Cl → NaCl,钠与氯结合形成食盐,Na:1;Cl:1,NaCl:sodium_chloride:solid:#FFFFFF:1,3,18,2,4,temperature:normal
+hydrogen_synthesis,氢气合成,2H → H₂,氢原子结合形成氢气分子,H:2,H2:hydrogen:gas:#87CEEB:1,1,8,1,1,temperature:normal
+oxygen_synthesis,氧气合成,2O → O₂,氧原子结合形成氧气分子,O:2,O2:oxygen:gas:#4169E1:1,1,8,1,1,temperature:normal
+fe2o3_synthesis,氧化铁合成,2Fe + 3O → Fe₂O₃,铁与氧结合形成氧化铁,Fe:2;O:3,Fe2O3:iron_oxide:solid:#B22222:1,10,25,4,5,temperature:high

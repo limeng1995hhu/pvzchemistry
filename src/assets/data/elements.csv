@@ -1,0 +1,10 @@
+symbol,name,name_en,atomic_number,color,price,rarity,description,unlock_level
+H,氢,Hydrogen,1,#87CEEB,5,common,最轻的元素，易燃易爆,1
+O,氧,Oxygen,8,#4169E1,8,common,支持燃烧和呼吸的气体,1
+C,碳,Carbon,6,#8B4513,12,common,有机化合物的基础元素,2
+N,氮,Nitrogen,7,#90EE90,15,uncommon,惰性气体，用于合成氨,3
+Na,钠,Sodium,11,#FFD700,20,uncommon,活泼的金属元素,4
+Cl,氯,Chlorine,17,#32CD32,18,uncommon,有毒的黄绿色气体,4
+Fe,铁,Iron,26,#B22222,25,rare,常见的金属元素,5
+Ca,钙,Calcium,20,#F5F5DC,22,uncommon,骨骼和牙齿的主要成分,5
+S,硫,Sulfur,16,#FFFF00,16,uncommon,黄色的非金属元素,4
