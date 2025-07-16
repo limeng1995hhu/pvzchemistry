@@ -112,17 +112,9 @@ export class Enemy {
     }
     
     createHealthBar() {
-        const barWidth = this.getSize() * 0.8;
-        const barHeight = 4;
-        const barY = this.getSize()/2 + 8;
-        
-        // 血量条背景
-        this.healthBarBg = this.scene.add.rectangle(0, barY, barWidth, barHeight, 0x333333);
-        
-        // 血量条前景
-        this.healthBar = this.scene.add.rectangle(0, barY, barWidth, barHeight, 0x00ff00);
-        
-        this.container.add([this.healthBarBg, this.healthBar]);
+        // 不再创建血条相关对象，实现为空操作
+        this.healthBar = null;
+        this.healthBarBg = null;
     }
     
     // 获取敌人大小
