@@ -721,24 +721,40 @@ export class Reactor extends Building {
     
     // 检查是否可以与敌人反应
     canReactWithEnemy(enemy) {
+        console.log(`🔍 检查反应条件 - 敌人: ${enemy.substance}`);
+
         // 检查冷却时间
         const currentTime = this.scene.time.now;
         if (currentTime - this.lastReactionTime < this.reactionCooldown) {
+            console.log(`❌ 冷却时间未到`);
             return false;
         }
 
         // 检查是否有存储的元素
         if (this.elements.length === 0) {
+            console.log(`❌ 反应器中没有元素`);
             return false;
         }
+        console.log(`✅ 反应器中有元素: ${this.elements.map(e => `${e.elementId}×${e.amount}`).join(', ')}`);
 
         // 检查是否正在反应中
         if (this.isReacting) {
+            console.log(`❌ 反应器正在反应中`);
             return false;
         }
 
+        // 检查能量是否足够（固定消耗20能量）
+        if (this.scene.hud && !this.scene.hud.canAfford(20)) {
+            console.log(`❌ 能量不足，需要20能量`);
+            return false;
+        }
+        console.log(`✅ 能量充足`);
+
         // 检查是否有可用的反应
-        return this.findAvailableReaction(enemy) !== null;
+        const availableReaction = this.findAvailableReaction(enemy);
+        const canReact = availableReaction !== null;
+        console.log(`反应检查结果: ${canReact ? '✅ 可以反应' : '❌ 无可用反应'}`);
+        return canReact;
     }
 
     // 查找可用的反应
@@ -770,49 +786,54 @@ export class Reactor extends Building {
         ];
 
         for (const reaction of reactions) {
-            if (reaction.condition(enemy) && this.hasRequiredReactants(reaction.reactants, enemy)) {
-                console.log(`找到可用反应: ${reaction.id}`);
-                return reaction;
+            console.log(`检查反应 ${reaction.id}: 条件=${reaction.condition(enemy)}`);
+            if (reaction.condition(enemy)) {
+                const hasReactants = this.hasRequiredReactants(reaction.reactants, enemy);
+                console.log(`反应 ${reaction.id}: 反应物检查=${hasReactants}`);
+                if (hasReactants) {
+                    console.log(`找到可用反应: ${reaction.id}`);
+                    return reaction;
+                }
             }
         }
 
         return null;
     }
 
-    // 检查是否有所需的反应物（考虑敌人作为反应物）
+    // 检查是否有所需的反应物（检查反应器中的元素和敌人是否能配对反应）
     hasRequiredReactants(reactants, enemy = null) {
-        // 计算可能的反应规模
-        let maxReactionScale = Infinity;
-
-        for (const reactant of reactants) {
-            let availableAmount = 0;
-
-            // 检查反应器中的元素
-            const element = this.elements.find(e => e.elementId === reactant.elementId);
-            if (element) {
-                availableAmount += element.amount;
-            }
-
-            // 如果敌人的物质与反应物匹配，敌人也可以作为反应物
-            if (enemy && enemy.substance === reactant.elementId) {
-                availableAmount += enemy.substanceAmount;
-            }
-
-            // 计算这个反应物能支持的最大反应规模
-            const possibleScale = Math.floor(availableAmount / reactant.amount);
-            maxReactionScale = Math.min(maxReactionScale, possibleScale);
-
-            console.log(`反应物 ${reactant.elementId}: 需要${reactant.amount}, 可用${availableAmount}, 支持规模${possibleScale}`);
+        if (!enemy) {
+            console.log(`❌ 没有敌人`);
+            return false;
         }
 
-        // 如果最大反应规模大于0，说明可以进行反应
-        const canReact = maxReactionScale > 0;
-        console.log(`反应检查结果: ${canReact}, 最大反应规模: ${maxReactionScale}`);
+        // 检查敌人的物质是否是反应物之一
+        const enemyIsReactant = reactants.some(reactant => reactant.elementId === enemy.substance);
+        if (!enemyIsReactant) {
+            console.log(`❌ 敌人物质 ${enemy.substance} 不是反应物`);
+            return false;
+        }
+        console.log(`✅ 敌人物质 ${enemy.substance} 是反应物`);
 
-        // 将反应规模存储起来供后续使用
-        this.calculatedReactionScale = maxReactionScale;
+        // 检查反应器中是否有至少一种其他反应物
+        const otherReactants = reactants.filter(reactant => reactant.elementId !== enemy.substance);
+        if (otherReactants.length === 0) {
+            // 如果只需要敌人的物质，直接通过
+            console.log(`✅ 反应只需要敌人物质 ${enemy.substance}`);
+            return true;
+        }
 
-        return canReact;
+        // 检查反应器中是否有任意一种其他反应物
+        for (const reactant of otherReactants) {
+            const element = this.elements.find(e => e.elementId === reactant.elementId);
+            if (element && element.amount > 0) {
+                console.log(`✅ 反应器中有反应物: ${reactant.elementId} ×${element.amount}`);
+                return true;
+            }
+        }
+
+        console.log(`❌ 反应器中缺少其他反应物: ${otherReactants.map(r => r.elementId).join(', ')}`);
+        return false;
     }
 
     // 尝试反应
@@ -834,14 +855,13 @@ export class Reactor extends Building {
     executeReaction(reaction, enemy) {
         console.log(`⚗️ 执行反应: ${reaction.id}`);
 
-        // 使用之前计算的反应规模
-        const reactionScale = this.calculatedReactionScale || 1;
-        console.log(`反应规模: ${reactionScale} (基于可用反应物)`);
+        // 根据敌人数量计算反应规模
+        const reactionScale = enemy.substanceAmount;
+        console.log(`反应规模: ${reactionScale} (基于敌人物质数量)`);
 
-        // 计算能量消耗（以10为基数，四舍五入）
-        const baseEnergyCost = 10;
-        const totalEnergyCost = Math.round(baseEnergyCost * reactionScale);
-        console.log(`计算能量消耗: ${baseEnergyCost} × ${reactionScale} = ${totalEnergyCost}`);
+        // 固定能量消耗：每次反应消耗20能量
+        const totalEnergyCost = 20;
+        console.log(`计算能量消耗: 固定消耗 ${totalEnergyCost} 能量`);
 
         // 检查能量是否足够
         if (this.scene.hud && !this.scene.hud.canAfford(totalEnergyCost)) {
@@ -856,31 +876,9 @@ export class Reactor extends Building {
         }
         console.log(`✅ 扣除能量: ${totalEnergyCost}`);
 
-        // 消耗反应物
-        for (const reactant of reaction.reactants) {
-            let remainingToConsume = reactant.amount * reactionScale;
-
-            // 首先尝试从反应器中消耗
-            const element = this.elements.find(e => e.elementId === reactant.elementId);
-            if (element && remainingToConsume > 0) {
-                const consumedFromReactor = Math.min(element.amount, remainingToConsume);
-                this.removeElement(reactant.elementId, consumedFromReactor);
-                remainingToConsume -= consumedFromReactor;
-                console.log(`从反应器消耗 ${reactant.elementId} ×${consumedFromReactor}`);
-            }
-
-            // 如果还需要更多，从敌人那里消耗
-            if (remainingToConsume > 0 && enemy.substance === reactant.elementId) {
-                const consumedFromEnemy = Math.min(enemy.substanceAmount, remainingToConsume);
-                enemy.consumeSubstance(consumedFromEnemy);
-                remainingToConsume -= consumedFromEnemy;
-                console.log(`从敌人消耗 ${reactant.elementId} ×${consumedFromEnemy}`);
-            }
-
-            if (remainingToConsume > 0) {
-                console.error(`⚠️ 反应物消耗不足: ${reactant.elementId} 还需要 ${remainingToConsume}，但这不应该发生`);
-            }
-        }
+        // 不消耗反应器中的物质，只消耗敌人的物质
+        console.log(`消耗敌人物质: ${enemy.substance} ×${enemy.substanceAmount}`);
+        enemy.consumeSubstance(enemy.substanceAmount); // 完全消耗敌人
 
         // 生成产物（新敌人）- 根据反应规模调整产物数量
         for (const product of reaction.products) {
