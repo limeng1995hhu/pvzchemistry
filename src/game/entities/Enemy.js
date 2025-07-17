@@ -19,6 +19,10 @@ export class Enemy {
         this.state = this.chemicalData.state;
         this.health = this.chemicalData.health;
         this.maxHealth = this.health;
+
+        // 物质数量系统
+        this.substanceAmount = this.chemicalData.substanceAmount || 3; // 默认物质数量为3
+        this.maxSubstanceAmount = this.substanceAmount;
         
         // 确定所在路径
         this.lane = this.determineLane(lane);
@@ -99,16 +103,38 @@ export class Enemy {
     }
     
     createFormulaLabel() {
-        // 化学式标签
-        this.formulaLabel = this.scene.add.text(0, -this.getSize()/2 - 20, this.formula, {
-            fontFamily: 'Arial Bold',
-            fontSize: '18px',
-            color: '#ffffff',
-            resolution: 2
-        }).setOrigin(0.5);
-        
-        // 添加到容器
-        this.container.add(this.formulaLabel);
+        // 创建化学式显示（包含系数）
+        if (this.substanceAmount > 1) {
+            // 创建数量标签（粗体）
+            this.amountLabel = this.scene.add.text(-10, -this.getSize()/2 - 20, this.substanceAmount.toString(), {
+                fontFamily: 'Arial Bold',
+                fontSize: '20px',
+                color: '#ffffff',
+                resolution: 2
+            }).setOrigin(1, 0.5); // 右对齐
+
+            // 创建化学式标签（正常字体）
+            this.formulaLabel = this.scene.add.text(-8, -this.getSize()/2 - 20, this.formula, {
+                fontFamily: 'Arial',
+                fontSize: '18px',
+                color: '#ffffff',
+                resolution: 2
+            }).setOrigin(0, 0.5); // 左对齐
+
+            // 添加到容器
+            this.container.add([this.amountLabel, this.formulaLabel]);
+        } else {
+            // 只显示化学式
+            this.formulaLabel = this.scene.add.text(0, -this.getSize()/2 - 20, this.formula, {
+                fontFamily: 'Arial',
+                fontSize: '18px',
+                color: '#ffffff',
+                resolution: 2
+            }).setOrigin(0.5);
+
+            // 添加到容器
+            this.container.add(this.formulaLabel);
+        }
     }
     
     createHealthBar() {
@@ -206,16 +232,69 @@ export class Enemy {
     // 受到伤害
     takeDamage(damage) {
         if (!this.isAlive) return false;
-        
+
         this.health = Math.max(0, this.health - damage);
         this.updateHealthBar();
-        
+
         if (this.health <= 0) {
             this.die();
             return true; // 敌人死亡
         }
-        
+
         return false; // 敌人存活
+    }
+
+    // 消耗物质数量
+    consumeSubstance(amount) {
+        if (!this.isAlive) return 0;
+
+        const actualConsumed = Math.min(amount, this.substanceAmount);
+        this.substanceAmount -= actualConsumed;
+
+        // 更新物质数量显示
+        this.updateAmountDisplay();
+
+        // 如果物质数量归零，敌人消失
+        if (this.substanceAmount <= 0) {
+            console.log(`敌人 ${this.formula} 物质数量归零，消失`);
+            this.die();
+        }
+
+        return actualConsumed;
+    }
+
+    // 更新物质数量显示
+    updateAmountDisplay() {
+        // 先移除旧的标签
+        if (this.amountLabel) {
+            this.amountLabel.destroy();
+            this.amountLabel = null;
+        }
+        if (this.formulaLabel) {
+            this.formulaLabel.destroy();
+            this.formulaLabel = null;
+        }
+
+        // 重新创建标签
+        this.createFormulaLabel();
+
+        // 根据剩余数量改变颜色
+        let color;
+        if (this.substanceAmount <= 1) {
+            color = '#ff8888'; // 浅红色警告
+        } else if (this.substanceAmount <= 2) {
+            color = '#ffaa88'; // 橙色警告
+        } else {
+            color = '#ffffff'; // 正常白色
+        }
+
+        // 应用颜色
+        if (this.amountLabel) {
+            this.amountLabel.setColor(color);
+        }
+        if (this.formulaLabel) {
+            this.formulaLabel.setColor(color);
+        }
     }
     
     // 更新生命值条
@@ -288,11 +367,12 @@ export class Enemy {
         if (this.container) {
             this.container.destroy();
         }
-        
+
         // 清理引用
         this.container = null;
         this.sprite = null;
         this.formulaLabel = null;
+        this.amountLabel = null;
         this.healthBar = null;
         this.scene = null;
     }

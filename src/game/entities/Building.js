@@ -100,7 +100,12 @@ export class Building {
         
         // 点击事件
         this.background.on('pointerdown', () => {
-            this.onClicked();
+            // 根据建筑类型调用不同的点击处理
+            if (this.type === 'recycler') {
+                this.onRecyclerClicked();
+            } else {
+                this.onClicked();
+            }
         });
     }
     
@@ -206,6 +211,54 @@ export class Building {
         console.log(`${this.getName()} 被点击`);
         // 子类可重写此方法
     }
+
+    // 回收器专用点击处理
+    onRecyclerClicked() {
+        console.log('回收器被点击');
+
+        // 如果已设置目标物质，尝试储能
+        if (this.targetSubstance) {
+            const result = this.chargeSubstance();
+
+            if (this.scene.hud) {
+                const color = result.success ? '#4ecdc4' : '#ff0000';
+                this.scene.hud.showMessage(result.message, color);
+            }
+
+            if (result.success) {
+                // 播放储能特效
+                this.playChargeEffect();
+            }
+        } else {
+            if (this.scene.hud) {
+                this.scene.hud.showMessage('请先拖拽元素到回收器设置目标物质', '#ff8800');
+            }
+        }
+    }
+
+    // 储能特效
+    playChargeEffect() {
+        // 蓝色闪光表示储能
+        if (this.icon) {
+            this.icon.setTint(0x0088ff);
+
+            this.scene.time.delayedCall(300, () => {
+                if (this.icon) {
+                    this.icon.setTint(0x00ff00); // 恢复绿色
+                }
+            });
+        }
+
+        // 缩放动画
+        this.scene.tweens.add({
+            targets: this.container,
+            scaleX: 1.1,
+            scaleY: 1.1,
+            duration: 150,
+            yoyo: true,
+            ease: 'Power2'
+        });
+    }
     
     // 更新逻辑（每帧调用）
     update(time, delta) {
@@ -217,9 +270,13 @@ export class Building {
         if (this.container) {
             this.container.destroy();
         }
+
+        // 清理引用
         this.container = null;
         this.sprite = null;
         this.healthBar = null;
+        this.elementLabel = null;
+        this.amountLabel = null;
     }
 
     // 显示元素标签
@@ -242,34 +299,95 @@ export class Building {
 export class Recycler extends Building {
     constructor(scene, x, y, config = {}) {
         super(scene, x, y, 'recycler', config);
-        
+
         // 回收器特有属性
         this.targetSubstance = config.targetSubstance || null;
         this.recycleRate = config.recycleRate || 1;
         this.energyReward = config.energyReward || 10;
+
+        // 物质数量和储能系统
+        this.substanceAmount = 0; // 当前储存的物质数量
+        this.maxSubstanceAmount = 10; // 最大储存量
+        this.energyCostPerCharge = 20; // 每次储能消耗的能量
+
+        // 初始化显示
+        this.updateDisplay();
     }
     
     // 设置目标物质
     setTargetSubstance(substance) {
         this.targetSubstance = substance;
+        // 设置目标物质后，初始化物质数量为1
+        if (this.substanceAmount === 0) {
+            this.substanceAmount = 1;
+        }
         // 更新显示
         this.updateDisplay();
     }
+
+    // 更新元素标签显示（包含物质数量）
+    updateElementLabelWithAmount() {
+        // 移除旧的标签
+        if (this.elementLabel) {
+            this.elementLabel.destroy();
+            this.elementLabel = null;
+        }
+        if (this.amountLabel) {
+            this.amountLabel.destroy();
+            this.amountLabel = null;
+        }
+
+        // 只有设置了目标物质时才显示
+        if (this.targetSubstance) {
+            const formula = this.getChemicalFormula(this.targetSubstance);
+            const color = this.substanceAmount > 0 ? '#00ff00' : '#888888'; // 绿色表示有库存，灰色表示无库存
+
+            if (this.substanceAmount > 1) {
+                // 创建数量标签（粗体）
+                this.amountLabel = this.scene.add.text(-5, -this.config.size/2 - 25, this.substanceAmount.toString(), {
+                    fontFamily: 'Arial Bold',
+                    fontSize: '18px',
+                    color: color,
+                    resolution: 2
+                }).setOrigin(1, 0.5); // 右对齐
+
+                // 创建化学式标签（正常字体）
+                this.elementLabel = this.scene.add.text(-3, -this.config.size/2 - 25, formula, {
+                    fontFamily: 'Arial',
+                    fontSize: '16px',
+                    color: color,
+                    resolution: 2
+                }).setOrigin(0, 0.5); // 左对齐
+
+                this.container.add([this.amountLabel, this.elementLabel]);
+            } else {
+                // 只显示化学式
+                this.elementLabel = this.scene.add.text(0, -this.config.size/2 - 25, formula, {
+                    fontFamily: 'Arial',
+                    fontSize: '16px',
+                    color: color,
+                    resolution: 2
+                }).setOrigin(0.5);
+
+                this.container.add(this.elementLabel);
+            }
+        }
+    }
     
     updateDisplay() {
-        // 显示目标物质在建筑上方
-        if (this.targetSubstance) {
-            // 将元素名称转换为化学式显示
-            const formula = this.getChemicalFormula(this.targetSubstance);
-            this.showElementLabel(formula);
-            // 设置图标颜色表示已设置目标
-            if (this.icon) {
-                this.icon.setTint(0x00ff00); // 绿色表示已设置目标
-            }
-        } else {
-            this.hideElementLabel();
-            if (this.icon) {
-                this.icon.clearTint();
+        // 更新元素标签显示（包含物质数量）
+        this.updateElementLabelWithAmount();
+
+        // 设置图标颜色表示状态
+        if (this.icon) {
+            if (this.targetSubstance) {
+                if (this.substanceAmount > 0) {
+                    this.icon.setTint(0x00ff00); // 绿色表示有库存
+                } else {
+                    this.icon.setTint(0x888888); // 灰色表示无库存
+                }
+            } else {
+                this.icon.clearTint(); // 无目标物质
             }
         }
     }
@@ -286,29 +404,53 @@ export class Recycler extends Building {
 
     // 检查是否可以回收敌人
     canRecycleEnemy(enemy) {
-        // 如果没有设置目标物质，不能回收任何敌人
-        if (!this.targetSubstance) {
-            console.log('回收器未设置目标物质');
+        // 如果没有设置目标物质或物质数量为0，不能回收任何敌人
+        if (!this.targetSubstance || this.substanceAmount <= 0) {
             return false;
         }
 
-        console.log(`回收器检查匹配: 目标=${this.targetSubstance}, 敌人=${enemy.substance}`);
-
         // 精确匹配：回收器目标物质与敌人物质完全相同
         if (this.targetSubstance === enemy.substance) {
-            console.log('精确匹配成功！');
             return true;
         }
 
         // 元素匹配：检查回收器目标是否为敌人的组成元素
         if (enemy.chemicalData && enemy.chemicalData.elements) {
-            const hasElement = enemy.chemicalData.elements.includes(this.targetSubstance);
-            console.log(`元素匹配检查: 敌人元素=${enemy.chemicalData.elements}, 包含目标=${hasElement}`);
-            return hasElement;
+            return enemy.chemicalData.elements.includes(this.targetSubstance);
         }
 
-        console.log('无法匹配');
         return false;
+    }
+
+    // 储能功能 - 增加物质数量
+    chargeSubstance() {
+        // 检查是否已设置目标物质
+        if (!this.targetSubstance) {
+            return { success: false, message: '请先设置目标物质' };
+        }
+
+        // 检查是否已达到最大储存量
+        if (this.substanceAmount >= this.maxSubstanceAmount) {
+            return { success: false, message: '已达到最大储存量' };
+        }
+
+        // 检查能量是否足够
+        if (this.scene.hud && !this.scene.hud.canAfford(this.energyCostPerCharge)) {
+            return { success: false, message: '能量不足' };
+        }
+
+        // 消耗能量并增加物质数量
+        if (this.scene.hud && this.scene.hud.spendEnergy(this.energyCostPerCharge)) {
+            this.substanceAmount++;
+            this.updateDisplay();
+
+            return {
+                success: true,
+                message: `储能成功！物质数量: ${this.substanceAmount}/${this.maxSubstanceAmount}`
+            };
+        }
+
+        return { success: false, message: '储能失败' };
     }
 
     onRecycleSuccess(enemy) {

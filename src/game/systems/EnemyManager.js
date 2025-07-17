@@ -31,7 +31,7 @@ export class EnemyManager {
         
         // 性能优化
         this.maxEnemies = 50; // 最大同时敌人数量
-        this.updateCounter = 0; // 用于分帧更新
+        this.updateCounter = 0; // 用于分帧更新（当敌人数量>30时）
         
         // 暂停状态
         this.isPaused = false;
@@ -195,20 +195,38 @@ export class EnemyManager {
         }
     }
     
-    // 分批更新敌人（性能优化）
+    // 更新所有敌人
     updateEnemiesInBatches(time, delta) {
-        const batchSize = 10; // 每帧最多更新10个敌人
-        const startIndex = (this.updateCounter * batchSize) % this.activeEnemies.length;
-        const endIndex = Math.min(startIndex + batchSize, this.activeEnemies.length);
-        
-        for (let i = startIndex; i < endIndex; i++) {
-            const enemy = this.activeEnemies[i];
-            if (enemy && enemy.isAlive) {
-                enemy.update(time, delta);
+        // 如果敌人数量较少，直接更新所有敌人
+        if (this.activeEnemies.length <= 30) {
+            for (let i = 0; i < this.activeEnemies.length; i++) {
+                const enemy = this.activeEnemies[i];
+                if (enemy && enemy.isAlive) {
+                    enemy.update(time, delta);
+                }
             }
+        } else {
+            // 敌人数量较多时，使用改进的分帧更新
+            const batchSize = 15;
+            const totalEnemies = this.activeEnemies.length;
+
+            // 重置计数器以避免索引越界
+            if (this.updateCounter * batchSize >= totalEnemies) {
+                this.updateCounter = 0;
+            }
+
+            const startIndex = this.updateCounter * batchSize;
+            const endIndex = Math.min(startIndex + batchSize, totalEnemies);
+
+            for (let i = startIndex; i < endIndex; i++) {
+                const enemy = this.activeEnemies[i];
+                if (enemy && enemy.isAlive) {
+                    enemy.update(time, delta);
+                }
+            }
+
+            this.updateCounter++;
         }
-        
-        this.updateCounter++;
     }
     
     // 清理死亡或到达终点的敌人

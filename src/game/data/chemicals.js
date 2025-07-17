@@ -13,6 +13,7 @@ export const ChemicalSubstances = {
         health: 30,
         elements: ['H', 'H'],
         molarMass: 2.016,
+        substanceAmount: 2, // 物质数量
         description: '最轻的气体，易燃易爆'
     },
     
@@ -27,9 +28,10 @@ export const ChemicalSubstances = {
         health: 35,
         elements: ['O', 'O'],
         molarMass: 31.998,
+        substanceAmount: 3,
         description: '支持燃烧的气体'
     },
-    
+
     // 水
     H2O: {
         id: 'H2O',
@@ -41,9 +43,10 @@ export const ChemicalSubstances = {
         health: 50,
         elements: ['H', 'H', 'O'],
         molarMass: 18.015,
+        substanceAmount: 4,
         description: '生命之源'
     },
-    
+
     // 二氧化碳
     CO2: {
         id: 'CO2',
@@ -55,6 +58,7 @@ export const ChemicalSubstances = {
         health: 40,
         elements: ['C', 'O', 'O'],
         molarMass: 44.01,
+        substanceAmount: 3,
         description: '温室气体'
     },
     
@@ -69,9 +73,10 @@ export const ChemicalSubstances = {
         health: 80,
         elements: ['Na', 'Cl'],
         molarMass: 58.44,
+        substanceAmount: 5,
         description: '食盐的主要成分'
     },
-    
+
     // 氢氧化钠
     NaOH: {
         id: 'NaOH',
@@ -83,9 +88,10 @@ export const ChemicalSubstances = {
         health: 70,
         elements: ['Na', 'O', 'H'],
         molarMass: 39.997,
+        substanceAmount: 4,
         description: '强碱，俗称烧碱'
     },
-    
+
     // 氮气
     N2: {
         id: 'N2',
@@ -97,9 +103,10 @@ export const ChemicalSubstances = {
         health: 45,
         elements: ['N', 'N'],
         molarMass: 28.014,
+        substanceAmount: 3,
         description: '惰性气体，占空气78%'
     },
-    
+
     // 甲烷
     CH4: {
         id: 'CH4',
@@ -111,6 +118,7 @@ export const ChemicalSubstances = {
         health: 25,
         elements: ['C', 'H', 'H', 'H', 'H'],
         molarMass: 16.04,
+        substanceAmount: 2,
         description: '天然气的主要成分'
     }
 };

@@ -123,37 +123,49 @@ export class CollisionSystem {
     
     // 处理回收交互
     handleRecycleInteraction(building, enemy) {
-        console.log(`碰撞检测: 回收器(目标=${building.targetSubstance}) vs 敌人(${enemy.substance})`);
-
         if (building.canRecycleEnemy(enemy)) {
-            // 计算能量奖励
-            const energyReward = this.calculateEnergyReward(enemy);
+            // 计算消解的物质数量（两者的最小值）
+            const consumeAmount = Math.min(building.substanceAmount, enemy.substanceAmount);
 
-            // 给予能量奖励
-            if (this.scene.hud) {
-                this.scene.hud.addEnergy(energyReward);
-                this.scene.hud.showMessage(`+${energyReward}⚡ 回收 ${enemy.formula}`, '#4ecdc4');
+            if (consumeAmount <= 0) {
+                return false; // 没有可消解的物质
             }
 
-            // 触发回收成功
-            building.onRecycleSuccess(enemy);
+            // 消解回收器的物质数量
+            building.substanceAmount -= consumeAmount;
+            building.updateDisplay();
 
-            // 移除敌人
-            enemy.die();
+            // 消解敌人的物质数量
+            const actualConsumed = enemy.consumeSubstance(consumeAmount);
+
+            // 计算能量奖励（基于消解的数量）
+            const baseEnergyReward = this.calculateEnergyReward(enemy);
+            const energyReward = Math.floor(baseEnergyReward * actualConsumed / enemy.maxSubstanceAmount);
+
+            // 给予能量奖励
+            if (this.scene.hud && energyReward > 0) {
+                this.scene.hud.addEnergy(energyReward);
+                this.scene.hud.showMessage(`+${energyReward}⚡ 消解 ${enemy.formula} ×${actualConsumed}`, '#4ecdc4');
+            }
+
+            // 触发回收成功特效
+            building.onRecycleSuccess(enemy);
 
             // 发送回收事件
             EventBus.emit('enemy-recycled', {
                 enemyId: enemy.id,
                 substance: enemy.substance,
                 formula: enemy.formula,
+                consumedAmount: actualConsumed,
                 energyReward: energyReward,
                 recyclerPos: { row: building.gridRow, col: building.gridCol }
             });
 
-            console.log(`✅ 回收器成功回收敌人: ${enemy.formula}, 获得 ${energyReward} 能量`);
+            console.log(`✅ 回收器消解敌人: ${enemy.formula} ×${actualConsumed}, 获得 ${energyReward} 能量`);
+            console.log(`   回收器剩余: ×${building.substanceAmount}, 敌人剩余: ×${enemy.substanceAmount}`);
+
             return true;
         }
-        console.log(`❌ 回收器无法回收敌人: ${enemy.formula}`);
         return false;
     }
     
