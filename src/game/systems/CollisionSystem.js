@@ -126,49 +126,25 @@ export class CollisionSystem {
         console.log(`碰撞检测: 回收器(${building.targetSubstance}) vs 敌人(${enemy.substance})`);
 
         if (building.canRecycleEnemy(enemy)) {
-            // 计算消解的物质数量（两者的最小值）
-            const consumeAmount = Math.min(building.substanceAmount, enemy.substanceAmount);
-
-            if (consumeAmount <= 0) {
-                console.log(`❌ 消解失败: 回收器或敌人物质数量为0`);
-                return false; // 没有可消解的物质
-            }
-
             console.log(`🔬 严格匹配成功: ${building.targetSubstance} === ${enemy.substance}`);
-            console.log(`📊 消解数量: ${consumeAmount} (回收器:${building.substanceAmount}, 敌人:${enemy.substanceAmount})`);
 
-            // 消解回收器的物质数量
-            building.substanceAmount -= consumeAmount;
-            building.updateDisplay();
+            // 记录敌人的物质数量，因为回收成功后敌人会被消灭
+            const enemySubstanceAmount = enemy.substanceAmount;
 
-            // 消解敌人的物质数量
-            const actualConsumed = enemy.consumeSubstance(consumeAmount);
-
-            // 计算能量奖励（基于消解的数量）
-            const baseEnergyReward = this.calculateEnergyReward(enemy);
-            const energyReward = Math.floor(baseEnergyReward * actualConsumed / enemy.maxSubstanceAmount);
-
-            // 给予能量奖励
-            if (this.scene.hud && energyReward > 0) {
-                this.scene.hud.addEnergy(energyReward);
-                this.scene.hud.showMessage(`+${energyReward}⚡ 严格消解 ${enemy.formula} ×${actualConsumed}`, '#4ecdc4');
-            }
-
-            // 触发回收成功特效
-            building.onRecycleSuccess(enemy);
+            // 触发回收成功（会直接消灭敌人并给予能量）
+            const actualEnergyReward = building.onRecycleSuccess(enemy);
 
             // 发送回收事件
             EventBus.emit('enemy-recycled', {
                 enemyId: enemy.id,
                 substance: enemy.substance,
                 formula: enemy.formula,
-                consumedAmount: actualConsumed,
-                energyReward: energyReward,
+                substanceAmount: enemySubstanceAmount,
+                energyReward: actualEnergyReward,
                 recyclerPos: { row: building.gridRow, col: building.gridCol }
             });
 
-            console.log(`✅ 严格消解成功: ${enemy.formula} ×${actualConsumed}, 获得 ${energyReward} 能量`);
-            console.log(`   回收器剩余: ×${building.substanceAmount}, 敌人剩余: ×${enemy.substanceAmount}`);
+            console.log(`✅ 回收成功: ${enemy.formula} ×${enemySubstanceAmount}, 获得 ${actualEnergyReward} 能量`);
 
             return true;
         } else {

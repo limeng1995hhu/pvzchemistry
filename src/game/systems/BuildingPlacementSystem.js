@@ -362,7 +362,7 @@ export class BuildingPlacementSystem {
             return false;
         }
 
-        // 回收器：可以设置目标物质
+        // 回收器：可以设置目标物质（只能设置一次）
         if (building.type === 'recycler') {
             const canAdd = !building.targetSubstance;
             console.log('回收器检查结果:', canAdd, '目标物质:', building.targetSubstance);
