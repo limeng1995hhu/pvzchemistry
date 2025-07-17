@@ -682,18 +682,28 @@ export class Reactor extends Building {
         // 创建新的元素显示
         if (this.elements.length > 0) {
             const startY = -this.config.size/2 - 25;
-            const spacing = 20;
+            const spacing = 18; // 稍微减小间距
 
             this.elements.forEach((element, index) => {
                 const y = startY - (index * spacing);
                 const elementName = this.getElementName(element.elementId);
+
+                // 根据元素数量选择颜色
+                let color = '#ff6600'; // 默认橙色
+                if (element.amount >= 3) {
+                    color = '#00ff00'; // 绿色表示充足
+                } else if (element.amount >= 2) {
+                    color = '#ffaa00'; // 黄色表示中等
+                } else {
+                    color = '#ff6600'; // 橙色表示较少
+                }
 
                 if (element.amount > 1) {
                     // 创建数量标签（粗体）
                     const amountLabel = this.scene.add.text(-5, y, element.amount.toString(), {
                         fontFamily: 'Arial Bold',
                         fontSize: '14px',
-                        color: '#ff6600', // 橙色
+                        color: color,
                         resolution: 2
                     }).setOrigin(1, 0.5);
 
@@ -701,7 +711,7 @@ export class Reactor extends Building {
                     const elementLabel = this.scene.add.text(-3, y, elementName, {
                         fontFamily: 'Arial',
                         fontSize: '12px',
-                        color: '#ff6600',
+                        color: color,
                         resolution: 2
                     }).setOrigin(0, 0.5);
 
@@ -712,7 +722,7 @@ export class Reactor extends Building {
                     const elementLabel = this.scene.add.text(0, y, elementName, {
                         fontFamily: 'Arial',
                         fontSize: '12px',
-                        color: '#ff6600',
+                        color: color,
                         resolution: 2
                     }).setOrigin(0.5);
 
@@ -722,12 +732,18 @@ export class Reactor extends Building {
             });
         }
 
-        // 根据存储状态设置图标颜色
+        // 根据存储状态和可反应性设置图标颜色
         if (this.icon) {
             if (this.elements.length > 0) {
-                this.icon.setTint(0xff6600); // 橙色表示有元素
+                // 检查是否有可用反应
+                const hasAvailableReactions = this.getAvailableReactions().length > 0;
+                if (hasAvailableReactions) {
+                    this.icon.setTint(0x00ff00); // 绿色表示可以反应
+                } else {
+                    this.icon.setTint(0xff6600); // 橙色表示有元素但无法反应
+                }
             } else {
-                this.icon.clearTint();
+                this.icon.clearTint(); // 无元素时清除颜色
             }
         }
     }
@@ -797,7 +813,8 @@ export class Reactor extends Building {
         ];
 
         for (const reaction of reactions) {
-            if (reaction.condition(enemy) && this.hasRequiredReactants(reaction.reactants)) {
+            if (reaction.condition(enemy) && this.hasRequiredReactants(reaction.reactants, enemy)) {
+                console.log(`找到可用反应: ${reaction.id}`);
                 return reaction;
             }
         }
@@ -805,11 +822,25 @@ export class Reactor extends Building {
         return null;
     }
 
-    // 检查是否有所需的反应物
-    hasRequiredReactants(reactants) {
+    // 检查是否有所需的反应物（考虑敌人作为反应物）
+    hasRequiredReactants(reactants, enemy = null) {
         for (const reactant of reactants) {
+            let availableAmount = 0;
+
+            // 检查反应器中的元素
             const element = this.elements.find(e => e.elementId === reactant.elementId);
-            if (!element || element.amount < reactant.amount) {
+            if (element) {
+                availableAmount += element.amount;
+            }
+
+            // 如果敌人的物质与反应物匹配，敌人也可以作为反应物
+            if (enemy && enemy.substance === reactant.elementId) {
+                availableAmount += enemy.substanceAmount;
+            }
+
+            // 检查是否有足够的反应物
+            if (availableAmount < reactant.amount) {
+                console.log(`反应物不足: ${reactant.elementId} 需要${reactant.amount} 可用${availableAmount}`);
                 return false;
             }
         }
@@ -837,12 +868,29 @@ export class Reactor extends Building {
 
         // 消耗反应物
         for (const reactant of reaction.reactants) {
-            this.removeElement(reactant.elementId, reactant.amount);
-        }
+            let remainingToConsume = reactant.amount;
 
-        // 消耗敌人（作为反应物之一）
-        const consumedAmount = Math.min(1, enemy.substanceAmount);
-        enemy.consumeSubstance(consumedAmount);
+            // 首先尝试从反应器中消耗
+            const element = this.elements.find(e => e.elementId === reactant.elementId);
+            if (element && remainingToConsume > 0) {
+                const consumedFromReactor = Math.min(element.amount, remainingToConsume);
+                this.removeElement(reactant.elementId, consumedFromReactor);
+                remainingToConsume -= consumedFromReactor;
+                console.log(`从反应器消耗 ${reactant.elementId} ×${consumedFromReactor}`);
+            }
+
+            // 如果还需要更多，从敌人那里消耗
+            if (remainingToConsume > 0 && enemy.substance === reactant.elementId) {
+                const consumedFromEnemy = Math.min(enemy.substanceAmount, remainingToConsume);
+                enemy.consumeSubstance(consumedFromEnemy);
+                remainingToConsume -= consumedFromEnemy;
+                console.log(`从敌人消耗 ${reactant.elementId} ×${consumedFromEnemy}`);
+            }
+
+            if (remainingToConsume > 0) {
+                console.error(`反应物消耗不足: ${reactant.elementId} 还需要 ${remainingToConsume}`);
+            }
+        }
 
         // 生成产物（新敌人）
         for (const product of reaction.products) {
@@ -870,14 +918,31 @@ export class Reactor extends Building {
     // 生成产物敌人
     spawnProductEnemy(product) {
         if (this.scene.enemyManager) {
-            // 在反应器附近生成新敌人
-            const newEnemy = this.scene.enemyManager.spawnEnemy(product.substance);
+            // 在反应器位置生成新敌人
+            const newEnemy = this.scene.enemyManager.spawnEnemy(product.substance, this.gridRow);
             if (newEnemy) {
                 // 设置产物敌人的数量
                 newEnemy.substanceAmount = product.amount;
+                newEnemy.maxSubstanceAmount = product.amount;
                 newEnemy.updateAmountDisplay();
 
-                console.log(`生成产物敌人: ${product.substance} ×${product.amount}`);
+                // 设置新敌人的位置为反应器所在的网格列
+                if (this.scene.gridSystem) {
+                    newEnemy.currentCol = this.gridCol;
+                    newEnemy.gridCol = this.gridCol;
+
+                    // 计算新敌人的进度，使其从反应器位置开始移动
+                    const totalCols = newEnemy.startCol - newEnemy.endCol;
+                    const passedCols = newEnemy.startCol - this.gridCol;
+                    newEnemy.progress = passedCols / totalCols;
+
+                    // 更新敌人的视觉位置
+                    newEnemy.updatePosition();
+                }
+
+                console.log(`✅ 生成产物敌人: ${product.substance} ×${product.amount} 在位置 (${this.gridRow}, ${this.gridCol})`);
+            } else {
+                console.error(`❌ 生成产物敌人失败: ${product.substance}`);
             }
         }
     }
@@ -927,8 +992,15 @@ export class Reactor extends Building {
             const elementsInfo = this.elements.map(e => `${this.getElementName(e.elementId)}×${e.amount}`).join(', ');
             const cooldownStatus = this.isOnCooldown() ? '冷却中' : '就绪';
 
+            // 检查可能的反应
+            const availableReactions = this.getAvailableReactions();
+            let reactionInfo = '';
+            if (availableReactions.length > 0) {
+                reactionInfo = ` | 可反应: ${availableReactions.join(', ')}`;
+            }
+
             if (this.scene.hud) {
-                this.scene.hud.showMessage(`反应器状态: ${elementsInfo} | ${cooldownStatus}`, '#ff6600');
+                this.scene.hud.showMessage(`反应器: ${elementsInfo} | ${cooldownStatus}${reactionInfo}`, '#ff6600');
             }
         } else {
             if (this.scene.hud) {
@@ -938,6 +1010,31 @@ export class Reactor extends Building {
 
         // 播放点击特效
         this.playClickEffect();
+    }
+
+    // 获取可用的反应列表
+    getAvailableReactions() {
+        const reactions = [
+            {
+                id: 'water_synthesis',
+                name: 'H₂O',
+                reactants: [{ elementId: 'H2', amount: 2 }, { elementId: 'O2', amount: 1 }]
+            },
+            {
+                id: 'co2_synthesis',
+                name: 'CO₂',
+                reactants: [{ elementId: 'C', amount: 1 }, { elementId: 'O2', amount: 1 }]
+            },
+            {
+                id: 'methane_synthesis',
+                name: 'CH₄',
+                reactants: [{ elementId: 'C', amount: 1 }, { elementId: 'H2', amount: 2 }]
+            }
+        ];
+
+        return reactions.filter(reaction =>
+            this.hasRequiredReactants(reaction.reactants, null)
+        ).map(reaction => reaction.name);
     }
 
     // 检查是否在冷却中

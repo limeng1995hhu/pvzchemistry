@@ -349,21 +349,34 @@ export class BuildingPlacementSystem {
 
     // 检查是否可以将元素添加到建筑
     canAddElementToBuilding(building, elementData) {
+        console.log('检查是否可以添加元素:', {
+            buildingType: building.type,
+            elementData: elementData,
+            elementsLength: building.elements?.length,
+            maxElementTypes: building.maxElementTypes
+        });
+
         // 检查能量是否足够
         if (this.scene.hud && !this.scene.hud.canAfford(elementData.price)) {
+            console.log('能量不足，无法添加元素');
             return false;
         }
-        
+
         // 回收器：可以设置目标物质
         if (building.type === 'recycler') {
-            return !building.targetSubstance; // 只有未设置目标时才能添加
+            const canAdd = !building.targetSubstance;
+            console.log('回收器检查结果:', canAdd, '目标物质:', building.targetSubstance);
+            return canAdd;
         }
-        
+
         // 反应器：可以添加元素
         if (building.type === 'reactor') {
-            return building.elements.length < building.maxElements;
+            const canAdd = building.elements.length < building.maxElementTypes;
+            console.log('反应器检查结果:', canAdd, '当前元素数量:', building.elements.length, '最大类型数:', building.maxElementTypes);
+            return canAdd;
         }
-        
+
+        console.log('未知建筑类型，无法添加元素');
         return false;
     }
 
@@ -402,14 +415,6 @@ export class BuildingPlacementSystem {
                 }
 
                 console.log('反应器添加元素:', substanceId, '结果:', result);
-            } else if (building.type === 'reactor') {
-                // 添加元素到反应器
-                building.addElement(elementData.symbol);
-                console.log('反应器添加元素:', elementData.symbol);
-                
-                if (this.scene.hud) {
-                    this.scene.hud.showMessage(`反应器添加${elementData.name}！(-${elementData.price}⚡)`, '#4ecdc4');
-                }
             }
         } catch (error) {
             console.error('添加元素到建筑时出错:', error);
