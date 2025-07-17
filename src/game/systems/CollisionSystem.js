@@ -88,19 +88,23 @@ export class CollisionSystem {
     checkBuildingEnemyCollision(building, interactionType) {
         const buildingBounds = this.getBuildingBounds(building);
         const detectionRadius = this.getDetectionRadius(building.type);
-        
+
         // 调试绘制检测范围
         if (this.debugGraphics) {
             this.drawDetectionRadius(buildingBounds.centerX, buildingBounds.centerY, detectionRadius);
         }
-        
-        // 获取检测范围内的敌人
-        const enemiesInRange = this.scene.enemyManager.getEnemiesInRange(
-            buildingBounds.centerX,
-            buildingBounds.centerY,
-            detectionRadius
-        );
-        
+
+        // 首先获取同一行的敌人
+        const enemiesInLane = this.scene.enemyManager.getEnemiesInLane(building.gridRow);
+
+        // 然后在同一行的敌人中检测距离
+        const enemiesInRange = [];
+        for (const enemy of enemiesInLane) {
+            if (enemy.isAlive && enemy.intersects(buildingBounds.centerX, buildingBounds.centerY, detectionRadius)) {
+                enemiesInRange.push(enemy);
+            }
+        }
+
         // 处理碰撞
         for (const enemy of enemiesInRange) {
             if (this.handleBuildingEnemyInteraction(building, enemy, interactionType)) {

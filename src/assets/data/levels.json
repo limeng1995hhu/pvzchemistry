@@ -268,7 +268,7 @@
               "state": "gas",
               "count": 2,
               "interval": 2000,
-              "amount": 3
+              "amount": 1
             }
           ]
         },
@@ -281,7 +281,7 @@
               "state": "gas",
               "count": 3,
               "interval": 1500,
-              "amount": 3
+              "amount": 1
             }
           ]
         },
@@ -294,7 +294,7 @@
               "state": "gas",
               "count": 3,
               "interval": 2500,
-              "amount": 3
+              "amount": 1
             }
           ]
         },
@@ -307,19 +307,6 @@
               "state": "gas",
               "count": 2,
               "interval": 3000,
-              "amount": 1
-            }
-          ]
-        },
-        {
-          "id": "wave5",
-          "startTime": 110000,
-          "enemies": [
-            {
-              "substance": "C",
-              "state": "solid",
-              "count": 2,
-              "interval": 4000,
               "amount": 1
             }
           ]

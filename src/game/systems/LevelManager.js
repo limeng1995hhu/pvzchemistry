@@ -250,27 +250,22 @@ export class LevelManager {
                     {
                         id: 'wave1',
                         startTime: 3000,
-                        enemies: [{ substance: 'NH3', amount: 3, count: 2, interval: 2000 }]
+                        enemies: [{ substance: 'NH3', amount: 1, count: 2, interval: 2000 }]
                     },
                     {
                         id: 'wave2',
                         startTime: 25000,
-                        enemies: [{ substance: 'H2', amount: 3, count: 3, interval: 1500 }]
+                        enemies: [{ substance: 'H2', amount: 1, count: 3, interval: 1500 }]
                     },
                     {
                         id: 'wave3',
                         startTime: 45000,
-                        enemies: [{ substance: 'H2', amount: 3, count: 3, interval: 2500 }]
+                        enemies: [{ substance: 'H2', amount: 1, count: 3, interval: 2500 }]
                     },
                     {
                         id: 'wave4',
-                        startTime: 75000,
+                        startTime: 55000,
                         enemies: [{ substance: 'O2', amount: 1, count: 2, interval: 3000 }]
-                    },
-                    {
-                        id: 'wave5',
-                        startTime: 110000,
-                        enemies: [{ substance: 'C', amount: 1, count: 2, interval: 4000 }]
                     }
                 ]
             };
@@ -400,15 +395,12 @@ export class LevelManager {
                 availableItems.unshift('co2');
             }
         } else if (this.currentLevel.id === 'level_04') {
-            // 关卡四：添加氮气、氧气、氨气、水元素
+            // 关卡四：添加氮气、氧气、水元素
             if (!availableItems.includes('nitrogen')) {
                 availableItems.unshift('nitrogen');
             }
             if (!availableItems.includes('oxygen')) {
                 availableItems.unshift('oxygen');
-            }
-            if (!availableItems.includes('ammonia')) {
-                availableItems.unshift('ammonia');
             }
             if (!availableItems.includes('water')) {
                 availableItems.unshift('water');
