@@ -149,7 +149,7 @@
       "gridRows": 6,
       "gridCols": 12,
       "availableBuildings": ["recycler", "reactor"],
-      "availableReactions": ["water_synthesis", "co2_synthesis"],
+      "availableReactions": ["water_synthesis", "co2_synthesis", "co_oxidation"],
       "objectives": [
         {
           "type": "survive",
@@ -188,11 +188,11 @@
           "startTime": 20000,
           "enemies": [
             {
-              "substance": "N2",
+              "substance": "CO",
               "state": "gas",
               "count": 2,
               "interval": 2000,
-              "amount": 1
+              "amount": 2
             }
           ]
         },
@@ -611,7 +611,7 @@
       "products": [
         { "substance": "CO2", "amount": 1 }
       ],
-      "energyCost": 15,
+      "energyCost": 10,
       "energyGain": 25,
       "unlockLevel": 2
     },
@@ -626,9 +626,24 @@
       "products": [
         { "substance": "CH4", "amount": 1 }
       ],
-      "energyCost": 20,
+      "energyCost": 10,
       "energyGain": 30,
       "unlockLevel": 2
+    },
+    "co_oxidation": {
+      "id": "co_oxidation",
+      "name": "一氧化碳氧化",
+      "equation": "2CO + O₂ → 2CO₂",
+      "reactants": [
+        { "elementId": "CO", "amount": 2 },
+        { "elementId": "O2", "amount": 1 }
+      ],
+      "products": [
+        { "substance": "CO2", "amount": 2 }
+      ],
+      "energyCost": 10,
+      "energyGain": 25,
+      "unlockLevel": 3
     },
     "ammonia_synthesis": {
       "id": "ammonia_synthesis",
@@ -641,7 +656,7 @@
       "products": [
         { "substance": "NH3", "amount": 2 }
       ],
-      "energyCost": 25,
+      "energyCost": 10,
       "energyGain": 35,
       "unlockLevel": 3
     },
@@ -656,7 +671,7 @@
       "products": [
         { "substance": "NaCl", "amount": 2 }
       ],
-      "energyCost": 30,
+      "energyCost": 10,
       "energyGain": 40,
       "unlockLevel": 4
     },
@@ -671,7 +686,7 @@
       "products": [
         { "substance": "CaO", "amount": 2 }
       ],
-      "energyCost": 35,
+      "energyCost": 10,
       "energyGain": 45,
       "unlockLevel": 5
     }

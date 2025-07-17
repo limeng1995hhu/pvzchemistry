@@ -204,7 +204,7 @@ export class LevelManager {
                 description: '掌握两种化学反应：水合成、二氧化碳合成',
                 initialEnergy: 150,
                 availableBuildings: ['recycler', 'reactor'],
-                availableReactions: ['water_synthesis', 'co2_synthesis'],
+                availableReactions: ['water_synthesis', 'co2_synthesis', 'co_oxidation'],
                 objectives: [
                     { type: 'survive', duration: 120000, description: '生存120秒' },
                     { type: 'perform_reactions', reaction: 'co2_synthesis', amount: 3, description: '执行3次二氧化碳合成反应' },
@@ -219,7 +219,7 @@ export class LevelManager {
                     {
                         id: 'wave2',
                         startTime: 20000,
-                        enemies: [{ substance: 'N2', amount: 1, count: 2, interval: 2000 }]
+                        enemies: [{ substance: 'CO', amount: 2, count: 2, interval: 2000 }]
                     },
                     {
                         id: 'wave3',
@@ -389,9 +389,15 @@ export class LevelManager {
                 availableItems.unshift('water');
             }
         } else if (this.currentLevel.id === 'level_03') {
-            // 关卡三：添加碳元素
-            if (!availableItems.includes('carbon')) {
-                availableItems.unshift('carbon');
+            // 关卡三：添加氧气、水、二氧化碳元素
+            if (!availableItems.includes('oxygen')) {
+                availableItems.unshift('oxygen');
+            }
+            if (!availableItems.includes('water')) {
+                availableItems.unshift('water');
+            }
+            if (!availableItems.includes('co2')) {
+                availableItems.unshift('co2');
             }
         } else if (this.currentLevel.id === 'level_04') {
             // 关卡四：添加氮气、氨气元素

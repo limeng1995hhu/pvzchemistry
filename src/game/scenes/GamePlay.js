@@ -79,7 +79,23 @@ export class GamePlay extends Scene
             delay: 3000, // 每3秒
             callback: this.addPassiveEnergy,
             callbackScope: this,
-            loop: true
+            loop: true,
+            paused: false // 初始状态不暂停
+        });
+
+        // 监听暂停/恢复事件来控制能量定时器
+        EventBus.on('game-pause', () => {
+            if (this.energyTimer) {
+                this.energyTimer.paused = true;
+                console.log('能量定时器已暂停');
+            }
+        });
+
+        EventBus.on('game-resume', () => {
+            if (this.energyTimer) {
+                this.energyTimer.paused = false;
+                console.log('能量定时器已恢复');
+            }
         });
 
         EventBus.emit('current-scene-ready', this);
@@ -410,6 +426,25 @@ export class GamePlay extends Scene
         if (this.hud) {
             this.hud.addEnergy(5);
         }
+    }
+
+    // 场景销毁时的清理工作
+    destroy() {
+        // 清理能量定时器
+        if (this.energyTimer) {
+            this.energyTimer.destroy();
+            this.energyTimer = null;
+        }
+
+        // 移除事件监听器
+        EventBus.off('game-pause');
+        EventBus.off('game-resume');
+        EventBus.off('grid-cell-clicked');
+        EventBus.off('grid-cell-hover');
+        EventBus.off('grid-cell-selected');
+        EventBus.off('game-over');
+
+        console.log('GamePlay场景已清理');
     }
 
     handleResize(gameSize)

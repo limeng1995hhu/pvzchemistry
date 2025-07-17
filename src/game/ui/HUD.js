@@ -12,6 +12,12 @@ export class HUD {
     }
 
     create() {
+        // 检查场景和摄像机是否有效
+        if (!this.scene || !this.scene.cameras || !this.scene.cameras.main) {
+            console.warn('HUD.create: 场景或摄像机未初始化，跳过HUD创建');
+            return;
+        }
+
         const { width } = this.scene.cameras.main;
         
         // 创建HUD容器
@@ -44,6 +50,12 @@ export class HUD {
     }
 
     createButtons() {
+        // 检查场景和摄像机是否有效
+        if (!this.scene || !this.scene.cameras || !this.scene.cameras.main) {
+            console.warn('HUD.createButtons: 场景或摄像机未初始化，跳过按钮创建');
+            return;
+        }
+
         const { width } = this.scene.cameras.main;
         const buttonStyle = {
             fontFamily: 'Arial',
@@ -166,6 +178,12 @@ export class HUD {
     }
 
     showEnergyGain(amount) {
+        // 检查场景是否有效
+        if (!this.scene || !this.scene.add) {
+            console.warn('HUD.showEnergyGain: 场景未初始化，跳过能量增益显示');
+            return;
+        }
+
         const gainText = this.scene.add.text(
             this.energyText.x + 150, 
             this.energyText.y, 
@@ -178,17 +196,28 @@ export class HUD {
         ).setOrigin(0, 0.5);
 
         // 动画效果
-        this.scene.tweens.add({
-            targets: gainText,
-            y: gainText.y - 30,
-            alpha: 0,
-            duration: 1500,
-            ease: 'Power2',
-            onComplete: () => gainText.destroy()
-        });
+        if (this.scene.tweens) {
+            this.scene.tweens.add({
+                targets: gainText,
+                y: gainText.y - 30,
+                alpha: 0,
+                duration: 1500,
+                ease: 'Power2',
+                onComplete: () => gainText.destroy()
+            });
+        } else {
+            // 如果tweens不可用，直接销毁文本
+            setTimeout(() => gainText.destroy(), 1500);
+        }
     }
 
     showMessage(text, color = '#ffffff', duration = 2500) {
+        // 检查场景和摄像机是否有效
+        if (!this.scene || !this.scene.cameras || !this.scene.cameras.main) {
+            console.warn('HUD.showMessage: 场景或摄像机未初始化，跳过消息显示');
+            return;
+        }
+
         // 移除之前的消息
         if (this.currentMessage) {
             this.currentMessage.destroy();
@@ -209,12 +238,14 @@ export class HUD {
         ).setOrigin(0.5);
 
         // 指定时间后自动消失
-        this.scene.time.delayedCall(duration, () => {
-            if (this.currentMessage) {
-                this.currentMessage.destroy();
-                this.currentMessage = null;
-            }
-        });
+        if (this.scene.time) {
+            this.scene.time.delayedCall(duration, () => {
+                if (this.currentMessage) {
+                    this.currentMessage.destroy();
+                    this.currentMessage = null;
+                }
+            });
+        }
     }
 
     // 检查是否能负担指定费用

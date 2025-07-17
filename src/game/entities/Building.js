@@ -153,6 +153,7 @@ export class Building {
             'O2': 'O₂',
             'C': 'C',
             'N2': 'N₂',
+            'CO': 'CO',
             'H2O': 'H₂O',
             'CO2': 'CO₂',
             'CH4': 'CH₄',
@@ -681,6 +682,7 @@ export class Reactor extends Building {
             'H2O': 'H₂O',
             'C': 'C',
             'N2': 'N₂',
+            'CO': 'CO',
             'CO2': 'CO₂',
             'CH4': 'CH₄',
             'NH3': 'NH₃',
@@ -749,6 +751,12 @@ export class Reactor extends Building {
                 reactants: [{ elementId: 'C', amount: 1 }, { elementId: 'O2', amount: 1 }],
                 products: [{ substance: 'CO2', amount: 1 }],
                 condition: (enemy) => enemy.substance === 'C' || enemy.substance === 'O2'
+            },
+            {
+                id: 'co_oxidation',
+                reactants: [{ elementId: 'CO', amount: 2 }, { elementId: 'O2', amount: 1 }],
+                products: [{ substance: 'CO2', amount: 2 }],
+                condition: (enemy) => enemy.substance === 'CO' || enemy.substance === 'O2'
             },
             {
                 id: 'methane_synthesis',
@@ -850,8 +858,8 @@ export class Reactor extends Building {
         const reactionScale = enemy.substanceAmount;
         console.log(`反应规模: ${reactionScale} (基于敌人物质数量)`);
 
-        // 固定能量消耗：每次反应消耗20能量
-        const totalEnergyCost = 20;
+        // 固定能量消耗：每次反应消耗10能量
+        const totalEnergyCost = 10;
         console.log(`计算能量消耗: 固定消耗 ${totalEnergyCost} 能量`);
 
         // 检查能量是否足够
@@ -1040,6 +1048,11 @@ export class Reactor extends Building {
                 id: 'co2_synthesis',
                 name: 'CO₂',
                 reactants: [{ elementId: 'C', amount: 1 }, { elementId: 'O2', amount: 1 }]
+            },
+            {
+                id: 'co_oxidation',
+                name: 'CO₂',
+                reactants: [{ elementId: 'CO', amount: 2 }, { elementId: 'O2', amount: 1 }]
             },
             {
                 id: 'methane_synthesis',

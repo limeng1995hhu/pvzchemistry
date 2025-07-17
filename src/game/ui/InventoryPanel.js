@@ -54,8 +54,14 @@ export class InventoryPanel {
             { id: 'oxygen', symbol: 'O₂', name: '氧气', color: '#4169E1', price: 10 },
             { id: 'water', symbol: 'H₂O', name: '水', color: '#4169E1', price: 15 },
             { id: 'carbon', symbol: 'C', name: '碳', color: '#8B4513', price: 15 },
+            { id: 'co', symbol: 'CO', name: '一氧化碳', color: '#8B4513', price: 18 },
+            { id: 'co2', symbol: 'CO₂', name: '二氧化碳', color: '#696969', price: 20 },
             { id: 'nitrogen', symbol: 'N₂', name: '氮气', color: '#90EE90', price: 15 },
-            { id: 'recycler', symbol: '♻', name: '回收器', color: '#16213e', price: 10 },
+            { id: 'ammonia', symbol: 'NH₃', name: '氨气', color: '#98FB98', price: 30 },
+            { id: 'sodium', symbol: 'Na', name: '钠', color: '#FFE4B5', price: 25 },
+            { id: 'chlorine', symbol: 'Cl₂', name: '氯气', color: '#ADFF2F', price: 25 },
+            { id: 'salt', symbol: 'NaCl', name: '氯化钠', color: '#F0F8FF', price: 35 },
+            { id: 'recycler', symbol: '♻', name: '回收器', color: '#16213e', price: 20 },
             { id: 'reactor', symbol: '🔥', name: '反应器', color: '#000000', price: 10 },
             { id: 'shovel', symbol: '⛏️', name: '铲子', color: '#8B4513', price: 0 }
         ];
