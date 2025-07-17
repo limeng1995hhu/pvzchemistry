@@ -86,16 +86,21 @@ export class EnemyManager {
     
     // 生成敌人
     spawnEnemy(substanceId = null, lane = null) {
+        // console.log(`EnemyManager.spawnEnemy 被调用，参数:`, { substanceId, lane });
+
         // 检查是否超过最大敌人数量
         if (this.activeEnemies.length >= this.maxEnemies) {
             console.warn('已达到最大敌人数量，跳过生成');
             return null;
         }
-        
+
         // 如果没有指定物质，随机选择一个
         if (!substanceId) {
             const randomSubstance = getRandomSubstance();
             substanceId = randomSubstance.id;
+            // console.log(`随机选择物质: ${substanceId}`);
+        } else {
+            // console.log(`使用指定物质: ${substanceId}`);
         }
         
         try {
@@ -340,6 +345,11 @@ export class EnemyManager {
     // 获取所有活跃敌人信息（调试用）
     getActiveEnemiesInfo() {
         return this.activeEnemies.map(enemy => enemy.getInfo());
+    }
+
+    // 获取活跃敌人数量
+    getActiveEnemyCount() {
+        return this.activeEnemies.length;
     }
     
     // 游戏暂停处理

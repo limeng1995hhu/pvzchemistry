@@ -77,6 +77,8 @@ export class LevelManager {
         
         EventBus.on('enemy-killed', (data) => {
             this.stats.enemiesKilled++;
+            // 敌人被消灭时立即检查是否可以完成关卡
+            this.checkAutoComplete();
         });
         
         EventBus.on('enemy-recycled', (data) => {
@@ -282,12 +284,23 @@ export class LevelManager {
     // 开始波次
     startWave(wave) {
         console.log(`开始波次: ${wave.id}`);
-        
+
+        // 计算这个波次总共需要生成多少敌人
+        let totalEnemies = 0;
+        wave.enemies.forEach(enemyConfig => {
+            totalEnemies += enemyConfig.count;
+        });
+
+        // 初始化波次状态
+        wave.totalEnemies = totalEnemies;
+        wave.spawnedEnemies = 0;
+        wave.completed = false;
+
         // 生成波次中的敌人
         wave.enemies.forEach(enemyConfig => {
-            this.spawnWaveEnemy(enemyConfig);
+            this.spawnWaveEnemy(enemyConfig, wave);
         });
-        
+
         // 显示波次信息
         if (this.scene.hud) {
             this.scene.hud.showMessage(`${wave.id} 开始！`, '#ff6600', 2000);
@@ -295,21 +308,37 @@ export class LevelManager {
     }
     
     // 生成波次敌人
-    spawnWaveEnemy(enemyConfig) {
-        if (this.scene.enemyManager) {
-            for (let i = 0; i < enemyConfig.count; i++) {
-                setTimeout(() => {
-                    const enemy = this.scene.enemyManager.spawnEnemy(enemyConfig.substance);
-                    if (enemy) {
-                        // 设置敌人的物质数量
-                        enemy.substanceAmount = enemyConfig.amount;
-                        enemy.maxSubstanceAmount = enemyConfig.amount;
-                        enemy.updateAmountDisplay();
-                        
-                        console.log(`生成波次敌人: ${enemyConfig.substance} ×${enemyConfig.amount}`);
+    spawnWaveEnemy(enemyConfig, wave) {
+        console.log(`尝试生成波次敌人:`, enemyConfig, `波次:`, wave.id);
+
+        if (!this.scene.enemyManager) {
+            console.error('EnemyManager 不存在，无法生成敌人');
+            return;
+        }
+
+        for (let i = 0; i < enemyConfig.count; i++) {
+            setTimeout(() => {
+                console.log(`生成第 ${i + 1} 个敌人: ${enemyConfig.substance}`);
+                const enemy = this.scene.enemyManager.spawnEnemy(enemyConfig.substance);
+
+                if (enemy) {
+                    // 设置敌人的物质数量
+                    enemy.substanceAmount = enemyConfig.amount;
+                    enemy.maxSubstanceAmount = enemyConfig.amount;
+                    enemy.updateAmountDisplay();
+
+                    console.log(`✅ 成功生成波次敌人: ${enemyConfig.substance} ×${enemyConfig.amount}`);
+
+                    // 更新波次生成进度（只有成功生成时才计数）
+                    wave.spawnedEnemies++;
+                    if (wave.spawnedEnemies >= wave.totalEnemies) {
+                        wave.completed = true;
+                        console.log(`✅ 波次 ${wave.id} 所有敌人生成完毕 (${wave.spawnedEnemies}/${wave.totalEnemies})`);
                     }
-                }, i * (enemyConfig.interval || 0));
-            }
+                } else {
+                    console.error(`❌ 生成敌人失败: ${enemyConfig.substance}`);
+                }
+            }, i * (enemyConfig.interval || 0));
         }
     }
     
@@ -342,17 +371,45 @@ export class LevelManager {
         if (this.completedObjectives.length === this.objectives.length) {
             this.completeLevel();
         }
+
+        // 检查是否所有波次结束且场面上没有敌人
+        this.checkAutoComplete();
     }
     
+    // 检查自动完成条件
+    checkAutoComplete() {
+        // 如果关卡已经完成，不需要再检查
+        if (!this.isLevelActive) {
+            return;
+        }
+
+        // 检查是否所有波次都已经开始
+        const allWavesStarted = this.waves.every(wave => wave.started);
+
+        // 检查是否所有波次的敌人都已经生成完毕
+        const allWavesCompleted = this.waves.every(wave => wave.completed);
+
+        // 检查场面上是否还有敌人
+        const enemyCount = this.scene.enemyManager ? this.scene.enemyManager.getActiveEnemyCount() : 0;
+
+        // 移除频繁的调试日志
+
+        // 如果所有波次都完成且场面上没有敌人，自动完成关卡
+        if (allWavesStarted && allWavesCompleted && enemyCount === 0) {
+            console.log('所有波次完成且场面清空，自动完成关卡');
+            this.completeLevel();
+        }
+    }
+
     // 完成目标
     completeObjective(index, objective) {
         this.completedObjectives.push(index);
         console.log(`目标完成: ${objective.description}`);
-        
+
         if (this.scene.hud) {
             this.scene.hud.showMessage(`✅ ${objective.description}`, '#00ff00', 3000);
         }
-        
+
         EventBus.emit('objective-completed', {
             objectiveIndex: index,
             objective: objective
@@ -362,18 +419,102 @@ export class LevelManager {
     // 完成关卡
     completeLevel() {
         console.log('关卡完成！');
-        
+
         this.isLevelActive = false;
-        
-        if (this.scene.hud) {
-            this.scene.hud.showMessage('🎉 关卡完成！', '#00ff00', 5000);
+
+        // 停止所有敌人生成和更新
+        if (this.scene.enemyManager) {
+            this.scene.enemyManager.stopSpawning();
         }
-        
+
+        // 显示关卡完成弹窗
+        this.showLevelCompleteDialog();
+
         EventBus.emit('level-completed', {
             levelId: this.levelId,
             stats: this.stats,
             duration: this.stats.levelDuration
         });
+    }
+
+    // 显示关卡完成弹窗
+    showLevelCompleteDialog() {
+        const { width, height } = this.scene.cameras.main;
+
+        // 创建半透明背景遮罩
+        const overlay = this.scene.add.rectangle(width / 2, height / 2, width, height, 0x000000, 0.7);
+        overlay.setDepth(1000);
+        overlay.setInteractive(); // 阻止点击穿透
+
+        // 创建弹窗背景
+        const dialogBg = this.scene.add.rectangle(width / 2, height / 2, 600, 400, 0x1a1a2e, 0.95);
+        dialogBg.setDepth(1001);
+        dialogBg.setStrokeStyle(4, 0x4ecdc4);
+
+        // 标题
+        const title = this.scene.add.text(width / 2, height / 2 - 120, '🎉 关卡完成！', {
+            fontFamily: 'Arial Bold',
+            fontSize: '48px',
+            color: '#4ecdc4',
+            resolution: 2
+        }).setOrigin(0.5).setDepth(1002);
+
+        // 统计信息
+        const statsText = [
+            `关卡：${this.currentLevel.name}`,
+            `用时：${Math.floor(this.stats.levelDuration / 1000)}秒`,
+            `消灭敌人：${this.stats.enemiesKilled}`,
+            `收集能量：${this.stats.energyCollected}`
+        ].join('\n');
+
+        const stats = this.scene.add.text(width / 2, height / 2 - 20, statsText, {
+            fontFamily: 'Arial',
+            fontSize: '24px',
+            color: '#ffffff',
+            align: 'center',
+            lineSpacing: 10,
+            resolution: 2
+        }).setOrigin(0.5).setDepth(1002);
+
+        // 确认按钮
+        const buttonBg = this.scene.add.rectangle(width / 2, height / 2 + 120, 200, 60, 0x4ecdc4, 0.9);
+        buttonBg.setDepth(1002);
+        buttonBg.setStrokeStyle(2, 0xffffff);
+        buttonBg.setInteractive({ useHandCursor: true });
+
+        const buttonText = this.scene.add.text(width / 2, height / 2 + 120, '返回主菜单', {
+            fontFamily: 'Arial Bold',
+            fontSize: '24px',
+            color: '#1a1a2e',
+            resolution: 2
+        }).setOrigin(0.5).setDepth(1003);
+
+        // 按钮交互效果
+        buttonBg.on('pointerover', () => {
+            buttonBg.setFillStyle(0x5fd3d3);
+            buttonBg.setScale(1.05);
+        });
+
+        buttonBg.on('pointerout', () => {
+            buttonBg.setFillStyle(0x4ecdc4);
+            buttonBg.setScale(1.0);
+        });
+
+        // 点击返回主菜单
+        buttonBg.on('pointerdown', () => {
+            console.log('返回主菜单');
+            this.scene.scene.start('MainMenu');
+        });
+
+        // 存储弹窗元素以便后续清理
+        this.levelCompleteDialog = {
+            overlay,
+            dialogBg,
+            title,
+            stats,
+            buttonBg,
+            buttonText
+        };
     }
     
     // 重置统计数据

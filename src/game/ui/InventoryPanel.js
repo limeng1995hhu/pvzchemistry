@@ -32,6 +32,16 @@ export class InventoryPanel {
     }
 
     createToolButtons() {
+        // 安全检查：确保相机已经初始化
+        if (!this.scene.cameras || !this.scene.cameras.main) {
+            console.warn('InventoryPanel: 相机未初始化，延迟创建工具按钮');
+            // 延迟执行
+            this.scene.time.delayedCall(100, () => {
+                this.createToolButtons();
+            });
+            return;
+        }
+
         const { width, height } = this.scene.cameras.main;
         const buttonY = 70; // 与更高的HUD中心对齐
         const buttonSize = 70; // 增大按钮尺寸

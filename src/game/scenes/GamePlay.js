@@ -70,11 +70,13 @@ export class GamePlay extends Scene
             loop: true
         });
 
-        // 加载并启动关卡一
-        this.loadLevel1();
-
         EventBus.emit('current-scene-ready', this);
         console.log('GamePlay - create完成');
+
+        // 延迟加载关卡一，确保场景完全初始化
+        this.time.delayedCall(100, () => {
+            this.loadLevel1();
+        });
     }
 
     // 加载关卡一
