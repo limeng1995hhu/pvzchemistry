@@ -781,6 +781,12 @@ export class Reactor extends Building {
                 reactants: [{ elementId: 'Ca', amount: 2 }, { elementId: 'O2', amount: 1 }],
                 products: [{ substance: 'CaO', amount: 2 }],
                 condition: (enemy) => enemy.substance === 'Ca' || enemy.substance === 'O2'
+            },
+            {
+                id: 'ammonia_oxidation',
+                reactants: [{ elementId: 'NH3', amount: 4 }, { elementId: 'O2', amount: 3 }],
+                products: [{ substance: 'H2O', amount: 6 }, { substance: 'N2', amount: 2 }],
+                condition: (enemy) => enemy.substance === 'NH3' || enemy.substance === 'O2'
             }
         ];
 
@@ -1073,6 +1079,11 @@ export class Reactor extends Building {
                 id: 'lime_synthesis',
                 name: 'CaO',
                 reactants: [{ elementId: 'Ca', amount: 2 }, { elementId: 'O2', amount: 1 }]
+            },
+            {
+                id: 'ammonia_oxidation',
+                name: 'H₂O+N₂',
+                reactants: [{ elementId: 'NH3', amount: 4 }, { elementId: 'O2', amount: 3 }]
             }
         ];
 

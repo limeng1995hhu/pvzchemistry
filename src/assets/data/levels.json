@@ -238,7 +238,7 @@
       "gridRows": 6,
       "gridCols": 12,
       "availableBuildings": ["recycler", "reactor"],
-      "availableReactions": ["water_synthesis", "co2_synthesis", "ammonia_synthesis"],
+      "availableReactions": ["water_synthesis", "co2_synthesis", "ammonia_synthesis", "ammonia_oxidation"],
       "objectives": [
         {
           "type": "survive",
@@ -264,11 +264,11 @@
           "startTime": 3000,
           "enemies": [
             {
-              "substance": "N2",
+              "substance": "NH3",
               "state": "gas",
               "count": 2,
               "interval": 2000,
-              "amount": 1
+              "amount": 3
             }
           ]
         },
@@ -689,6 +689,22 @@
       "energyCost": 10,
       "energyGain": 45,
       "unlockLevel": 5
+    },
+    "ammonia_oxidation": {
+      "id": "ammonia_oxidation",
+      "name": "氨气氧化",
+      "equation": "4NH₃ + 3O₂ → 6H₂O + 2N₂",
+      "reactants": [
+        { "elementId": "NH3", "amount": 4 },
+        { "elementId": "O2", "amount": 3 }
+      ],
+      "products": [
+        { "substance": "H2O", "amount": 6 },
+        { "substance": "N2", "amount": 2 }
+      ],
+      "energyCost": 10,
+      "energyGain": 40,
+      "unlockLevel": 4
     }
   }
 }

@@ -240,7 +240,7 @@ export class LevelManager {
                 description: '掌握三种化学反应：水合成、二氧化碳合成、氨气合成',
                 initialEnergy: 180,
                 availableBuildings: ['recycler', 'reactor'],
-                availableReactions: ['water_synthesis', 'co2_synthesis', 'ammonia_synthesis'],
+                availableReactions: ['water_synthesis', 'co2_synthesis', 'ammonia_synthesis', 'ammonia_oxidation'],
                 objectives: [
                     { type: 'survive', duration: 150000, description: '生存150秒' },
                     { type: 'perform_reactions', reaction: 'ammonia_synthesis', amount: 4, description: '执行4次氨气合成反应' },
@@ -250,7 +250,7 @@ export class LevelManager {
                     {
                         id: 'wave1',
                         startTime: 3000,
-                        enemies: [{ substance: 'N2', amount: 1, count: 2, interval: 2000 }]
+                        enemies: [{ substance: 'NH3', amount: 3, count: 2, interval: 2000 }]
                     },
                     {
                         id: 'wave2',
@@ -400,12 +400,18 @@ export class LevelManager {
                 availableItems.unshift('co2');
             }
         } else if (this.currentLevel.id === 'level_04') {
-            // 关卡四：添加氮气、氨气元素
+            // 关卡四：添加氮气、氧气、氨气、水元素
             if (!availableItems.includes('nitrogen')) {
                 availableItems.unshift('nitrogen');
             }
+            if (!availableItems.includes('oxygen')) {
+                availableItems.unshift('oxygen');
+            }
             if (!availableItems.includes('ammonia')) {
                 availableItems.unshift('ammonia');
+            }
+            if (!availableItems.includes('water')) {
+                availableItems.unshift('water');
             }
         } else if (this.currentLevel.id === 'level_05') {
             // 关卡五：添加钠、氯气、氯化钠元素
@@ -432,12 +438,6 @@ export class LevelManager {
     showLevelInfo() {
         if (this.scene.hud) {
             this.scene.hud.showMessage(`关卡: ${this.currentLevel.name}`, '#4ecdc4', 3000);
-            
-            // 显示目标
-            setTimeout(() => {
-                const objectiveText = this.objectives.map(obj => obj.description).join(' | ');
-                this.scene.hud.showMessage(`目标: ${objectiveText}`, '#ffaa00', 5000);
-            }, 3500);
         }
     }
     
