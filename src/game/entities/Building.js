@@ -650,58 +650,7 @@ export class Reactor extends Building {
         });
         this.elementsDisplay = [];
 
-        // 创建新的元素显示
-        if (this.elements.length > 0) {
-            const startY = -this.config.size/2 - 25;
-            const spacing = 18; // 稍微减小间距
-
-            this.elements.forEach((element, index) => {
-                const y = startY - (index * spacing);
-                const elementName = this.getElementName(element.elementId);
-
-                // 根据元素数量选择颜色
-                let color = '#ff6600'; // 默认橙色
-                if (element.amount >= 3) {
-                    color = '#00ff00'; // 绿色表示充足
-                } else if (element.amount >= 2) {
-                    color = '#ffaa00'; // 黄色表示中等
-                } else {
-                    color = '#ff6600'; // 橙色表示较少
-                }
-
-                if (element.amount > 1) {
-                    // 创建数量标签（粗体）
-                    const amountLabel = this.scene.add.text(-5, y, element.amount.toString(), {
-                        fontFamily: 'Arial Bold',
-                        fontSize: '14px',
-                        color: color,
-                        resolution: 2
-                    }).setOrigin(1, 0.5);
-
-                    // 创建元素标签（正常字体）
-                    const elementLabel = this.scene.add.text(-3, y, elementName, {
-                        fontFamily: 'Arial',
-                        fontSize: '12px',
-                        color: color,
-                        resolution: 2
-                    }).setOrigin(0, 0.5);
-
-                    this.container.add([amountLabel, elementLabel]);
-                    this.elementsDisplay.push(amountLabel, elementLabel);
-                } else {
-                    // 只显示元素名称
-                    const elementLabel = this.scene.add.text(0, y, elementName, {
-                        fontFamily: 'Arial',
-                        fontSize: '12px',
-                        color: color,
-                        resolution: 2
-                    }).setOrigin(0.5);
-
-                    this.container.add(elementLabel);
-                    this.elementsDisplay.push(elementLabel);
-                }
-            });
-        }
+        // 不再创建橙色的元素显示，只保留白色的elementLabel
 
         // 根据存储状态和可反应性设置图标颜色
         if (this.icon) {
