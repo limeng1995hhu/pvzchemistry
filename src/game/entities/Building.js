@@ -523,8 +523,6 @@ export class Reactor extends Building {
         this.elements = []; // 存储的元素 [{elementId, amount}, ...]
         this.maxElementTypes = 4; // 最大存储不同元素种类数量
         this.maxElementAmount = 10; // 每种元素的最大存储量
-        this.reactionCooldown = 3000; // 反应冷却时间（毫秒）
-        this.lastReactionTime = 0;
         this.energyCostPerCharge = 15; // 每次储能消耗的能量
 
         // 反应状态
@@ -723,13 +721,6 @@ export class Reactor extends Building {
     canReactWithEnemy(enemy) {
         console.log(`🔍 检查反应条件 - 敌人: ${enemy.substance}`);
 
-        // 检查冷却时间
-        const currentTime = this.scene.time.now;
-        if (currentTime - this.lastReactionTime < this.reactionCooldown) {
-            console.log(`❌ 冷却时间未到`);
-            return false;
-        }
-
         // 检查是否有存储的元素
         if (this.elements.length === 0) {
             console.log(`❌ 反应器中没有元素`);
@@ -893,9 +884,6 @@ export class Reactor extends Building {
         // 播放反应特效
         this.playReactionEffect();
 
-        // 更新冷却时间
-        this.lastReactionTime = this.scene.time.now;
-
         // 显示反应信息
         if (this.scene.hud) {
             const productInfo = reaction.products.map(p => `${p.substance}×${p.amount * reactionScale}`).join(', ');
@@ -972,16 +960,15 @@ export class Reactor extends Building {
     // 设置敌人位置的辅助方法
     setEnemyPosition(enemy) {
         if (this.scene.gridSystem) {
-            enemy.currentCol = this.gridCol;
-            enemy.gridCol = this.gridCol;
-
-            // 计算新敌人的进度，使其从反应器位置开始移动
-            const totalCols = enemy.startCol - enemy.endCol;
-            const passedCols = enemy.startCol - this.gridCol;
-            enemy.progress = passedCols / totalCols;
+            // 让新敌人从最右边开始（重置到起始位置）
+            enemy.currentCol = enemy.startCol;
+            enemy.gridCol = enemy.startCol;
+            enemy.progress = 0; // 从头开始移动
 
             // 更新敌人的视觉位置
             enemy.updatePosition();
+
+            console.log(`新产物敌人 ${enemy.substance} 设置到最右边位置，列: ${enemy.startCol}`);
         }
     }
 
@@ -992,7 +979,7 @@ export class Reactor extends Building {
     }
 
     playReactionEffect() {
-        // 反应特效：旋转 + 缩放 + 颜色变化
+        // 反应特效：只有缩放动画，不改变颜色
         this.scene.tweens.add({
             targets: this.container,
             scaleX: 1.3,
@@ -1010,15 +997,7 @@ export class Reactor extends Building {
             ease: 'Power2'
         });
 
-        // 颜色闪烁
-        if (this.icon) {
-            this.icon.setTint(0xffff00); // 黄色闪光
-            this.scene.time.delayedCall(500, () => {
-                if (this.icon) {
-                    this.icon.setTint(0xff6600); // 恢复橙色
-                }
-            });
-        }
+        // 不改变反应器颜色，保持原有状态
     }
 
     // 重写反应器点击处理
@@ -1028,7 +1007,6 @@ export class Reactor extends Building {
         if (this.elements.length > 0) {
             // 显示反应器状态信息
             const elementsInfo = this.elements.map(e => `${this.getElementName(e.elementId)}×${e.amount}`).join(', ');
-            const cooldownStatus = this.isOnCooldown() ? '冷却中' : '就绪';
 
             // 检查可能的反应
             const availableReactions = this.getAvailableReactions();
@@ -1038,7 +1016,7 @@ export class Reactor extends Building {
             }
 
             if (this.scene.hud) {
-                this.scene.hud.showMessage(`反应器: ${elementsInfo} | ${cooldownStatus}${reactionInfo}`, '#ff6600');
+                this.scene.hud.showMessage(`反应器: ${elementsInfo}${reactionInfo}`, '#ff6600');
             }
         } else {
             if (this.scene.hud) {
@@ -1073,12 +1051,6 @@ export class Reactor extends Building {
         return reactions.filter(reaction =>
             this.hasRequiredReactants(reaction.reactants, null)
         ).map(reaction => reaction.name);
-    }
-
-    // 检查是否在冷却中
-    isOnCooldown() {
-        const currentTime = this.scene.time.now;
-        return (currentTime - this.lastReactionTime) < this.reactionCooldown;
     }
 
     // 点击特效
