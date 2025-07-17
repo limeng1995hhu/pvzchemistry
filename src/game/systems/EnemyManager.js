@@ -111,7 +111,14 @@ export class EnemyManager {
                 console.error('敌人创建失败：无效的化学物质数据');
                 return null;
             }
-            
+
+            // 检查敌人所在路径是否可用
+            if (this.scene.laneManager && !this.scene.laneManager.isLaneActive(enemy.lane)) {
+                console.log(`路径 ${enemy.lane} 已禁用，无法生成敌人`);
+                enemy.destroy();
+                return null;
+            }
+
             // 添加到管理系统
             this.enemies.set(enemy.id, enemy);
             this.activeEnemies.push(enemy);
@@ -289,7 +296,12 @@ export class EnemyManager {
     // 敌人到达终点处理
     onEnemyReachedEnd(enemyData) {
         console.log('敌人到达终点:', enemyData);
-        // 这里可以添加扣除生命值等逻辑
+
+        // 触发路径失效事件
+        EventBus.emit('lane-breached', {
+            lane: enemyData.lane,
+            enemyData: enemyData
+        });
     }
     
     // 敌人被消灭处理

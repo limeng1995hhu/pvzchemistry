@@ -33,20 +33,35 @@ export class GridSystem {
         
         this.init();
     }
-    
+
     init() {
         // 创建图形对象
         this.gridGraphics = this.scene.add.graphics();
         this.hoverGraphics = this.scene.add.graphics();
         this.selectionGraphics = this.scene.add.graphics();
-        
+
         // 设置图形层级
         this.gridGraphics.setDepth(1);
         this.hoverGraphics.setDepth(2);
         this.selectionGraphics.setDepth(3);
-        
+
         // 添加输入监听
         this.setupInputHandlers();
+
+        // 监听路径禁用事件
+        this.setupLaneEventListeners();
+    }
+
+    // 设置路径事件监听
+    setupLaneEventListeners() {
+        EventBus.on('lane-disabled', () => {
+            this.refreshGrid();
+        });
+    }
+
+    // 刷新网格显示
+    refreshGrid() {
+        this.drawGrid();
     }
     
     // 根据行数确定路径类型
@@ -88,8 +103,59 @@ export class GridSystem {
         }
         
         this.gridGraphics.strokePath();
+
+        // 绘制路径背景（包括禁用状态）
+        this.drawLaneBackgrounds();
     }
-    
+
+    // 绘制路径背景
+    drawLaneBackgrounds() {
+        if (!this.gameArea || !this.gridSize) return;
+
+        const cellWidth = this.gridSize.width;
+        const cellHeight = this.gridSize.height;
+
+        // 遍历每一行，绘制路径背景
+        for (let row = 0; row < this.rows; row++) {
+            const laneType = this.getLaneType(row);
+            const isActive = this.scene.laneManager ? this.scene.laneManager.isLaneActive(row) : true;
+
+            let color = 0x000000; // 默认黑色
+            let alpha = 0.1;
+
+            if (!isActive) {
+                // 禁用的路径显示为红色
+                color = 0xff0000;
+                alpha = 0.3;
+            } else {
+                // 根据路径类型设置颜色
+                switch (laneType) {
+                    case 'gas':
+                        color = 0x87ceeb; // 天蓝色
+                        alpha = 0.15;
+                        break;
+                    case 'liquid':
+                        color = 0x4169e1; // 皇家蓝
+                        alpha = 0.15;
+                        break;
+                    case 'solid':
+                        color = 0x8b4513; // 棕色
+                        alpha = 0.15;
+                        break;
+                }
+            }
+
+            // 绘制整行背景
+            this.gridGraphics.fillStyle(color, alpha);
+            this.gridGraphics.fillRect(
+                this.gameArea.x,
+                this.gameArea.y + row * cellHeight,
+                this.gameArea.width,
+                cellHeight
+            );
+        }
+    }
+
     // 设置输入处理器
     setupInputHandlers() {
         // 鼠标移动事件
@@ -352,7 +418,10 @@ export class GridSystem {
         if (this.selectionGraphics) {
             this.selectionGraphics.destroy();
         }
-        
+
+        // 清理事件监听
+        EventBus.off('lane-disabled');
+
         // 清理引用
         this.scene = null;
         this.grid = null;

@@ -7,6 +7,7 @@ import { BuildingPlacementSystem } from '../systems/BuildingPlacementSystem';
 import { EnemyManager } from '../systems/EnemyManager';
 import { CollisionSystem } from '../systems/CollisionSystem';
 import { LevelManager } from '../systems/LevelManager';
+import { LaneManager } from '../systems/LaneManager';
 
 export class GamePlay extends Scene
 {
@@ -48,6 +49,9 @@ export class GamePlay extends Scene
         // 创建关卡管理系统
         this.levelManager = new LevelManager(this);
 
+        // 创建路径管理系统
+        this.laneManager = new LaneManager(this);
+
         // 创建UI组件
         this.hud = new HUD(this);
         this.inventoryPanel = new InventoryPanel(this);
@@ -63,6 +67,9 @@ export class GamePlay extends Scene
         
         // 设置游戏控制（包括暂停）
         this.setupGameControls();
+
+        // 设置游戏失败监听
+        this.setupGameOverListener();
 
         // 监听屏幕尺寸变化
         this.scale.on('resize', this.handleResize, this);
@@ -338,6 +345,41 @@ export class GamePlay extends Scene
         console.log('ESC/P键：暂停/恢复游戏');
     }
 
+    setupGameOverListener()
+    {
+        // 监听游戏失败事件
+        EventBus.on('game-over', (data) => {
+            this.handleGameOver(data);
+        });
+    }
+
+    handleGameOver(data)
+    {
+        console.log('游戏失败:', data);
+
+        // 显示失败消息
+        if (this.hud) {
+            let message = '游戏失败！';
+            if (data.reason === 'all-lanes-disabled') {
+                message = `所有${data.laneType}路径都已被突破，游戏失败！`;
+            }
+            this.hud.showMessage(message, '#ff0000', 5000);
+        }
+
+        // 停止所有系统
+        if (this.levelManager) {
+            this.levelManager.isLevelActive = false;
+        }
+        if (this.enemyManager) {
+            this.enemyManager.stopSpawning();
+        }
+
+        // 延迟跳转到游戏结束场景
+        this.time.delayedCall(3000, () => {
+            this.changeScene();
+        });
+    }
+
     addPassiveEnergy()
     {
         // 被动能量增长
@@ -411,16 +453,20 @@ export class GamePlay extends Scene
         if (this.levelManager) {
             this.levelManager.destroy();
         }
+        if (this.laneManager) {
+            this.laneManager.destroy();
+        }
         if (this.hud) {
             this.hud.destroy();
         }
         if (this.inventoryPanel) {
             this.inventoryPanel.destroy();
         }
-        
+
         // 清理事件监听器
         EventBus.off('grid-cell-clicked');
         EventBus.off('grid-cell-hover');
         EventBus.off('grid-cell-selected');
+        EventBus.off('game-over');
     }
 }

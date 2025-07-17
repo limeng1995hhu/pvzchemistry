@@ -31,7 +31,8 @@ export class Enemy {
         // 移动属性
         this.baseSpeed = this.chemicalData.speed;
         this.speedMultiplier = StateSpeedMultipliers[this.state] || 1.0;
-        this.speed = this.baseSpeed * this.speedMultiplier;
+        // 应用全局速度减半
+        this.speed = (this.baseSpeed * this.speedMultiplier) * 0.5;
         
         // 位置属性
         this.startCol = 11; // 从第12列开始（索引11）
@@ -226,7 +227,15 @@ export class Enemy {
         if (this.progress >= 1.0 && !this.reachedEnd) {
             this.reachedEnd = true;
             console.log(`敌人 ${this.formula} 到达终点`);
-            // 这里可以触发游戏事件，比如扣除生命值
+
+            // 发送敌人到达终点事件
+            EventBus.emit('enemy-reached-end', {
+                enemyId: this.id,
+                substance: this.substance,
+                formula: this.formula,
+                state: this.state,
+                lane: this.lane
+            });
         }
     }
     

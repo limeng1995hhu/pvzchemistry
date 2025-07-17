@@ -169,17 +169,22 @@ export class BuildingPlacementSystem {
         if (!this.gridSystem.isValidCell(row, col)) {
             return false;
         }
-        
+
         // 检查该位置是否已被占用
         if (this.gridSystem.isOccupied(row, col)) {
             return false;
         }
-        
+
+        // 检查路径是否可用（如果有路径管理器）
+        if (this.scene.laneManager && !this.scene.laneManager.isLaneActive(row)) {
+            return false;
+        }
+
         // 只检查能量是否足够，不扣除
         if (this.scene.hud && !this.scene.hud.canAfford(this.dragData.price)) {
             return false;
         }
-        
+
         return true;
     }
 
