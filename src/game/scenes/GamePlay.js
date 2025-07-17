@@ -5,6 +5,7 @@ import { InventoryPanel } from '../ui/InventoryPanel';
 import { GridSystem } from '../systems/GridSystem';
 import { BuildingPlacementSystem } from '../systems/BuildingPlacementSystem';
 import { EnemyManager } from '../systems/EnemyManager';
+import { CollisionSystem } from '../systems/CollisionSystem';
 
 export class GamePlay extends Scene
 {
@@ -34,7 +35,10 @@ export class GamePlay extends Scene
         
         // 创建敌人管理系统
         this.enemyManager = new EnemyManager(this);
-        
+
+        // 创建碰撞检测系统
+        this.collisionSystem = new CollisionSystem(this);
+
         // 创建UI组件
         this.hud = new HUD(this);
         this.inventoryPanel = new InventoryPanel(this);
@@ -71,10 +75,15 @@ export class GamePlay extends Scene
         if (this.buildingPlacementSystem) {
             this.buildingPlacementSystem.update(time, delta);
         }
-        
+
         // 更新敌人管理系统
         if (this.enemyManager) {
             this.enemyManager.update(time, delta);
+        }
+
+        // 更新碰撞检测系统
+        if (this.collisionSystem) {
+            this.collisionSystem.update(time, delta);
         }
     }
 
@@ -321,6 +330,9 @@ export class GamePlay extends Scene
         }
         if (this.enemyManager) {
             this.enemyManager.destroy();
+        }
+        if (this.collisionSystem) {
+            this.collisionSystem.destroy();
         }
         if (this.hud) {
             this.hud.destroy();

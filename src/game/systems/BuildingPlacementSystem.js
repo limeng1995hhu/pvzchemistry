@@ -379,10 +379,13 @@ export class BuildingPlacementSystem {
             }
             
             if (building.type === 'recycler') {
+                // 将道具栏元素ID映射到化学数据库ID
+                const substanceId = this.mapElementToSubstance(elementData.id);
+
                 // 设置回收器的目标物质
-                building.setTargetSubstance(elementData.name);
-                console.log('回收器目标设置为:', elementData.name);
-                
+                building.setTargetSubstance(substanceId);
+                console.log('回收器目标设置为:', substanceId, '(来自元素:', elementData.name, ')');
+
                 if (this.scene.hud) {
                     this.scene.hud.showMessage(`回收器目标设置为${elementData.name}！(-${elementData.price}⚡)`, '#4ecdc4');
                 }
@@ -494,6 +497,18 @@ export class BuildingPlacementSystem {
     isShovelType(type) {
         return type === 'shovel';
     }
+
+    // 将道具栏元素ID映射到化学数据库物质ID
+    mapElementToSubstance(elementId) {
+        const elementToSubstanceMap = {
+            'hydrogen': 'H2',
+            'oxygen': 'O2',
+            'carbon': 'C',
+            'nitrogen': 'N2'
+        };
+
+        return elementToSubstanceMap[elementId] || elementId;
+    }
     
     // 更新系统（在GamePlay的update中调用）
     update(time, delta) {
@@ -501,7 +516,7 @@ export class BuildingPlacementSystem {
         if (this.isDragging && this.dragSprite && this.dragText) {
             this.dragText.setPosition(this.dragSprite.x, this.dragSprite.y);
         }
-        
+
         // 更新所有建筑
         this.buildings.forEach(building => {
             if (building.update) {
@@ -509,6 +524,7 @@ export class BuildingPlacementSystem {
             }
         });
     }
+
     
     // 获取指定位置的建筑
     getBuildingAt(row, col) {

@@ -137,20 +137,25 @@ export class Building {
         this.gridCol = col;
     }
 
-    // 将元素名称转换为化学式
-    getChemicalFormula(elementName) {
+    // 将物质ID转换为化学式显示
+    getChemicalFormula(substanceId) {
         const formulaMap = {
-            '氢气': 'H₂',
-            '氧气': 'O₂', 
-            '碳': 'C',
-            '氮气': 'N₂',
-            // 可以根据需要添加更多元素映射
-            'H₂': 'H₂',
-            'O₂': 'O₂',
+            'H2': 'H₂',
+            'O2': 'O₂',
             'C': 'C',
-            'N₂': 'N₂'
+            'N2': 'N₂',
+            'H2O': 'H₂O',
+            'CO2': 'CO₂',
+            'NaCl': 'NaCl',
+            'NaOH': 'NaOH',
+            'CH4': 'CH₄',
+            // 兼容旧的名称映射
+            '氢气': 'H₂',
+            '氧气': 'O₂',
+            '碳': 'C',
+            '氮气': 'N₂'
         };
-        return formulaMap[elementName] || elementName;
+        return formulaMap[substanceId] || substanceId;
     }
     
     // 设置世界位置
@@ -271,22 +276,65 @@ export class Recycler extends Building {
     
     // 尝试回收敌人
     tryRecycle(enemy) {
-        if (!this.targetSubstance || enemy.substance === this.targetSubstance) {
+        if (this.canRecycleEnemy(enemy)) {
             // 回收成功
             this.onRecycleSuccess(enemy);
             return true;
         }
         return false;
     }
-    
+
+    // 检查是否可以回收敌人
+    canRecycleEnemy(enemy) {
+        // 如果没有设置目标物质，不能回收任何敌人
+        if (!this.targetSubstance) {
+            console.log('回收器未设置目标物质');
+            return false;
+        }
+
+        console.log(`回收器检查匹配: 目标=${this.targetSubstance}, 敌人=${enemy.substance}`);
+
+        // 精确匹配：回收器目标物质与敌人物质完全相同
+        if (this.targetSubstance === enemy.substance) {
+            console.log('精确匹配成功！');
+            return true;
+        }
+
+        // 元素匹配：检查回收器目标是否为敌人的组成元素
+        if (enemy.chemicalData && enemy.chemicalData.elements) {
+            const hasElement = enemy.chemicalData.elements.includes(this.targetSubstance);
+            console.log(`元素匹配检查: 敌人元素=${enemy.chemicalData.elements}, 包含目标=${hasElement}`);
+            return hasElement;
+        }
+
+        console.log('无法匹配');
+        return false;
+    }
+
     onRecycleSuccess(enemy) {
         console.log(`回收器回收了 ${enemy.substance}`);
+
+        // 增加回收统计
+        this.recycleCount = (this.recycleCount || 0) + 1;
+
         // 触发回收特效
         this.playRecycleEffect();
+
+        // 更新回收器状态显示
+        this.updateRecycleStatus();
     }
-    
+
+    // 更新回收器状态显示
+    updateRecycleStatus() {
+        // 可以在这里添加回收次数显示或其他状态更新
+        if (this.recycleCount && this.recycleCount % 5 === 0) {
+            // 每回收5个敌人，播放特殊效果
+            this.playLevelUpEffect();
+        }
+    }
+
     playRecycleEffect() {
-        // 简单的回收特效
+        // 回收特效：缩放动画
         this.scene.tweens.add({
             targets: this.container,
             scaleX: 1.2,
@@ -295,6 +343,71 @@ export class Recycler extends Building {
             yoyo: true,
             ease: 'Power2'
         });
+
+        // 添加绿色闪光效果到图标
+        if (this.icon) {
+            this.icon.setTint(0x00ff00);
+
+            this.scene.time.delayedCall(200, () => {
+                if (this.icon) {
+                    this.icon.clearTint();
+                }
+            });
+        }
+
+        // 添加背景颜色变化效果
+        if (this.background) {
+            const originalColor = this.background.fillColor;
+            this.background.setFillStyle(0x00ff00, 0.8);
+
+            this.scene.time.delayedCall(200, () => {
+                if (this.background) {
+                    this.background.setFillStyle(originalColor, 0.8);
+                }
+            });
+        }
+    }
+
+    // 升级特效
+    playLevelUpEffect() {
+        // 旋转特效
+        this.scene.tweens.add({
+            targets: this.container,
+            angle: 360,
+            duration: 500,
+            ease: 'Power2'
+        });
+
+        // 金色闪光效果到图标
+        if (this.icon) {
+            this.icon.setTint(0xffd700);
+            this.scene.time.delayedCall(500, () => {
+                if (this.icon) {
+                    this.icon.clearTint();
+                }
+            });
+        }
+
+        // 背景金色效果
+        if (this.background) {
+            const originalColor = this.background.fillColor;
+            this.background.setFillStyle(0xffd700, 0.8);
+            this.scene.time.delayedCall(500, () => {
+                if (this.background) {
+                    this.background.setFillStyle(originalColor, 0.8);
+                }
+            });
+        }
+    }
+
+    // 获取回收器状态信息
+    getRecycleInfo() {
+        return {
+            targetSubstance: this.targetSubstance,
+            recycleCount: this.recycleCount || 0,
+            recycleRate: this.recycleRate,
+            energyReward: this.energyReward
+        };
     }
 }
 
