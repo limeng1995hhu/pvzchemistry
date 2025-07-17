@@ -103,14 +103,20 @@ export class GamePlay extends Scene
             this.enemyManager.resetEnemyManager();
         }
 
+        // 重置路径管理器状态（重新启用所有被禁用的路径）
+        if (this.laneManager) {
+            this.laneManager.resetLaneManager();
+        }
+
+        // 重置网格系统状态并刷新显示
+        if (this.gridSystem) {
+            // 刷新网格显示以反映路径状态的变化
+            this.gridSystem.refreshGrid();
+        }
+
         // 清理建筑放置系统状态
         if (this.buildingPlacementSystem) {
             // 可以添加建筑系统的重置逻辑
-        }
-
-        // 重置网格系统状态
-        if (this.gridSystem) {
-            // 可以添加网格系统的重置逻辑
         }
 
         console.log('游戏状态重置完成');

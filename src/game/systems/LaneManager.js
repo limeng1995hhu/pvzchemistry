@@ -204,12 +204,33 @@ export class LaneManager {
             activeLaneTypes: { ...this.activeLaneTypes }
         };
     }
-    
+
+    // 重置路径管理器状态
+    resetLaneManager() {
+        console.log('重置路径管理器状态');
+
+        // 重置所有路径为启用状态
+        this.laneStatus = {
+            gas: [true, true],     // 气态路径状态 [0, 1]
+            liquid: [true, true],  // 液态路径状态 [2, 3]
+            solid: [true, true]    // 固态路径状态 [4, 5]
+        };
+
+        // 重置路径类型计数
+        this.activeLaneTypes = {
+            gas: 2,
+            liquid: 2,
+            solid: 2
+        };
+
+        console.log('路径管理器状态重置完成 - 所有路径已启用');
+    }
+
     // 销毁管理器
     destroy() {
         // 清理事件监听
         EventBus.off('lane-breached');
-        
+
         console.log('LaneManager 已销毁');
     }
 }
