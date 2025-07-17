@@ -1,0 +1,233 @@
+{
+  "levels": {
+    "level_01": {
+      "id": "level_01",
+      "name": "氢气入门",
+      "description": "学习使用回收器回收氢气敌人",
+      "difficulty": 1,
+      "initialEnergy": 100,
+      "gridRows": 6,
+      "gridCols": 12,
+      "availableBuildings": ["recycler"],
+      "availableReactions": [],
+      "objectives": [
+        {
+          "type": "survive",
+          "duration": 60000,
+          "description": "生存60秒"
+        },
+        {
+          "type": "recycle",
+          "target": "H2",
+          "amount": 6,
+          "description": "回收6个氢气敌人"
+        }
+      ],
+      "waves": [
+        {
+          "id": "wave1",
+          "startTime": 2000,
+          "enemies": [
+            {
+              "substance": "H2",
+              "state": "gas",
+              "count": 1,
+              "interval": 0,
+              "amount": 1
+            }
+          ]
+        },
+        {
+          "id": "wave2",
+          "startTime": 10000,
+          "enemies": [
+            {
+              "substance": "H2",
+              "state": "gas",
+              "count": 1,
+              "interval": 0,
+              "amount": 2
+            }
+          ]
+        },
+        {
+          "id": "wave3",
+          "startTime": 20000,
+          "enemies": [
+            {
+              "substance": "H2",
+              "state": "gas",
+              "count": 1,
+              "interval": 0,
+              "amount": 3
+            }
+          ]
+        }
+      ],
+      "rewards": {
+        "energy": 50,
+        "unlockElements": ["oxygen"],
+        "unlockReactions": ["water_synthesis"]
+      }
+    },
+    "level_02": {
+      "id": "level_02",
+      "name": "氧气挑战",
+      "description": "学习氢氧反应生成水",
+      "difficulty": 2,
+      "initialEnergy": 120,
+      "gridRows": 6,
+      "gridCols": 12,
+      "availableBuildings": ["recycler", "reactor"],
+      "availableReactions": ["water_synthesis"],
+      "objectives": [
+        {
+          "type": "survive",
+          "duration": 90000,
+          "description": "生存90秒"
+        },
+        {
+          "type": "perform_reactions",
+          "reaction": "water_synthesis",
+          "amount": 2,
+          "description": "执行2次水合成反应"
+        }
+      ],
+      "waves": [
+        {
+          "id": "wave1",
+          "startTime": 3000,
+          "enemies": [
+            {
+              "substance": "H2",
+              "state": "gas",
+              "count": 2,
+              "interval": 1000,
+              "amount": 2
+            }
+          ]
+        },
+        {
+          "id": "wave2",
+          "startTime": 15000,
+          "enemies": [
+            {
+              "substance": "O2",
+              "state": "gas",
+              "count": 1,
+              "interval": 0,
+              "amount": 1
+            }
+          ]
+        },
+        {
+          "id": "wave3",
+          "startTime": 30000,
+          "enemies": [
+            {
+              "substance": "H2",
+              "state": "gas",
+              "count": 2,
+              "interval": 2000,
+              "amount": 1
+            }
+          ]
+        }
+      ],
+      "rewards": {
+        "energy": 80,
+        "unlockElements": ["carbon"],
+        "unlockReactions": ["co2_synthesis"]
+      }
+    }
+  },
+  "elements": {
+    "H2": {
+      "id": "H2",
+      "symbol": "H₂",
+      "name": "氢气",
+      "atomicNumber": 1,
+      "color": "#87CEEB",
+      "price": 10,
+      "rarity": 1,
+      "unlockLevel": "level_01"
+    },
+    "O2": {
+      "id": "O2",
+      "symbol": "O₂",
+      "name": "氧气",
+      "atomicNumber": 8,
+      "color": "#4169E1",
+      "price": 10,
+      "rarity": 1,
+      "unlockLevel": "level_01"
+    },
+    "C": {
+      "id": "C",
+      "symbol": "C",
+      "name": "碳",
+      "atomicNumber": 6,
+      "color": "#8B4513",
+      "price": 15,
+      "rarity": 2,
+      "unlockLevel": "level_02"
+    },
+    "N2": {
+      "id": "N2",
+      "symbol": "N₂",
+      "name": "氮气",
+      "atomicNumber": 7,
+      "color": "#90EE90",
+      "price": 15,
+      "rarity": 2,
+      "unlockLevel": "level_03"
+    }
+  },
+  "reactions": {
+    "water_synthesis": {
+      "id": "water_synthesis",
+      "name": "水合成反应",
+      "equation": "2H₂ + O₂ → 2H₂O",
+      "reactants": [
+        { "elementId": "H2", "amount": 2 },
+        { "elementId": "O2", "amount": 1 }
+      ],
+      "products": [
+        { "substance": "H2O", "amount": 2 }
+      ],
+      "energyCost": 10,
+      "energyGain": 20,
+      "unlockLevel": 1
+    },
+    "co2_synthesis": {
+      "id": "co2_synthesis",
+      "name": "二氧化碳合成",
+      "equation": "C + O₂ → CO₂",
+      "reactants": [
+        { "elementId": "C", "amount": 1 },
+        { "elementId": "O2", "amount": 1 }
+      ],
+      "products": [
+        { "substance": "CO2", "amount": 1 }
+      ],
+      "energyCost": 15,
+      "energyGain": 25,
+      "unlockLevel": 2
+    },
+    "methane_synthesis": {
+      "id": "methane_synthesis",
+      "name": "甲烷合成",
+      "equation": "C + 2H₂ → CH₄",
+      "reactants": [
+        { "elementId": "C", "amount": 1 },
+        { "elementId": "H2", "amount": 2 }
+      ],
+      "products": [
+        { "substance": "CH4", "amount": 1 }
+      ],
+      "energyCost": 20,
+      "energyGain": 30,
+      "unlockLevel": 2
+    }
+  }
+}

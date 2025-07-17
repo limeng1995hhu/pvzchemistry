@@ -1,4 +1,5 @@
 import { getChemicalData, StateSpeedMultipliers, LaneConfig } from '../data/chemicals.js';
+import { EventBus } from '../EventBus.js';
 
 export class Enemy {
     constructor(scene, substanceId, lane = null) {
@@ -319,7 +320,14 @@ export class Enemy {
     die() {
         this.isAlive = false;
         console.log(`敌人 ${this.formula} 被消灭`);
-        
+
+        // 发送敌人死亡事件
+        EventBus.emit('enemy-killed', {
+            enemyId: this.id,
+            substance: this.substance,
+            formula: this.formula
+        });
+
         // 播放死亡效果
         this.playDeathEffect();
     }

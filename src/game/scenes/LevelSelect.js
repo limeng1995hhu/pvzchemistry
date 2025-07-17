@@ -1,6 +1,6 @@
 import { Scene } from 'phaser';
 import { EventBus } from '../EventBus';
-import { gameConfig } from '../systems/ConfigLoader';
+import { configManager } from '../systems/ConfigManager';
 
 export class LevelSelect extends Scene {
     constructor() {
@@ -13,7 +13,19 @@ export class LevelSelect extends Scene {
         console.log('LevelSelect - create开始');
         
         // 加载配置
-        await gameConfig.loadAllConfigs();
+        await configManager.loadConfigs();
+        console.log('LevelSelect: 配置加载完成，isLoaded:', configManager.isConfigLoaded());
+
+        // 确保配置已加载
+        if (!configManager.isConfigLoaded()) {
+            console.error('LevelSelect: 配置加载失败');
+            this.add.text(width / 2, height / 2, '配置加载失败', {
+                fontFamily: 'Arial',
+                fontSize: '24px',
+                color: '#ff0000'
+            }).setOrigin(0.5);
+            return;
+        }
         
         const { width, height } = this.cameras.main;
         
@@ -38,13 +50,26 @@ export class LevelSelect extends Scene {
     
     createLevelList() {
         const { width, height } = this.cameras.main;
-        const levels = gameConfig.getAllLevels();
-        
+        const levelsConfig = configManager.getAllLevelConfigs();
+        console.log('LevelSelect: 获取到的关卡配置:', levelsConfig);
+        const levels = Object.values(levelsConfig || {}); // 转换为数组，处理空值
+        console.log('LevelSelect: 转换后的关卡数组:', levels);
+
+        if (levels.length === 0) {
+            // 如果没有关卡配置，显示提示信息
+            this.add.text(width / 2, height / 2, '没有可用的关卡', {
+                fontFamily: 'Arial',
+                fontSize: '24px',
+                color: '#ffffff'
+            }).setOrigin(0.5);
+            return;
+        }
+
         const startY = 180;
         const buttonHeight = 80;
         const buttonSpacing = 20;
         const buttonWidth = Math.min(600, width - 100);
-        
+
         levels.forEach((level, index) => {
             const y = startY + index * (buttonHeight + buttonSpacing);
             

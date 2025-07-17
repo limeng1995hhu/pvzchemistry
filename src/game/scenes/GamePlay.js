@@ -6,6 +6,7 @@ import { GridSystem } from '../systems/GridSystem';
 import { BuildingPlacementSystem } from '../systems/BuildingPlacementSystem';
 import { EnemyManager } from '../systems/EnemyManager';
 import { CollisionSystem } from '../systems/CollisionSystem';
+import { LevelManager } from '../systems/LevelManager';
 
 export class GamePlay extends Scene
 {
@@ -39,6 +40,9 @@ export class GamePlay extends Scene
         // 创建碰撞检测系统
         this.collisionSystem = new CollisionSystem(this);
 
+        // 创建关卡管理系统
+        this.levelManager = new LevelManager(this);
+
         // 创建UI组件
         this.hud = new HUD(this);
         this.inventoryPanel = new InventoryPanel(this);
@@ -66,8 +70,33 @@ export class GamePlay extends Scene
             loop: true
         });
 
+        // 加载并启动关卡一
+        this.loadLevel1();
+
         EventBus.emit('current-scene-ready', this);
         console.log('GamePlay - create完成');
+    }
+
+    // 加载关卡一
+    async loadLevel1() {
+        console.log('加载关卡一');
+
+        try {
+            // 等待关卡管理器初始化完成
+            await this.levelManager.init();
+
+            // 加载关卡配置
+            if (this.levelManager.loadLevel('level_01')) {
+                // 延迟启动关卡，给玩家时间阅读信息
+                this.time.delayedCall(6000, () => {
+                    this.levelManager.startLevel();
+                });
+            } else {
+                console.error('关卡一加载失败');
+            }
+        } catch (error) {
+            console.error('关卡一初始化失败:', error);
+        }
     }
     
     update(time, delta) {
@@ -84,6 +113,11 @@ export class GamePlay extends Scene
         // 更新碰撞检测系统
         if (this.collisionSystem) {
             this.collisionSystem.update(time, delta);
+        }
+
+        // 更新关卡管理系统
+        if (this.levelManager) {
+            this.levelManager.update(time, delta);
         }
     }
 
@@ -333,6 +367,9 @@ export class GamePlay extends Scene
         }
         if (this.collisionSystem) {
             this.collisionSystem.destroy();
+        }
+        if (this.levelManager) {
+            this.levelManager.destroy();
         }
         if (this.hud) {
             this.hud.destroy();

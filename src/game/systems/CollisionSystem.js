@@ -74,9 +74,9 @@ export class CollisionSystem {
         if (!this.scene.buildingPlacementSystem || !this.scene.enemyManager) {
             return;
         }
-        
+
         const buildings = this.scene.buildingPlacementSystem.buildings;
-        
+
         buildings.forEach(building => {
             if (building.type === 'reactor' && building.elements.length > 0) {
                 this.checkBuildingEnemyCollision(building, 'react');
@@ -179,10 +179,15 @@ export class CollisionSystem {
     
     // 处理反应交互
     handleReactInteraction(building, enemy) {
-        // 这里将来实现化学反应逻辑
-        // 暂时返回false
-        console.log(`反应器尝试与 ${enemy.formula} 反应`);
-        return false;
+        console.log(`反应器碰撞检测: 反应器(元素:${building.elements.map(e => e.elementId).join(',')}) vs 敌人(${enemy.substance})`);
+
+        if (building.tryReact(enemy)) {
+            console.log(`✅ 反应器成功与敌人反应: ${enemy.formula}`);
+            return true;
+        } else {
+            console.log(`❌ 反应器无法与敌人反应: ${enemy.formula}`);
+            return false;
+        }
     }
     
     // 计算能量奖励

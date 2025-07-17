@@ -103,6 +103,8 @@ export class Building {
             // 根据建筑类型调用不同的点击处理
             if (this.type === 'recycler') {
                 this.onRecyclerClicked();
+            } else if (this.type === 'reactor') {
+                this.onReactorClicked();
             } else {
                 this.onClicked();
             }
@@ -259,6 +261,25 @@ export class Building {
             ease: 'Power2'
         });
     }
+
+    // 反应器专用点击处理（基类中的默认实现）
+    onReactorClicked() {
+        console.log('反应器被点击（基类实现）');
+        this.playClickEffect();
+    }
+
+    // 点击特效
+    playClickEffect() {
+        // 轻微的缩放动画
+        this.scene.tweens.add({
+            targets: this.container,
+            scaleX: 1.05,
+            scaleY: 1.05,
+            duration: 100,
+            yoyo: true,
+            ease: 'Power2'
+        });
+    }
     
     // 更新逻辑（每帧调用）
     update(time, delta) {
@@ -267,6 +288,14 @@ export class Building {
     
     // 销毁建筑
     destroy() {
+        // 如果是反应器，清理元素显示
+        if (this.type === 'reactor' && this.elementsDisplay) {
+            this.elementsDisplay.forEach(display => {
+                if (display) display.destroy();
+            });
+            this.elementsDisplay = [];
+        }
+
         if (this.container) {
             this.container.destroy();
         }
@@ -550,70 +579,383 @@ export class Recycler extends Building {
 export class Reactor extends Building {
     constructor(scene, x, y, config = {}) {
         super(scene, x, y, 'reactor', config);
-        
+
         // 反应器特有属性
-        this.elements = []; // 存储的元素
-        this.maxElements = config.maxElements || 3;
-        this.reactionRate = config.reactionRate || 1;
+        this.elements = []; // 存储的元素 [{elementId, amount}, ...]
+        this.maxElementTypes = 4; // 最大存储不同元素种类数量
+        this.maxElementAmount = 10; // 每种元素的最大存储量
+        this.reactionCooldown = 3000; // 反应冷却时间（毫秒）
+        this.lastReactionTime = 0;
+        this.energyCostPerCharge = 15; // 每次储能消耗的能量
+
+        // 反应状态
+        this.isReacting = false;
+        this.reactionProgress = 0;
+
+        // UI元素
+        this.elementsDisplay = [];
+
+        // 创建元素显示
+        this.updateElementsDisplay();
     }
-    
-    // 添加元素
-    addElement(element) {
-        if (this.elements.length < this.maxElements) {
-            this.elements.push(element);
-            this.updateDisplay();
-            return true;
+
+    // 添加元素（储能）
+    addElement(elementId) {
+        // 检查是否已存在该元素
+        const existingElement = this.elements.find(e => e.elementId === elementId);
+
+        if (existingElement) {
+            // 检查是否已达到最大存储量
+            if (existingElement.amount >= this.maxElementAmount) {
+                return { success: false, message: '该元素已达到最大存储量' };
+            }
+
+            // 检查能量是否足够
+            if (this.scene.hud && !this.scene.hud.canAfford(this.energyCostPerCharge)) {
+                return { success: false, message: '能量不足' };
+            }
+
+            // 消耗能量并增加数量
+            if (this.scene.hud && this.scene.hud.spendEnergy(this.energyCostPerCharge)) {
+                existingElement.amount++;
+                this.updateElementsDisplay();
+                return {
+                    success: true,
+                    message: `${this.getElementName(elementId)} 数量: ${existingElement.amount}/${this.maxElementAmount}`
+                };
+            }
+        } else {
+            // 检查是否已达到最大元素种类数量
+            if (this.elements.length >= this.maxElementTypes) {
+                return { success: false, message: '已达到最大元素种类数量' };
+            }
+
+            // 检查能量是否足够
+            if (this.scene.hud && !this.scene.hud.canAfford(this.energyCostPerCharge)) {
+                return { success: false, message: '能量不足' };
+            }
+
+            // 消耗能量并添加新元素
+            if (this.scene.hud && this.scene.hud.spendEnergy(this.energyCostPerCharge)) {
+                this.elements.push({ elementId, amount: 1 });
+                this.updateElementsDisplay();
+                return {
+                    success: true,
+                    message: `添加 ${this.getElementName(elementId)} ×1`
+                };
+            }
         }
-        return false;
+
+        return { success: false, message: '储能失败' };
     }
-    
+
     // 移除元素
-    removeElement(index) {
-        if (index >= 0 && index < this.elements.length) {
-            const removed = this.elements.splice(index, 1)[0];
-            this.updateDisplay();
-            return removed;
+    removeElement(elementId, amount = 1) {
+        const elementIndex = this.elements.findIndex(e => e.elementId === elementId);
+
+        if (elementIndex === -1) {
+            return 0; // 没有找到该元素
         }
+
+        const element = this.elements[elementIndex];
+        const actualRemoved = Math.min(amount, element.amount);
+
+        element.amount -= actualRemoved;
+
+        // 如果数量为0，移除该元素
+        if (element.amount <= 0) {
+            this.elements.splice(elementIndex, 1);
+        }
+
+        this.updateElementsDisplay();
+        return actualRemoved;
+    }
+    
+    // 更新元素显示
+    updateElementsDisplay() {
+        // 清除旧的显示
+        this.elementsDisplay.forEach(display => {
+            if (display) display.destroy();
+        });
+        this.elementsDisplay = [];
+
+        // 创建新的元素显示
+        if (this.elements.length > 0) {
+            const startY = -this.config.size/2 - 25;
+            const spacing = 20;
+
+            this.elements.forEach((element, index) => {
+                const y = startY - (index * spacing);
+                const elementName = this.getElementName(element.elementId);
+
+                if (element.amount > 1) {
+                    // 创建数量标签（粗体）
+                    const amountLabel = this.scene.add.text(-5, y, element.amount.toString(), {
+                        fontFamily: 'Arial Bold',
+                        fontSize: '14px',
+                        color: '#ff6600', // 橙色
+                        resolution: 2
+                    }).setOrigin(1, 0.5);
+
+                    // 创建元素标签（正常字体）
+                    const elementLabel = this.scene.add.text(-3, y, elementName, {
+                        fontFamily: 'Arial',
+                        fontSize: '12px',
+                        color: '#ff6600',
+                        resolution: 2
+                    }).setOrigin(0, 0.5);
+
+                    this.container.add([amountLabel, elementLabel]);
+                    this.elementsDisplay.push(amountLabel, elementLabel);
+                } else {
+                    // 只显示元素名称
+                    const elementLabel = this.scene.add.text(0, y, elementName, {
+                        fontFamily: 'Arial',
+                        fontSize: '12px',
+                        color: '#ff6600',
+                        resolution: 2
+                    }).setOrigin(0.5);
+
+                    this.container.add(elementLabel);
+                    this.elementsDisplay.push(elementLabel);
+                }
+            });
+        }
+
+        // 根据存储状态设置图标颜色
+        if (this.icon) {
+            if (this.elements.length > 0) {
+                this.icon.setTint(0xff6600); // 橙色表示有元素
+            } else {
+                this.icon.clearTint();
+            }
+        }
+    }
+
+    // 获取元素名称
+    getElementName(elementId) {
+        const elementMap = {
+            'H2': 'H₂',
+            'O2': 'O₂',
+            'C': 'C',
+            'N2': 'N₂',
+            'H': 'H',
+            'O': 'O',
+            'N': 'N'
+        };
+        return elementMap[elementId] || elementId;
+    }
+    
+    // 检查是否可以与敌人反应
+    canReactWithEnemy(enemy) {
+        // 检查冷却时间
+        const currentTime = this.scene.time.now;
+        if (currentTime - this.lastReactionTime < this.reactionCooldown) {
+            return false;
+        }
+
+        // 检查是否有存储的元素
+        if (this.elements.length === 0) {
+            return false;
+        }
+
+        // 检查是否正在反应中
+        if (this.isReacting) {
+            return false;
+        }
+
+        // 检查是否有可用的反应
+        return this.findAvailableReaction(enemy) !== null;
+    }
+
+    // 查找可用的反应
+    findAvailableReaction(enemy) {
+        // 简单的反应规则：
+        // H2 + O2 → H2O (需要2个H2和1个O2)
+        // C + O2 → CO2 (需要1个C和1个O2)
+        // N2 + H2 → NH3 (需要1个N2和3个H2)
+
+        const reactions = [
+            {
+                id: 'water_synthesis',
+                reactants: [{ elementId: 'H2', amount: 2 }, { elementId: 'O2', amount: 1 }],
+                products: [{ substance: 'H2O', amount: 2 }],
+                condition: (enemy) => enemy.substance === 'H2' || enemy.substance === 'O2'
+            },
+            {
+                id: 'co2_synthesis',
+                reactants: [{ elementId: 'C', amount: 1 }, { elementId: 'O2', amount: 1 }],
+                products: [{ substance: 'CO2', amount: 1 }],
+                condition: (enemy) => enemy.substance === 'C' || enemy.substance === 'O2'
+            },
+            {
+                id: 'methane_synthesis',
+                reactants: [{ elementId: 'C', amount: 1 }, { elementId: 'H2', amount: 2 }],
+                products: [{ substance: 'CH4', amount: 1 }],
+                condition: (enemy) => enemy.substance === 'C' || enemy.substance === 'H2'
+            }
+        ];
+
+        for (const reaction of reactions) {
+            if (reaction.condition(enemy) && this.hasRequiredReactants(reaction.reactants)) {
+                return reaction;
+            }
+        }
+
         return null;
     }
-    
-    updateDisplay() {
-        // 显示存储的元素在建筑上方
-        if (this.elements.length > 0) {
-            // 将元素符号转换为化学式显示
-            const formulas = this.elements.map(element => this.getChemicalFormula(element));
-            const elementStr = formulas.join(' + ');
-            this.showElementLabel(elementStr);
-            // 不改变图标颜色，保持原色
-        } else {
-            this.hideElementLabel();
+
+    // 检查是否有所需的反应物
+    hasRequiredReactants(reactants) {
+        for (const reactant of reactants) {
+            const element = this.elements.find(e => e.elementId === reactant.elementId);
+            if (!element || element.amount < reactant.amount) {
+                return false;
+            }
         }
-        // 始终保持图标原色，不应用任何色调变化
-        if (this.icon) {
-            this.icon.clearTint();
-        }
+        return true;
     }
-    
+
     // 尝试反应
     tryReact(enemy) {
-        // 这里需要化学反应系统支持
-        // 暂时返回false
-        return false;
+        if (!this.canReactWithEnemy(enemy)) {
+            return false;
+        }
+
+        const reaction = this.findAvailableReaction(enemy);
+        if (!reaction) {
+            return false;
+        }
+
+        // 执行反应
+        return this.executeReaction(reaction, enemy);
     }
-    
+
+    // 执行反应
+    executeReaction(reaction, enemy) {
+        console.log(`执行反应: ${reaction.id}`);
+
+        // 消耗反应物
+        for (const reactant of reaction.reactants) {
+            this.removeElement(reactant.elementId, reactant.amount);
+        }
+
+        // 消耗敌人（作为反应物之一）
+        const consumedAmount = Math.min(1, enemy.substanceAmount);
+        enemy.consumeSubstance(consumedAmount);
+
+        // 生成产物（新敌人）
+        for (const product of reaction.products) {
+            this.spawnProductEnemy(product);
+        }
+
+        // 播放反应特效
+        this.playReactionEffect();
+
+        // 更新冷却时间
+        this.lastReactionTime = this.scene.time.now;
+
+        // 发送反应事件
+        EventBus.emit('reaction-occurred', {
+            reactionId: reaction.id,
+            reactorPos: { row: this.gridRow, col: this.gridCol },
+            consumedEnemy: enemy.substance,
+            products: reaction.products
+        });
+
+        console.log(`✅ 反应成功: ${reaction.id}, 产物: ${reaction.products.map(p => p.substance).join(', ')}`);
+        return true;
+    }
+
+    // 生成产物敌人
+    spawnProductEnemy(product) {
+        if (this.scene.enemyManager) {
+            // 在反应器附近生成新敌人
+            const newEnemy = this.scene.enemyManager.spawnEnemy(product.substance);
+            if (newEnemy) {
+                // 设置产物敌人的数量
+                newEnemy.substanceAmount = product.amount;
+                newEnemy.updateAmountDisplay();
+
+                console.log(`生成产物敌人: ${product.substance} ×${product.amount}`);
+            }
+        }
+    }
+
     // 手动触发反应
     triggerReaction() {
         console.log('手动触发反应');
         this.playReactionEffect();
     }
-    
+
     playReactionEffect() {
-        // 简单的反应特效
+        // 反应特效：旋转 + 缩放 + 颜色变化
+        this.scene.tweens.add({
+            targets: this.container,
+            scaleX: 1.3,
+            scaleY: 1.3,
+            duration: 300,
+            yoyo: true,
+            ease: 'Power2'
+        });
+
+        // 图标旋转
         this.scene.tweens.add({
             targets: this.icon,
             angle: 360,
             duration: 500,
             ease: 'Power2'
         });
+
+        // 颜色闪烁
+        if (this.icon) {
+            this.icon.setTint(0xffff00); // 黄色闪光
+            this.scene.time.delayedCall(500, () => {
+                if (this.icon) {
+                    this.icon.setTint(0xff6600); // 恢复橙色
+                }
+            });
+        }
     }
-} 
+
+    // 重写反应器点击处理
+    onReactorClicked() {
+        console.log('反应器被点击');
+
+        if (this.elements.length > 0) {
+            // 显示反应器状态信息
+            const elementsInfo = this.elements.map(e => `${this.getElementName(e.elementId)}×${e.amount}`).join(', ');
+            const cooldownStatus = this.isOnCooldown() ? '冷却中' : '就绪';
+
+            if (this.scene.hud) {
+                this.scene.hud.showMessage(`反应器状态: ${elementsInfo} | ${cooldownStatus}`, '#ff6600');
+            }
+        } else {
+            if (this.scene.hud) {
+                this.scene.hud.showMessage('反应器为空，请拖拽元素添加反应物', '#ff8800');
+            }
+        }
+
+        // 播放点击特效
+        this.playClickEffect();
+    }
+
+    // 检查是否在冷却中
+    isOnCooldown() {
+        const currentTime = this.scene.time.now;
+        return (currentTime - this.lastReactionTime) < this.reactionCooldown;
+    }
+
+    // 点击特效
+    playClickEffect() {
+        // 轻微的缩放动画
+        this.scene.tweens.add({
+            targets: this.container,
+            scaleX: 1.05,
+            scaleY: 1.05,
+            duration: 100,
+            yoyo: true,
+            ease: 'Power2'
+        });
+    }
+}

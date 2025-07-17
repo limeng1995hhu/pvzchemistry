@@ -5,13 +5,17 @@ export class InventoryPanel {
         this.scene = scene;
         this.selectedTool = null;
         this.tools = new Map();
-        
+
         // 拖拽相关属性
         this.isDragging = false;
         this.dragData = null;
         this.dragContainer = null;
-        
+
+        // 可用道具（默认为关卡一配置）
+        this.availableItems = ['hydrogen', 'recycler'];
+
         this.create();
+        this.setupEventListeners();
     }
 
     create() {
@@ -34,8 +38,8 @@ export class InventoryPanel {
         const buttonSpacing = 100; // 进一步增大间距，让道具更清晰分离
         const startX = 320; // 向右移动避免与能量文字重叠
 
-        // 定义工具数据
-        const toolsData = [
+        // 定义所有工具数据
+        const allToolsData = [
             { id: 'hydrogen', symbol: 'H₂', name: '氢气', color: '#87CEEB', price: 10 },
             { id: 'oxygen', symbol: 'O₂', name: '氧气', color: '#4169E1', price: 10 },
             { id: 'carbon', symbol: 'C', name: '碳', color: '#8B4513', price: 15 },
@@ -44,6 +48,10 @@ export class InventoryPanel {
             { id: 'reactor', symbol: '🔥', name: '反应器', color: '#000000', price: 10 },
             { id: 'shovel', symbol: '⛏️', name: '铲子', color: '#8B4513', price: 0 }
         ];
+
+        // 根据关卡配置过滤可用工具（默认显示关卡一的配置）
+        const availableItems = this.availableItems || ['hydrogen', 'recycler'];
+        const toolsData = allToolsData.filter(tool => availableItems.includes(tool.id));
 
         // 创建按钮
         toolsData.forEach((tool, index) => {
@@ -378,7 +386,41 @@ export class InventoryPanel {
         });
     }
 
+    // 设置事件监听器
+    setupEventListeners() {
+        // 监听关卡道具配置事件
+        EventBus.on('level-items-configured', (data) => {
+            this.updateAvailableItems(data.availableItems);
+        });
+    }
+
+    // 更新可用道具
+    updateAvailableItems(availableItems) {
+        console.log('更新可用道具:', availableItems);
+        this.availableItems = availableItems;
+
+        // 重新创建道具栏
+        this.recreateInventory();
+    }
+
+    // 重新创建道具栏
+    recreateInventory() {
+        // 清除现有的道具
+        this.tools.forEach(tool => {
+            if (tool.button && tool.button.container) {
+                tool.button.container.destroy();
+            }
+        });
+        this.tools.clear();
+
+        // 重新创建
+        this.createToolButtons();
+    }
+
     destroy() {
+        // 清理事件监听
+        EventBus.off('level-items-configured');
+
         if (this.container) {
             this.container.destroy();
         }

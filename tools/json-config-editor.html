@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON配置编辑器 - 化学塔防游戏</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .toolbar {
+            background: #34495e;
+            padding: 10px 20px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .button {
+            background-color: #3498db;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .button:hover {
+            background-color: #2980b9;
+        }
+        
+        .button.success {
+            background-color: #27ae60;
+        }
+        
+        .button.success:hover {
+            background-color: #229954;
+        }
+        
+        .button.danger {
+            background-color: #e74c3c;
+        }
+        
+        .button.danger:hover {
+            background-color: #c0392b;
+        }
+        
+        .main-content {
+            display: flex;
+            height: 70vh;
+        }
+        
+        .editor-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .editor-header {
+            background: #ecf0f1;
+            padding: 10px 20px;
+            border-bottom: 1px solid #bdc3c7;
+            font-weight: bold;
+        }
+        
+        .editor {
+            flex: 1;
+            border: none;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            resize: none;
+            outline: none;
+        }
+        
+        .preview-panel {
+            width: 400px;
+            border-left: 1px solid #bdc3c7;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .preview-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .status {
+            padding: 10px 20px;
+            border-top: 1px solid #bdc3c7;
+            font-size: 14px;
+        }
+        
+        .status.success {
+            background-color: #d5f4e6;
+            color: #27ae60;
+        }
+        
+        .status.error {
+            background-color: #fadbd8;
+            color: #e74c3c;
+        }
+        
+        .level-card {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background: #f9f9f9;
+        }
+        
+        .level-title {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        
+        .level-info {
+            font-size: 12px;
+            color: #7f8c8d;
+            margin-bottom: 10px;
+        }
+        
+        .objectives {
+            margin-top: 10px;
+        }
+        
+        .objective {
+            background: #e8f4fd;
+            padding: 5px 10px;
+            border-radius: 3px;
+            margin: 3px 0;
+            font-size: 12px;
+        }
+        
+        .waves {
+            margin-top: 10px;
+        }
+        
+        .wave {
+            background: #fef9e7;
+            padding: 5px 10px;
+            border-radius: 3px;
+            margin: 3px 0;
+            font-size: 12px;
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .help-text {
+            color: #7f8c8d;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧪 化学塔防游戏 JSON配置编辑器</h1>
+            <p>简单直观的JSON配置编辑工具</p>
+        </div>
+        
+        <div class="toolbar">
+            <button class="button" onclick="loadDefaultConfig()">📄 加载默认配置</button>
+            <button class="button" onclick="document.getElementById('fileInput').click()">📁 打开文件</button>
+            <button class="button success" onclick="downloadConfig()">💾 下载配置</button>
+            <button class="button" onclick="validateConfig()">✅ 验证格式</button>
+            <button class="button" onclick="formatConfig()">🎨 格式化</button>
+            <button class="button danger" onclick="clearEditor()">🗑️ 清空</button>
+            <span class="help-text">提示：修改左侧JSON后，右侧会实时预览关卡信息</span>
+            
+            <input type="file" id="fileInput" class="file-input" accept=".json" onchange="loadFile(event)">
+        </div>
+        
+        <div class="main-content">
+            <div class="editor-panel">
+                <div class="editor-header">JSON配置编辑器</div>
+                <textarea id="jsonEditor" class="editor" placeholder="在此输入或粘贴JSON配置..."></textarea>
+            </div>
+            
+            <div class="preview-panel">
+                <div class="editor-header">关卡预览</div>
+                <div id="previewContent" class="preview-content">
+                    <p style="color: #7f8c8d; text-align: center; margin-top: 50px;">
+                        在左侧输入JSON配置后，这里会显示关卡预览
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div id="status" class="status">就绪</div>
+    </div>
+
+    <script>
+        const editor = document.getElementById('jsonEditor');
+        const previewContent = document.getElementById('previewContent');
+        const status = document.getElementById('status');
+        
+        // 默认配置
+        const defaultConfig = {
+            "levels": {
+                "level_01": {
+                    "id": "level_01",
+                    "name": "氢气入门",
+                    "description": "学习使用回收器回收氢气敌人",
+                    "difficulty": 1,
+                    "initialEnergy": 100,
+                    "gridRows": 6,
+                    "gridCols": 12,
+                    "availableBuildings": ["recycler"],
+                    "availableReactions": [],
+                    "objectives": [
+                        {
+                            "type": "survive",
+                            "duration": 60000,
+                            "description": "生存60秒"
+                        },
+                        {
+                            "type": "recycle",
+                            "target": "H2",
+                            "amount": 6,
+                            "description": "回收6个氢气敌人"
+                        }
+                    ],
+                    "waves": [
+                        {
+                            "id": "wave1",
+                            "startTime": 2000,
+                            "enemies": [
+                                {
+                                    "substance": "H2",
+                                    "state": "gas",
+                                    "count": 1,
+                                    "interval": 0,
+                                    "amount": 1
+                                }
+                            ]
+                        },
+                        {
+                            "id": "wave2",
+                            "startTime": 10000,
+                            "enemies": [
+                                {
+                                    "substance": "H2",
+                                    "state": "gas",
+                                    "count": 1,
+                                    "interval": 0,
+                                    "amount": 2
+                                }
+                            ]
+                        },
+                        {
+                            "id": "wave3",
+                            "startTime": 20000,
+                            "enemies": [
+                                {
+                                    "substance": "H2",
+                                    "state": "gas",
+                                    "count": 1,
+                                    "interval": 0,
+                                    "amount": 3
+                                }
+                            ]
+                        }
+                    ],
+                    "rewards": {
+                        "energy": 50,
+                        "unlockElements": ["oxygen"],
+                        "unlockReactions": ["water_synthesis"]
+                    }
+                }
+            },
+            "elements": {
+                "H2": {
+                    "id": "H2",
+                    "symbol": "H₂",
+                    "name": "氢气",
+                    "atomicNumber": 1,
+                    "color": "#87CEEB",
+                    "price": 10,
+                    "rarity": 1,
+                    "unlockLevel": "level_01"
+                }
+            },
+            "reactions": {
+                "water_synthesis": {
+                    "id": "water_synthesis",
+                    "name": "水合成反应",
+                    "equation": "2H₂ + O₂ → 2H₂O",
+                    "reactants": [
+                        { "elementId": "H2", "amount": 2 },
+                        { "elementId": "O2", "amount": 1 }
+                    ],
+                    "products": [
+                        { "substance": "H2O", "amount": 2 }
+                    ],
+                    "energyCost": 10,
+                    "energyGain": 20,
+                    "unlockLevel": 1
+                }
+            }
+        };
+        
+        // 实时预览
+        editor.addEventListener('input', updatePreview);
+        
+        function loadDefaultConfig() {
+            editor.value = JSON.stringify(defaultConfig, null, 2);
+            updatePreview();
+            showStatus('success', '默认配置已加载');
+        }
+        
+        function loadFile(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    editor.value = e.target.result;
+                    updatePreview();
+                    showStatus('success', `文件 ${file.name} 已加载`);
+                };
+                reader.readAsText(file);
+            }
+        }
+        
+        function downloadConfig() {
+            try {
+                const config = JSON.parse(editor.value);
+                const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'levels.json';
+                a.click();
+                URL.revokeObjectURL(url);
+                showStatus('success', '配置文件已下载');
+            } catch (error) {
+                showStatus('error', '下载失败：JSON格式错误');
+            }
+        }
+        
+        function validateConfig() {
+            try {
+                JSON.parse(editor.value);
+                showStatus('success', 'JSON格式正确');
+            } catch (error) {
+                showStatus('error', `JSON格式错误: ${error.message}`);
+            }
+        }
+        
+        function formatConfig() {
+            try {
+                const config = JSON.parse(editor.value);
+                editor.value = JSON.stringify(config, null, 2);
+                updatePreview();
+                showStatus('success', 'JSON已格式化');
+            } catch (error) {
+                showStatus('error', `格式化失败: ${error.message}`);
+            }
+        }
+        
+        function clearEditor() {
+            if (confirm('确定要清空编辑器内容吗？')) {
+                editor.value = '';
+                previewContent.innerHTML = '<p style="color: #7f8c8d; text-align: center; margin-top: 50px;">编辑器已清空</p>';
+                showStatus('success', '编辑器已清空');
+            }
+        }
+        
+        function updatePreview() {
+            try {
+                const config = JSON.parse(editor.value);
+                renderPreview(config);
+                showStatus('success', 'JSON格式正确');
+            } catch (error) {
+                previewContent.innerHTML = `<p style="color: #e74c3c; text-align: center; margin-top: 50px;">JSON格式错误<br>${error.message}</p>`;
+                showStatus('error', `JSON格式错误: ${error.message}`);
+            }
+        }
+        
+        function renderPreview(config) {
+            let html = '';
+            
+            if (config.levels) {
+                html += '<h3>📋 关卡配置</h3>';
+                Object.values(config.levels).forEach(level => {
+                    html += `
+                        <div class="level-card">
+                            <div class="level-title">${level.name} (${level.id})</div>
+                            <div class="level-info">
+                                难度: ${level.difficulty} | 初始能量: ${level.initialEnergy} | 
+                                网格: ${level.gridRows}×${level.gridCols}
+                            </div>
+                            <div>${level.description}</div>
+                            
+                            <div class="objectives">
+                                <strong>🎯 关卡目标:</strong>
+                                ${level.objectives ? level.objectives.map(obj => 
+                                    `<div class="objective">${obj.description}</div>`
+                                ).join('') : ''}
+                            </div>
+                            
+                            <div class="waves">
+                                <strong>👾 敌人波次:</strong>
+                                ${level.waves ? level.waves.map(wave => 
+                                    `<div class="wave">${wave.id}: ${wave.startTime/1000}s - ${wave.enemies.map(e => 
+                                        `${e.count}×${e.substance}(${e.amount})`
+                                    ).join(', ')}</div>`
+                                ).join('') : ''}
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+            
+            if (config.elements) {
+                html += '<h3>🧪 元素配置</h3>';
+                Object.values(config.elements).forEach(element => {
+                    html += `
+                        <div style="display: inline-block; margin: 5px; padding: 8px; background: ${element.color}20; border: 1px solid ${element.color}; border-radius: 4px; font-size: 12px;">
+                            <strong>${element.symbol}</strong> ${element.name} (¥${element.price})
+                        </div>
+                    `;
+                });
+            }
+            
+            if (config.reactions) {
+                html += '<h3>⚗️ 化学反应</h3>';
+                Object.values(config.reactions).forEach(reaction => {
+                    html += `
+                        <div style="margin: 10px 0; padding: 10px; background: #f8f9fa; border-radius: 4px; font-size: 12px;">
+                            <strong>${reaction.name}</strong><br>
+                            ${reaction.equation}<br>
+                            <span style="color: #e74c3c;">-${reaction.energyCost}⚡</span> 
+                            <span style="color: #27ae60;">+${reaction.energyGain}⚡</span>
+                        </div>
+                    `;
+                });
+            }
+            
+            previewContent.innerHTML = html || '<p style="color: #7f8c8d; text-align: center; margin-top: 50px;">没有找到有效的配置数据</p>';
+        }
+        
+        function showStatus(type, message) {
+            status.className = `status ${type}`;
+            status.textContent = message;
+            
+            setTimeout(() => {
+                status.className = 'status';
+                status.textContent = '就绪';
+            }, 3000);
+        }
+        
+        // 初始化
+        loadDefaultConfig();
+    </script>
+</body>
+</html>

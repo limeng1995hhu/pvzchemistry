@@ -45,9 +45,9 @@ export class EnemyManager {
         
         // 监听游戏事件
         this.setupEventListeners();
-        
-        // 开始测试生成
-        this.startTestSpawning();
+
+        // 注释掉测试生成，使用关卡管理器控制敌人生成
+        // this.startTestSpawning();
     }
     
     setupEventListeners() {
@@ -182,17 +182,18 @@ export class EnemyManager {
         this.cleanupEnemies();
     }
     
-    // 更新生成逻辑
+    // 更新生成逻辑（已禁用，由关卡管理器控制）
     updateSpawning(time) {
-        if (!this.isSpawning) return;
-        
-        if (time >= this.nextSpawnTime) {
-            // 生成新敌人
-            this.spawnEnemy();
-            
-            // 设置下次生成时间
-            this.nextSpawnTime = time + this.spawnInterval + Math.random() * 1000; // 添加随机延迟
-        }
+        // 注释掉自动生成逻辑，改为由关卡管理器控制敌人生成
+        // if (!this.isSpawning) return;
+        //
+        // if (time >= this.nextSpawnTime) {
+        //     // 生成新敌人
+        //     this.spawnEnemy();
+        //
+        //     // 设置下次生成时间
+        //     this.nextSpawnTime = time + this.spawnInterval + Math.random() * 1000; // 添加随机延迟
+        // }
     }
     
     // 更新所有敌人

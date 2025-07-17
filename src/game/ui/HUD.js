@@ -132,7 +132,7 @@ export class HUD {
     updateEnergy(amount) {
         this.currentEnergy = Math.max(0, amount);
         this.energyText.setText(`能量: ${this.currentEnergy}`);
-        
+
         // 能量不足时的视觉提示
         if (this.currentEnergy < 20) {
             this.energyText.setColor('#ff6b6b'); // 红色警告
@@ -141,6 +141,11 @@ export class HUD {
             this.energyText.setColor('#e94560'); // 正常颜色
             this.energyIcon.clearTint();
         }
+    }
+
+    // 设置能量值（LevelManager需要的方法）
+    setEnergy(amount) {
+        this.updateEnergy(amount);
     }
 
     addEnergy(amount) {
@@ -183,16 +188,16 @@ export class HUD {
         });
     }
 
-    showMessage(text, color = '#ffffff') {
+    showMessage(text, color = '#ffffff', duration = 2500) {
         // 移除之前的消息
         if (this.currentMessage) {
             this.currentMessage.destroy();
         }
 
         this.currentMessage = this.scene.add.text(
-            this.scene.cameras.main.width / 2, 
+            this.scene.cameras.main.width / 2,
             160, // 调整位置避免与更高的HUD重叠
-            text, 
+            text,
             {
                 fontFamily: 'Arial',
                 fontSize: '32px', // 文本大小扩大1倍
@@ -203,8 +208,8 @@ export class HUD {
             }
         ).setOrigin(0.5);
 
-        // 2.5秒后自动消失
-        this.scene.time.delayedCall(2500, () => {
+        // 指定时间后自动消失
+        this.scene.time.delayedCall(duration, () => {
             if (this.currentMessage) {
                 this.currentMessage.destroy();
                 this.currentMessage = null;

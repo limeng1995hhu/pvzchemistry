@@ -390,6 +390,19 @@ export class BuildingPlacementSystem {
                     this.scene.hud.showMessage(`回收器目标设置为${elementData.name}！(-${elementData.price}⚡)`, '#4ecdc4');
                 }
             } else if (building.type === 'reactor') {
+                // 将道具栏元素ID映射到化学数据库ID
+                const substanceId = this.mapElementToSubstance(elementData.id);
+
+                // 向反应器添加元素
+                const result = building.addElement(substanceId);
+
+                if (this.scene.hud) {
+                    const color = result.success ? '#4ecdc4' : '#ff0000';
+                    this.scene.hud.showMessage(result.message, color);
+                }
+
+                console.log('反应器添加元素:', substanceId, '结果:', result);
+            } else if (building.type === 'reactor') {
                 // 添加元素到反应器
                 building.addElement(elementData.symbol);
                 console.log('反应器添加元素:', elementData.symbol);
