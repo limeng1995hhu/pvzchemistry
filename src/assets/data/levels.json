@@ -320,14 +320,14 @@
     },
     "level_05": {
       "id": "level_05",
-      "name": "盐类合成",
-      "description": "掌握四种化学反应：水合成、二氧化碳合成、氨气合成、氯化钠合成",
+      "name": "氯气水解",
+      "description": "利用氯气和水的反应产生氢氧化钠和氯化钠",
       "difficulty": 5,
-      "initialEnergy": 200,
+      "initialEnergy": 180,
       "gridRows": 6,
       "gridCols": 12,
       "availableBuildings": ["recycler", "reactor"],
-      "availableReactions": ["water_synthesis", "co2_synthesis", "ammonia_synthesis", "salt_synthesis"],
+      "availableReactions": ["water_synthesis", "chlorine_water_reaction", "chlorine_hydrogen_reaction", "hypochlorous_acid_decomposition", "acid_base_neutralization"],
       "objectives": [
         {
           "type": "survive",
@@ -358,75 +358,10 @@
           "startTime": 3000,
           "enemies": [
             {
-              "substance": "Na",
-              "state": "solid",
-              "count": 2,
-              "interval": 2500,
-              "amount": 2
-            }
-          ]
-        },
-        {
-          "id": "wave2",
-          "startTime": 30000,
-          "enemies": [
-            {
               "substance": "Cl2",
-              "state": "gas",
-              "count": 1,
-              "interval": 0,
-              "amount": 1
-            }
-          ]
-        },
-        {
-          "id": "wave3",
-          "startTime": 50000,
-          "enemies": [
-            {
-              "substance": "N2",
               "state": "gas",
               "count": 3,
               "interval": 3000,
-              "amount": 1
-            }
-          ]
-        },
-        {
-          "id": "wave4",
-          "startTime": 80000,
-          "enemies": [
-            {
-              "substance": "O2",
-              "state": "gas",
-              "count": 2,
-              "interval": 4000,
-              "amount": 1
-            }
-          ]
-        },
-        {
-          "id": "wave5",
-          "startTime": 120000,
-          "enemies": [
-            {
-              "substance": "H2",
-              "state": "gas",
-              "count": 4,
-              "interval": 2000,
-              "amount": 3
-            }
-          ]
-        },
-        {
-          "id": "wave6",
-          "startTime": 150000,
-          "enemies": [
-            {
-              "substance": "C",
-              "state": "solid",
-              "count": 3,
-              "interval": 3500,
               "amount": 1
             }
           ]
@@ -692,6 +627,69 @@
       "energyCost": 10,
       "energyGain": 40,
       "unlockLevel": 4
+    },
+    "chlorine_water_reaction": {
+      "id": "chlorine_water_reaction",
+      "name": "氯气水反应",
+      "equation": "Cl₂ + H₂O → HClO + HCl",
+      "reactants": [
+        { "elementId": "Cl2", "amount": 1 },
+        { "elementId": "H2O", "amount": 1 }
+      ],
+      "products": [
+        { "substance": "HClO", "amount": 1 },
+        { "substance": "HCl", "amount": 1 }
+      ],
+      "energyCost": 10,
+      "energyGain": 30,
+      "unlockLevel": 5
+    },
+
+    "chlorine_hydrogen_reaction": {
+      "id": "chlorine_hydrogen_reaction",
+      "name": "氯气氢气反应",
+      "equation": "Cl₂ + H₂ → 2HCl",
+      "reactants": [
+        { "elementId": "Cl2", "amount": 1 },
+        { "elementId": "H2", "amount": 1 }
+      ],
+      "products": [
+        { "substance": "HCl", "amount": 2 }
+      ],
+      "energyCost": 10,
+      "energyGain": 30,
+      "unlockLevel": 5
+    },
+    "hypochlorous_acid_decomposition": {
+      "id": "hypochlorous_acid_decomposition",
+      "name": "次氯酸分解制盐酸",
+      "equation": "HClO → HCl + O₂",
+      "reactants": [
+        { "elementId": "HClO", "amount": 1 }
+      ],
+      "products": [
+        { "substance": "HCl", "amount": 1 },
+        { "substance": "O2", "amount": 1 }
+      ],
+      "energyCost": 0,
+      "energyGain": 35,
+      "unlockLevel": 5
+    },
+    "acid_base_neutralization": {
+      "id": "acid_base_neutralization",
+      "name": "酸碱中和反应",
+      "equation": "NaOH + HCl → NaCl + H₂O",
+      "reactants": [
+        { "elementId": "NaOH", "amount": 1 },
+        { "elementId": "HCl", "amount": 1 }
+      ],
+      "products": [
+        { "substance": "NaCl", "amount": 1 },
+        { "substance": "H2O", "amount": 1 }
+      ],
+      "energyCost": 10,
+      "energyGain": 40,
+      "unlockLevel": 5
     }
   }
 }

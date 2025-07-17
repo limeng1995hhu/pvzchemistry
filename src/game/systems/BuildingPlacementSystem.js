@@ -368,7 +368,7 @@ export class BuildingPlacementSystem {
 
     // 检查是否是元素类型
     isElementType(type) {
-        const elementTypes = ['hydrogen', 'oxygen', 'water', 'carbon', 'co', 'co2', 'nitrogen', 'ammonia', 'sodium', 'chlorine', 'salt'];
+        const elementTypes = ['hydrogen', 'oxygen', 'water', 'carbon', 'co', 'co2', 'nitrogen', 'ammonia', 'sodium', 'chlorine', 'salt', 'naoh', 'hclo', 'hcl'];
         const isElement = elementTypes.includes(type);
         console.log('🧪 检查是否是元素类型:', type, '结果:', isElement);
         return isElement;
@@ -577,7 +577,10 @@ export class BuildingPlacementSystem {
             'ammonia': 'NH3',
             'sodium': 'Na',
             'chlorine': 'Cl2',
-            'salt': 'NaCl'
+            'salt': 'NaCl',
+            'naoh': 'NaOH',
+            'hclo': 'HClO',
+            'hcl': 'HCl'
         };
 
         const result = elementToSubstanceMap[elementId] || elementId;

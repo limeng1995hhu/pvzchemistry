@@ -61,6 +61,9 @@ export class InventoryPanel {
             { id: 'sodium', symbol: 'Na', name: '钠', color: '#FFE4B5', price: 25 },
             { id: 'chlorine', symbol: 'Cl₂', name: '氯气', color: '#ADFF2F', price: 25 },
             { id: 'salt', symbol: 'NaCl', name: '氯化钠', color: '#F0F8FF', price: 35 },
+            { id: 'naoh', symbol: 'NaOH', name: '氢氧化钠', color: '#E6E6FA', price: 40 },
+            { id: 'hclo', symbol: 'HClO', name: '次氯酸', color: '#B0E0E6', price: 30 },
+            { id: 'hcl', symbol: 'HCl', name: '盐酸', color: '#4169E1', price: 25 },
             { id: 'recycler', symbol: '♻', name: '回收器', color: '#16213e', price: 20 },
             { id: 'reactor', symbol: '🔥', name: '反应器', color: '#000000', price: 10 },
             { id: 'shovel', symbol: '⛏️', name: '铲子', color: '#8B4513', price: 0 }

@@ -92,6 +92,36 @@ export const ChemicalSubstances = {
         description: '强碱，俗称烧碱'
     },
 
+    // 次氯酸
+    HClO: {
+        id: 'HClO',
+        name: '次氯酸',
+        formula: 'HClO',
+        state: 'liquid',
+        color: 0x87CEEB,
+        speed: 65,
+        health: 30,
+        elements: ['H', 'Cl', 'O'],
+        molarMass: 52.46,
+        substanceAmount: 2,
+        description: '弱酸，具有强氧化性和漂白性'
+    },
+
+    // 盐酸
+    HCl: {
+        id: 'HCl',
+        name: '盐酸',
+        formula: 'HCl',
+        state: 'liquid',
+        color: 0x4169E1,
+        speed: 70,
+        health: 35,
+        elements: ['H', 'Cl'],
+        molarMass: 36.46,
+        substanceAmount: 2,
+        description: '强酸，具有强腐蚀性'
+    },
+
     // 一氧化碳
     CO: {
         id: 'CO',

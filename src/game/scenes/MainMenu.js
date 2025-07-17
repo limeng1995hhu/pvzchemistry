@@ -58,23 +58,6 @@ export class MainMenu extends Scene
                 this.scene.start('LevelSelect');
             });
 
-        // 开始游戏按钮（快速开始第一关）
-        const startGameButton = this.add.text(width / 2, height / 2 + 70, '快速开始', buttonStyle)
-            .setOrigin(0.5)
-            .setInteractive()
-            .on('pointerover', () => {
-                startGameButton.setStyle({ backgroundColor: '#e94560' });
-                startGameButton.setScale(1.05);
-            })
-            .on('pointerout', () => {
-                startGameButton.setStyle({ backgroundColor: '#16213e' });
-                startGameButton.setScale(1.0);
-            })
-            .on('pointerdown', () => {
-                // 直接开始第一关
-                this.scene.start('GamePlay', { levelData: { id: 'level_01' } });
-            });
-
         // 监听屏幕尺寸变化
         this.scale.on('resize', this.handleResize, this);
         
@@ -103,9 +86,6 @@ export class MainMenu extends Scene
                 } else if (child.text === '选择关卡') {
                     // 关卡选择按钮
                     child.setPosition(centerX, centerY + 20);
-                } else if (child.text === '快速开始') {
-                    // 快速开始按钮
-                    child.setPosition(centerX, centerY + 70);
                 }
             }
         });

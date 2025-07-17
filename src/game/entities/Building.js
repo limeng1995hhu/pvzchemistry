@@ -164,6 +164,8 @@ export class Building {
             'Ca': 'Ca',
             'CaO': 'CaO',
             'NaOH': 'NaOH',
+            'HClO': 'HClO',
+            'HCl': 'HCl',
             // 兼容旧的名称映射
             '氢气': 'H₂',
             '氧气': 'O₂',
@@ -691,6 +693,9 @@ export class Reactor extends Building {
             'NaCl': 'NaCl',
             'Ca': 'Ca',
             'CaO': 'CaO',
+            'NaOH': 'NaOH',
+            'HClO': 'HClO',
+            'HCl': 'HCl',
             'H': 'H',
             'O': 'O',
             'N': 'N'
@@ -701,13 +706,6 @@ export class Reactor extends Building {
     // 检查是否可以与敌人反应
     canReactWithEnemy(enemy) {
         console.log(`🔍 检查反应条件 - 敌人: ${enemy.substance}`);
-
-        // 检查是否有存储的元素
-        if (this.elements.length === 0) {
-            console.log(`❌ 反应器中没有元素`);
-            return false;
-        }
-        console.log(`✅ 反应器中有元素: ${this.elements.map(e => `${e.elementId}×${e.amount}`).join(', ')}`);
 
         // 检查是否正在反应中
         if (this.isReacting) {
@@ -725,7 +723,14 @@ export class Reactor extends Building {
         // 检查是否有可用的反应
         const availableReaction = this.findAvailableReaction(enemy);
         const canReact = availableReaction !== null;
-        console.log(`反应检查结果: ${canReact ? '✅ 可以反应' : '❌ 无可用反应'}`);
+
+        if (this.elements.length === 0) {
+            console.log(`🔍 空反应器检查分解反应 - 敌人: ${enemy.substance}, 反应结果: ${canReact ? '✅ 可以分解' : '❌ 无分解反应'}`);
+        } else {
+            console.log(`✅ 反应器中有元素: ${this.elements.map(e => `${e.elementId}×${e.amount}`).join(', ')}`);
+            console.log(`反应检查结果: ${canReact ? '✅ 可以反应' : '❌ 无可用反应'}`);
+        }
+
         return canReact;
     }
 
@@ -787,6 +792,31 @@ export class Reactor extends Building {
                 reactants: [{ elementId: 'NH3', amount: 4 }, { elementId: 'O2', amount: 3 }],
                 products: [{ substance: 'H2O', amount: 6 }, { substance: 'N2', amount: 2 }],
                 condition: (enemy) => enemy.substance === 'NH3' || enemy.substance === 'O2'
+            },
+            {
+                id: 'chlorine_water_reaction',
+                reactants: [{ elementId: 'Cl2', amount: 1 }, { elementId: 'H2O', amount: 1 }],
+                products: [{ substance: 'HClO', amount: 1 }, { substance: 'HCl', amount: 1 }],
+                condition: (enemy) => enemy.substance === 'Cl2' || enemy.substance === 'H2O'
+            },
+
+            {
+                id: 'chlorine_hydrogen_reaction',
+                reactants: [{ elementId: 'Cl2', amount: 1 }, { elementId: 'H2', amount: 1 }],
+                products: [{ substance: 'HCl', amount: 2 }],
+                condition: (enemy) => enemy.substance === 'Cl2' || enemy.substance === 'H2'
+            },
+            {
+                id: 'hypochlorous_acid_decomposition',
+                reactants: [{ elementId: 'HClO', amount: 1 }],
+                products: [{ substance: 'HCl', amount: 1 }, { substance: 'O2', amount: 1 }],
+                condition: (enemy) => enemy.substance === 'HClO'
+            },
+            {
+                id: 'acid_base_neutralization',
+                reactants: [{ elementId: 'NaOH', amount: 1 }, { elementId: 'HCl', amount: 1 }],
+                products: [{ substance: 'NaCl', amount: 1 }, { substance: 'H2O', amount: 1 }],
+                condition: (enemy) => enemy.substance === 'NaOH' || enemy.substance === 'HCl'
             }
         ];
 
@@ -1084,6 +1114,27 @@ export class Reactor extends Building {
                 id: 'ammonia_oxidation',
                 name: 'H₂O+N₂',
                 reactants: [{ elementId: 'NH3', amount: 4 }, { elementId: 'O2', amount: 3 }]
+            },
+            {
+                id: 'chlorine_water_reaction',
+                name: 'HClO+HCl',
+                reactants: [{ elementId: 'Cl2', amount: 1 }, { elementId: 'H2O', amount: 1 }]
+            },
+
+            {
+                id: 'chlorine_hydrogen_reaction',
+                name: '2HCl',
+                reactants: [{ elementId: 'Cl2', amount: 1 }, { elementId: 'H2', amount: 1 }]
+            },
+            {
+                id: 'hypochlorous_acid_decomposition',
+                name: 'HCl+O₂',
+                reactants: [{ elementId: 'HClO', amount: 1 }]
+            },
+            {
+                id: 'acid_base_neutralization',
+                name: 'NaCl+H₂O',
+                reactants: [{ elementId: 'NaOH', amount: 1 }, { elementId: 'HCl', amount: 1 }]
             }
         ];
 

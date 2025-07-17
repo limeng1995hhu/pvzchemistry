@@ -272,11 +272,11 @@ export class LevelManager {
         } else if (levelId === 'level_05') {
             return {
                 id: 'level_05',
-                name: '盐类合成',
-                description: '掌握四种化学反应：水合成、二氧化碳合成、氨气合成、氯化钠合成',
-                initialEnergy: 200,
+                name: '氯气水解',
+                description: '利用氯气和水的反应产生氢氧化钠和氯化钠',
+                initialEnergy: 180,
                 availableBuildings: ['recycler', 'reactor'],
-                availableReactions: ['water_synthesis', 'co2_synthesis', 'ammonia_synthesis', 'salt_synthesis'],
+                availableReactions: ['water_synthesis', 'chlorine_water_reaction', 'chlorine_hydrogen_reaction', 'hypochlorous_acid_decomposition', 'acid_base_neutralization'],
                 objectives: [
                     { type: 'survive', duration: 180000, description: '生存180秒' },
                     { type: 'perform_reactions', reaction: 'salt_synthesis', amount: 5, description: '执行5次氯化钠合成反应' },
@@ -287,32 +287,7 @@ export class LevelManager {
                     {
                         id: 'wave1',
                         startTime: 3000,
-                        enemies: [{ substance: 'Na', amount: 2, count: 2, interval: 2500 }]
-                    },
-                    {
-                        id: 'wave2',
-                        startTime: 30000,
-                        enemies: [{ substance: 'Cl2', amount: 1, count: 1, interval: 0 }]
-                    },
-                    {
-                        id: 'wave3',
-                        startTime: 50000,
-                        enemies: [{ substance: 'N2', amount: 1, count: 3, interval: 3000 }]
-                    },
-                    {
-                        id: 'wave4',
-                        startTime: 80000,
-                        enemies: [{ substance: 'O2', amount: 1, count: 2, interval: 4000 }]
-                    },
-                    {
-                        id: 'wave5',
-                        startTime: 120000,
-                        enemies: [{ substance: 'H2', amount: 3, count: 4, interval: 2000 }]
-                    },
-                    {
-                        id: 'wave6',
-                        startTime: 150000,
-                        enemies: [{ substance: 'C', amount: 1, count: 3, interval: 3500 }]
+                        enemies: [{ substance: 'Cl2', amount: 1, count: 3, interval: 3000 }]
                     }
                 ]
             };
@@ -406,15 +381,24 @@ export class LevelManager {
                 availableItems.unshift('water');
             }
         } else if (this.currentLevel.id === 'level_05') {
-            // 关卡五：添加钠、氯气、氯化钠元素
-            if (!availableItems.includes('sodium')) {
-                availableItems.unshift('sodium');
+            // 关卡五：添加水、氢气、氯化钠、氢氧化钠、次氯酸、盐酸元素
+            if (!availableItems.includes('water')) {
+                availableItems.unshift('water');
             }
-            if (!availableItems.includes('chlorine')) {
-                availableItems.unshift('chlorine');
+            if (!availableItems.includes('hydrogen')) {
+                availableItems.unshift('hydrogen');
             }
             if (!availableItems.includes('salt')) {
                 availableItems.unshift('salt');
+            }
+            if (!availableItems.includes('naoh')) {
+                availableItems.unshift('naoh');
+            }
+            if (!availableItems.includes('hclo')) {
+                availableItems.unshift('hclo');
+            }
+            if (!availableItems.includes('hcl')) {
+                availableItems.unshift('hcl');
             }
         }
 
