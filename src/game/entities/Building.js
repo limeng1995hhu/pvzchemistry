@@ -538,17 +538,27 @@ export class Reactor extends Building {
 
     // 添加元素（储能）
     addElement(elementId) {
+        console.log('⚗️ === 反应器addElement开始 ===');
+        console.log('传入的elementId:', elementId);
+        console.log('当前反应器元素:', this.elements);
+        console.log('最大元素类型数:', this.maxElementTypes);
+        console.log('最大元素数量:', this.maxElementAmount);
+
         // 检查是否已存在该元素
         const existingElement = this.elements.find(e => e.elementId === elementId);
+        console.log('查找已存在元素结果:', existingElement);
 
         if (existingElement) {
+            console.log('🔄 元素已存在，尝试增加数量...');
             // 检查是否已达到最大存储量
             if (existingElement.amount >= this.maxElementAmount) {
+                console.log('❌ 该元素已达到最大存储量');
                 return { success: false, message: '该元素已达到最大存储量' };
             }
 
             // 检查能量是否足够
             if (this.scene.hud && !this.scene.hud.canAfford(this.energyCostPerCharge)) {
+                console.log('❌ 能量不足，无法增加元素数量');
                 return { success: false, message: '能量不足' };
             }
 
@@ -556,19 +566,23 @@ export class Reactor extends Building {
             if (this.scene.hud && this.scene.hud.spendEnergy(this.energyCostPerCharge)) {
                 existingElement.amount++;
                 this.updateElementsDisplay();
+                console.log('✅ 元素数量增加成功，新数量:', existingElement.amount);
                 return {
                     success: true,
                     message: `${this.getElementName(elementId)} 数量: ${existingElement.amount}/${this.maxElementAmount}`
                 };
             }
         } else {
+            console.log('➕ 元素不存在，尝试添加新元素...');
             // 检查是否已达到最大元素种类数量
             if (this.elements.length >= this.maxElementTypes) {
+                console.log('❌ 已达到最大元素种类数量');
                 return { success: false, message: '已达到最大元素种类数量' };
             }
 
             // 检查能量是否足够
             if (this.scene.hud && !this.scene.hud.canAfford(this.energyCostPerCharge)) {
+                console.log('❌ 能量不足，无法添加新元素');
                 return { success: false, message: '能量不足' };
             }
 
@@ -576,6 +590,8 @@ export class Reactor extends Building {
             if (this.scene.hud && this.scene.hud.spendEnergy(this.energyCostPerCharge)) {
                 this.elements.push({ elementId, amount: 1 });
                 this.updateElementsDisplay();
+                console.log('✅ 新元素添加成功:', { elementId, amount: 1 });
+                console.log('反应器当前所有元素:', this.elements);
                 return {
                     success: true,
                     message: `添加 ${this.getElementName(elementId)} ×1`
@@ -583,6 +599,7 @@ export class Reactor extends Building {
             }
         }
 
+        console.log('❌ 储能失败');
         return { success: false, message: '储能失败' };
     }
 
@@ -690,6 +707,7 @@ export class Reactor extends Building {
         const elementMap = {
             'H2': 'H₂',
             'O2': 'O₂',
+            'H2O': 'H₂O',
             'C': 'C',
             'N2': 'N₂',
             'H': 'H',

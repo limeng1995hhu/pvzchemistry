@@ -326,25 +326,47 @@ export class BuildingPlacementSystem {
 
     // 处理元素拖拽结束
     handleElementDragEnd(data) {
+        console.log('🎯 === 元素拖拽结束处理 ===');
+        console.log('拖拽位置:', { x: data.x, y: data.y });
+        console.log('拖拽数据:', this.dragData);
+
         const gridPos = this.gridSystem.screenToGrid(data.x, data.y);
-        
+        console.log('转换后的网格位置:', gridPos);
+
         if (gridPos) {
             const building = this.getBuildingAt(gridPos.row, gridPos.col);
+            console.log('目标位置的建筑:', building ? building.type : '无建筑');
+
             if (building && this.canAddElementToBuilding(building, this.dragData)) {
+                console.log('✅ 可以添加元素，开始添加...');
                 console.log('添加元素', this.dragData.name, '到建筑:', building.type);
                 this.addElementToBuilding(building, this.dragData);
             } else {
-                console.log('无法添加元素到此位置');
+                console.log('❌ 无法添加元素到此位置');
+                console.log('原因分析:');
+                if (!building) {
+                    console.log('- 目标位置没有建筑');
+                } else {
+                    console.log('- 建筑存在但不满足添加条件');
+                    console.log('- 建筑类型:', building.type);
+                    console.log('- canAddElementToBuilding结果:', this.canAddElementToBuilding(building, this.dragData));
+                }
+
                 if (this.scene.hud) {
                     this.scene.hud.showMessage('无法在此位置添加元素', '#ff0000');
                 }
             }
+        } else {
+            console.log('❌ 无法获取有效的网格位置');
         }
     }
 
     // 检查是否是元素类型
     isElementType(type) {
-        return ['hydrogen', 'oxygen', 'carbon', 'nitrogen'].includes(type);
+        const elementTypes = ['hydrogen', 'oxygen', 'water', 'carbon', 'nitrogen'];
+        const isElement = elementTypes.includes(type);
+        console.log('🧪 检查是否是元素类型:', type, '结果:', isElement);
+        return isElement;
     }
 
     // 检查是否可以将元素添加到建筑
@@ -382,31 +404,46 @@ export class BuildingPlacementSystem {
 
     // 将元素添加到建筑
     addElementToBuilding(building, elementData) {
+        console.log('🏗️ === 开始添加元素到建筑 ===');
+        console.log('建筑类型:', building.type);
+        console.log('元素数据:', {
+            id: elementData.id,
+            name: elementData.name,
+            symbol: elementData.symbol,
+            price: elementData.price
+        });
+
         try {
             // 消耗能量
+            console.log('💰 检查能量是否足够...');
             if (this.scene.hud && !this.scene.hud.spendEnergy(elementData.price)) {
+                console.log('❌ 能量不足！');
                 if (this.scene.hud) {
                     this.scene.hud.showMessage('能量不足！', '#ff0000');
                 }
                 return;
             }
-            
+            console.log('✅ 能量扣除成功');
+
             if (building.type === 'recycler') {
+                console.log('🔄 处理回收器逻辑...');
                 // 将道具栏元素ID映射到化学数据库ID
                 const substanceId = this.mapElementToSubstance(elementData.id);
 
                 // 设置回收器的目标物质
                 building.setTargetSubstance(substanceId);
-                console.log('回收器目标设置为:', substanceId, '(来自元素:', elementData.name, ')');
+                console.log('✅ 回收器目标设置为:', substanceId, '(来自元素:', elementData.name, ')');
 
                 if (this.scene.hud) {
                     this.scene.hud.showMessage(`回收器目标设置为${elementData.name}！(-${elementData.price}⚡)`, '#4ecdc4');
                 }
             } else if (building.type === 'reactor') {
+                console.log('⚗️ 处理反应器逻辑...');
                 // 将道具栏元素ID映射到化学数据库ID
                 const substanceId = this.mapElementToSubstance(elementData.id);
 
                 // 向反应器添加元素
+                console.log('⚗️ 调用反应器addElement方法，参数:', substanceId);
                 const result = building.addElement(substanceId);
 
                 if (this.scene.hud) {
@@ -414,7 +451,13 @@ export class BuildingPlacementSystem {
                     this.scene.hud.showMessage(result.message, color);
                 }
 
-                console.log('反应器添加元素:', substanceId, '结果:', result);
+                console.log('⚗️ 反应器添加元素结果:', {
+                    substanceId: substanceId,
+                    success: result.success,
+                    message: result.message
+                });
+            } else {
+                console.log('❌ 未知建筑类型:', building.type);
             }
         } catch (error) {
             console.error('添加元素到建筑时出错:', error);
@@ -521,11 +564,14 @@ export class BuildingPlacementSystem {
         const elementToSubstanceMap = {
             'hydrogen': 'H2',
             'oxygen': 'O2',
+            'water': 'H2O',
             'carbon': 'C',
             'nitrogen': 'N2'
         };
 
-        return elementToSubstanceMap[elementId] || elementId;
+        const result = elementToSubstanceMap[elementId] || elementId;
+        console.log(`🔄 元素映射: ${elementId} -> ${result}`);
+        return result;
     }
     
     // 更新系统（在GamePlay的update中调用）

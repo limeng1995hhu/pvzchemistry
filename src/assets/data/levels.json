@@ -162,6 +162,16 @@
       "rarity": 1,
       "unlockLevel": "level_01"
     },
+    "H2O": {
+      "id": "H2O",
+      "symbol": "H₂O",
+      "name": "水",
+      "atomicNumber": 0,
+      "color": "#4169E1",
+      "price": 15,
+      "rarity": 2,
+      "unlockLevel": "level_02"
+    },
     "C": {
       "id": "C",
       "symbol": "C",

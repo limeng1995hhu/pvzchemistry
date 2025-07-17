@@ -170,6 +170,16 @@ export class ConfigManager {
                 price: 10,
                 rarity: 1,
                 unlockLevel: 'level_01'
+            },
+            'H2O': {
+                id: 'H2O',
+                symbol: 'H₂O',
+                name: '水',
+                atomicNumber: 0, // 化合物没有原子序数
+                color: '#4169E1',
+                price: 15,
+                rarity: 2,
+                unlockLevel: 'level_02'
             }
         };
         

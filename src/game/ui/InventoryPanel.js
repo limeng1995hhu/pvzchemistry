@@ -52,6 +52,7 @@ export class InventoryPanel {
         const allToolsData = [
             { id: 'hydrogen', symbol: 'H₂', name: '氢气', color: '#87CEEB', price: 10 },
             { id: 'oxygen', symbol: 'O₂', name: '氧气', color: '#4169E1', price: 10 },
+            { id: 'water', symbol: 'H₂O', name: '水', color: '#4169E1', price: 15 },
             { id: 'carbon', symbol: 'C', name: '碳', color: '#8B4513', price: 15 },
             { id: 'nitrogen', symbol: 'N₂', name: '氮气', color: '#90EE90', price: 15 },
             { id: 'recycler', symbol: '♻', name: '回收器', color: '#16213e', price: 10 },
