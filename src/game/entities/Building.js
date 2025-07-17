@@ -337,7 +337,7 @@ export class Recycler extends Building {
             const color = '#00ff00'; // 绿色表示已设置目标
 
             // 显示化学式
-            this.elementLabel = this.scene.add.text(0, -this.config.size/2 - 25, formula, {
+            this.elementLabel = this.scene.add.text(0, -this.config.size/2 - 15, formula, {
                 fontFamily: 'Arial',
                 fontSize: '24px', // 与反应器字体大小保持一致
                 color: color,
