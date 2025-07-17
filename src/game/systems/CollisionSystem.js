@@ -121,15 +121,21 @@ export class CollisionSystem {
         }
     }
     
-    // 处理回收交互
+    // 处理回收交互（严格化学物质匹配）
     handleRecycleInteraction(building, enemy) {
+        console.log(`碰撞检测: 回收器(${building.targetSubstance}) vs 敌人(${enemy.substance})`);
+
         if (building.canRecycleEnemy(enemy)) {
             // 计算消解的物质数量（两者的最小值）
             const consumeAmount = Math.min(building.substanceAmount, enemy.substanceAmount);
 
             if (consumeAmount <= 0) {
+                console.log(`❌ 消解失败: 回收器或敌人物质数量为0`);
                 return false; // 没有可消解的物质
             }
+
+            console.log(`🔬 严格匹配成功: ${building.targetSubstance} === ${enemy.substance}`);
+            console.log(`📊 消解数量: ${consumeAmount} (回收器:${building.substanceAmount}, 敌人:${enemy.substanceAmount})`);
 
             // 消解回收器的物质数量
             building.substanceAmount -= consumeAmount;
@@ -145,7 +151,7 @@ export class CollisionSystem {
             // 给予能量奖励
             if (this.scene.hud && energyReward > 0) {
                 this.scene.hud.addEnergy(energyReward);
-                this.scene.hud.showMessage(`+${energyReward}⚡ 消解 ${enemy.formula} ×${actualConsumed}`, '#4ecdc4');
+                this.scene.hud.showMessage(`+${energyReward}⚡ 严格消解 ${enemy.formula} ×${actualConsumed}`, '#4ecdc4');
             }
 
             // 触发回收成功特效
@@ -161,12 +167,14 @@ export class CollisionSystem {
                 recyclerPos: { row: building.gridRow, col: building.gridCol }
             });
 
-            console.log(`✅ 回收器消解敌人: ${enemy.formula} ×${actualConsumed}, 获得 ${energyReward} 能量`);
+            console.log(`✅ 严格消解成功: ${enemy.formula} ×${actualConsumed}, 获得 ${energyReward} 能量`);
             console.log(`   回收器剩余: ×${building.substanceAmount}, 敌人剩余: ×${enemy.substanceAmount}`);
 
             return true;
+        } else {
+            console.log(`❌ 严格匹配失败: ${building.targetSubstance} ≠ ${enemy.substance}`);
+            return false;
         }
-        return false;
     }
     
     // 处理反应交互

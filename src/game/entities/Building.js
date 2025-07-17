@@ -231,7 +231,7 @@ export class Building {
             }
         } else {
             if (this.scene.hud) {
-                this.scene.hud.showMessage('请先拖拽元素到回收器设置目标物质', '#ff8800');
+                this.scene.hud.showMessage('请先拖拽元素到回收器设置目标物质（严格匹配：H₂只能消解H₂）', '#ff8800');
             }
         }
     }
@@ -402,24 +402,17 @@ export class Recycler extends Building {
         return false;
     }
 
-    // 检查是否可以回收敌人
+    // 检查是否可以回收敌人（严格化学物质匹配）
     canRecycleEnemy(enemy) {
         // 如果没有设置目标物质或物质数量为0，不能回收任何敌人
         if (!this.targetSubstance || this.substanceAmount <= 0) {
             return false;
         }
 
-        // 精确匹配：回收器目标物质与敌人物质完全相同
-        if (this.targetSubstance === enemy.substance) {
-            return true;
-        }
-
-        // 元素匹配：检查回收器目标是否为敌人的组成元素
-        if (enemy.chemicalData && enemy.chemicalData.elements) {
-            return enemy.chemicalData.elements.includes(this.targetSubstance);
-        }
-
-        return false;
+        // 严格匹配：回收器目标物质与敌人物质必须完全相同
+        // 例如：C 只能消解 C，不能消解 CO2
+        // H2 只能消解 H2，不能消解 H2O
+        return this.targetSubstance === enemy.substance;
     }
 
     // 储能功能 - 增加物质数量
