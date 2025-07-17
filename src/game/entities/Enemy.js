@@ -27,7 +27,15 @@ export class Enemy {
         
         // 确定所在路径
         this.lane = this.determineLane(lane);
-        
+
+        // 如果没有可用路径，标记为无效
+        if (this.lane === null) {
+            this.isValid = false;
+            return;
+        }
+
+        this.isValid = true;
+
         // 移动属性
         this.baseSpeed = this.chemicalData.speed;
         this.speedMultiplier = StateSpeedMultipliers[this.state] || 1.0;
@@ -57,19 +65,35 @@ export class Enemy {
         // 状态
         this.isAlive = true;
         this.reachedEnd = false;
-        
-        this.create();
+
+        // 只有在敌人有效时才创建视觉组件
+        if (this.isValid) {
+            this.create();
+        }
     }
     
     // 确定敌人所在路径
     determineLane(preferredLane = null) {
-        const availableLanes = LaneConfig[this.state];
-        
+        // 如果有路径管理器，使用它来获取可用路径
+        let availableLanes;
+        if (this.scene.laneManager) {
+            availableLanes = this.scene.laneManager.getAvailableLanesForState(this.state);
+        } else {
+            // 回退到默认配置
+            availableLanes = LaneConfig[this.state];
+        }
+
+        // 如果没有可用路径，返回null
+        if (!availableLanes || availableLanes.length === 0) {
+            console.warn(`物态 ${this.state} 没有可用路径`);
+            return null;
+        }
+
         if (preferredLane !== null && availableLanes.includes(preferredLane)) {
             return preferredLane;
         }
-        
-        // 随机选择该物态对应的路径
+
+        // 随机选择该物态对应的可用路径
         return availableLanes[Math.floor(Math.random() * availableLanes.length)];
     }
     

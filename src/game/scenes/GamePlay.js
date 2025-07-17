@@ -312,7 +312,17 @@ export class GamePlay extends Scene
                 console.log('清除所有敌人 (C键)');
             }
         });
-        
+
+        this.input.keyboard.on('keydown-T', () => {
+            // T键：测试路径突破（模拟敌人到达终点）
+            if (this.enemyManager && this.enemyManager.activeEnemies.length > 0) {
+                const enemy = this.enemyManager.activeEnemies[0];
+                enemy.progress = 1.0;
+                enemy.checkEndReached();
+                console.log('测试路径突破 (T键)');
+            }
+        });
+
         // 显示控制提示
         console.log('敌人系统测试控制：');
         console.log('空格键：生成随机敌人');
@@ -321,6 +331,7 @@ export class GamePlay extends Scene
         console.log('数字3：生成氯化钠');
         console.log('S键：切换自动生成');
         console.log('C键：清除所有敌人');
+        console.log('T键：测试路径突破');
     }
     
     setupGameControls()
@@ -373,6 +384,13 @@ export class GamePlay extends Scene
         if (this.enemyManager) {
             this.enemyManager.stopSpawning();
         }
+
+        // 保存游戏失败数据
+        this.gameOverData = {
+            ...data,
+            levelData: this.levelData, // 保存当前关卡数据用于重试
+            levelId: this.levelManager ? this.levelManager.levelId : null
+        };
 
         // 延迟跳转到游戏结束场景
         this.time.delayedCall(3000, () => {
@@ -429,7 +447,7 @@ export class GamePlay extends Scene
 
     changeScene ()
     {
-        this.scene.start('GameOver');
+        this.scene.start('GameOver', this.gameOverData || {});
     }
 
     destroy()

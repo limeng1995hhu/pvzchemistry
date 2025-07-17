@@ -68,21 +68,24 @@ export class LaneManager {
     disableLane(laneType, row) {
         // 计算在该类型中的索引
         const index = row % 2;
-        
+
         // 如果路径已经禁用，不需要重复处理
         if (!this.laneStatus[laneType][index]) {
             return;
         }
-        
+
         // 禁用路径
         this.laneStatus[laneType][index] = false;
         this.activeLaneTypes[laneType]--;
-        
+
         console.log(`禁用路径: ${laneType} 行 ${row}`);
-        
+
         // 移除该路径上的所有建筑
         this.removeAllBuildingsInLane(row);
-        
+
+        // 移除该路径上的所有敌人
+        this.removeAllEnemiesInLane(row);
+
         // 发送路径禁用事件
         EventBus.emit('lane-disabled', {
             laneType,
@@ -113,12 +116,34 @@ export class LaneManager {
         
         console.log(`已移除路径 ${row} 上的所有建筑`);
     }
-    
+
+    // 移除指定路径上的所有敌人
+    removeAllEnemiesInLane(row) {
+        if (!this.scene.enemyManager) {
+            console.error('敌人管理系统不可用');
+            return;
+        }
+
+        const enemyManager = this.scene.enemyManager;
+
+        // 获取该路径上的所有敌人
+        const enemiesInLane = enemyManager.getEnemiesInLane(row);
+
+        console.log(`路径 ${row} 上有 ${enemiesInLane.length} 个敌人需要移除`);
+
+        // 移除所有敌人
+        enemiesInLane.forEach(enemy => {
+            enemyManager.removeEnemy(enemy.id, 'lane-disabled');
+        });
+
+        console.log(`已移除路径 ${row} 上的所有敌人`);
+    }
+
     // 检查路径是否可用
     isLaneActive(row) {
         const laneType = this.getLaneTypeFromRow(row);
         if (!laneType) return false;
-        
+
         const index = row % 2;
         return this.laneStatus[laneType][index];
     }
@@ -143,6 +168,35 @@ export class LaneManager {
         });
     }
     
+    // 获取指定物态的可用路径
+    getAvailableLanesForState(state) {
+        const laneType = state; // 物态直接对应路径类型
+        const availableLanes = [];
+
+        if (this.laneStatus[laneType]) {
+            this.laneStatus[laneType].forEach((isActive, index) => {
+                if (isActive) {
+                    // 计算实际的行号
+                    let row;
+                    switch (laneType) {
+                        case 'gas':
+                            row = index; // 0, 1
+                            break;
+                        case 'liquid':
+                            row = index + 2; // 2, 3
+                            break;
+                        case 'solid':
+                            row = index + 4; // 4, 5
+                            break;
+                    }
+                    availableLanes.push(row);
+                }
+            });
+        }
+
+        return availableLanes;
+    }
+
     // 获取路径状态
     getLaneStatus() {
         return {

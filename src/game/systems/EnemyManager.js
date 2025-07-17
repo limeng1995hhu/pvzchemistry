@@ -112,6 +112,13 @@ export class EnemyManager {
                 return null;
             }
 
+            // 检查敌人是否有效（是否有可用路径）
+            if (!enemy.isValid) {
+                console.log(`物态 ${enemy.state} 没有可用路径，无法生成敌人`);
+                enemy.destroy();
+                return null;
+            }
+
             // 检查敌人所在路径是否可用
             if (this.scene.laneManager && !this.scene.laneManager.isLaneActive(enemy.lane)) {
                 console.log(`路径 ${enemy.lane} 已禁用，无法生成敌人`);
