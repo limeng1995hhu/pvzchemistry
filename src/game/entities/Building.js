@@ -1,3 +1,5 @@
+import { EventBus } from '../EventBus';
+
 export class Building {
     constructor(scene, x, y, type, config = {}) {
         this.scene = scene;
@@ -779,6 +781,9 @@ export class Reactor extends Building {
 
     // 检查是否有所需的反应物（考虑敌人作为反应物）
     hasRequiredReactants(reactants, enemy = null) {
+        // 计算可能的反应规模
+        let maxReactionScale = Infinity;
+
         for (const reactant of reactants) {
             let availableAmount = 0;
 
@@ -793,13 +798,21 @@ export class Reactor extends Building {
                 availableAmount += enemy.substanceAmount;
             }
 
-            // 检查是否有足够的反应物
-            if (availableAmount < reactant.amount) {
-                console.log(`反应物不足: ${reactant.elementId} 需要${reactant.amount} 可用${availableAmount}`);
-                return false;
-            }
+            // 计算这个反应物能支持的最大反应规模
+            const possibleScale = Math.floor(availableAmount / reactant.amount);
+            maxReactionScale = Math.min(maxReactionScale, possibleScale);
+
+            console.log(`反应物 ${reactant.elementId}: 需要${reactant.amount}, 可用${availableAmount}, 支持规模${possibleScale}`);
         }
-        return true;
+
+        // 如果最大反应规模大于0，说明可以进行反应
+        const canReact = maxReactionScale > 0;
+        console.log(`反应检查结果: ${canReact}, 最大反应规模: ${maxReactionScale}`);
+
+        // 将反应规模存储起来供后续使用
+        this.calculatedReactionScale = maxReactionScale;
+
+        return canReact;
     }
 
     // 尝试反应
@@ -819,11 +832,33 @@ export class Reactor extends Building {
 
     // 执行反应
     executeReaction(reaction, enemy) {
-        console.log(`执行反应: ${reaction.id}`);
+        console.log(`⚗️ 执行反应: ${reaction.id}`);
+
+        // 使用之前计算的反应规模
+        const reactionScale = this.calculatedReactionScale || 1;
+        console.log(`反应规模: ${reactionScale} (基于可用反应物)`);
+
+        // 计算能量消耗（以10为基数，四舍五入）
+        const baseEnergyCost = 10;
+        const totalEnergyCost = Math.round(baseEnergyCost * reactionScale);
+        console.log(`计算能量消耗: ${baseEnergyCost} × ${reactionScale} = ${totalEnergyCost}`);
+
+        // 检查能量是否足够
+        if (this.scene.hud && !this.scene.hud.canAfford(totalEnergyCost)) {
+            console.log(`❌ 能量不足，需要 ${totalEnergyCost}，反应失败`);
+            return false;
+        }
+
+        // 扣除能量
+        if (this.scene.hud && !this.scene.hud.spendEnergy(totalEnergyCost)) {
+            console.log(`❌ 能量扣除失败，反应终止`);
+            return false;
+        }
+        console.log(`✅ 扣除能量: ${totalEnergyCost}`);
 
         // 消耗反应物
         for (const reactant of reaction.reactants) {
-            let remainingToConsume = reactant.amount;
+            let remainingToConsume = reactant.amount * reactionScale;
 
             // 首先尝试从反应器中消耗
             const element = this.elements.find(e => e.elementId === reactant.elementId);
@@ -843,13 +878,18 @@ export class Reactor extends Building {
             }
 
             if (remainingToConsume > 0) {
-                console.error(`反应物消耗不足: ${reactant.elementId} 还需要 ${remainingToConsume}`);
+                console.error(`⚠️ 反应物消耗不足: ${reactant.elementId} 还需要 ${remainingToConsume}，但这不应该发生`);
             }
         }
 
-        // 生成产物（新敌人）
+        // 生成产物（新敌人）- 根据反应规模调整产物数量
         for (const product of reaction.products) {
-            this.spawnProductEnemy(product);
+            const scaledProduct = {
+                ...product,
+                amount: product.amount * reactionScale
+            };
+            console.log(`生成产物: ${scaledProduct.substance} ×${scaledProduct.amount}`);
+            this.spawnProductEnemy(scaledProduct);
         }
 
         // 播放反应特效
@@ -858,47 +898,92 @@ export class Reactor extends Building {
         // 更新冷却时间
         this.lastReactionTime = this.scene.time.now;
 
+        // 显示反应信息
+        if (this.scene.hud) {
+            const productInfo = reaction.products.map(p => `${p.substance}×${p.amount * reactionScale}`).join(', ');
+            this.scene.hud.showMessage(`反应成功！生成: ${productInfo} (-${totalEnergyCost}⚡)`, '#ff6600');
+        }
+
         // 发送反应事件
         EventBus.emit('reaction-occurred', {
             reactionId: reaction.id,
             reactorPos: { row: this.gridRow, col: this.gridCol },
             consumedEnemy: enemy.substance,
-            products: reaction.products
+            reactionScale: reactionScale,
+            energyCost: totalEnergyCost,
+            products: reaction.products.map(p => ({
+                ...p,
+                amount: p.amount * reactionScale
+            }))
         });
 
-        console.log(`✅ 反应成功: ${reaction.id}, 产物: ${reaction.products.map(p => p.substance).join(', ')}`);
+        console.log(`✅ 反应成功: ${reaction.id}, 规模: ${reactionScale}, 能量消耗: ${totalEnergyCost}, 产物: ${reaction.products.map(p => `${p.substance}×${p.amount * reactionScale}`).join(', ')}`);
         return true;
     }
 
     // 生成产物敌人
     spawnProductEnemy(product) {
         if (this.scene.enemyManager) {
-            // 在反应器位置生成新敌人
-            const newEnemy = this.scene.enemyManager.spawnEnemy(product.substance, this.gridRow);
-            if (newEnemy) {
-                // 设置产物敌人的数量
-                newEnemy.substanceAmount = product.amount;
-                newEnemy.maxSubstanceAmount = product.amount;
-                newEnemy.updateAmountDisplay();
+            console.log(`🧪 开始生成产物敌人: ${product.substance} ×${product.amount}`);
 
-                // 设置新敌人的位置为反应器所在的网格列
-                if (this.scene.gridSystem) {
-                    newEnemy.currentCol = this.gridCol;
-                    newEnemy.gridCol = this.gridCol;
+            // 根据产物数量决定生成策略
+            if (product.amount <= 5) {
+                // 数量较少时，生成单个敌人包含所有数量
+                const newEnemy = this.scene.enemyManager.spawnEnemy(product.substance, this.gridRow);
+                if (newEnemy) {
+                    // 设置产物敌人的数量
+                    newEnemy.substanceAmount = product.amount;
+                    newEnemy.maxSubstanceAmount = product.amount;
+                    newEnemy.updateAmountDisplay();
 
-                    // 计算新敌人的进度，使其从反应器位置开始移动
-                    const totalCols = newEnemy.startCol - newEnemy.endCol;
-                    const passedCols = newEnemy.startCol - this.gridCol;
-                    newEnemy.progress = passedCols / totalCols;
+                    // 设置新敌人的位置为反应器所在的网格列
+                    this.setEnemyPosition(newEnemy);
 
-                    // 更新敌人的视觉位置
-                    newEnemy.updatePosition();
+                    console.log(`✅ 生成单个产物敌人: ${product.substance} ×${product.amount} 在位置 (${this.gridRow}, ${this.gridCol})`);
+                } else {
+                    console.error(`❌ 生成产物敌人失败: ${product.substance}`);
+                }
+            } else {
+                // 数量较多时，分批生成多个敌人
+                const maxPerEnemy = 3; // 每个敌人最多携带3个单位
+                const enemyCount = Math.ceil(product.amount / maxPerEnemy);
+
+                for (let i = 0; i < enemyCount; i++) {
+                    const remainingAmount = product.amount - (i * maxPerEnemy);
+                    const currentAmount = Math.min(maxPerEnemy, remainingAmount);
+
+                    // 添加小延迟避免敌人重叠
+                    setTimeout(() => {
+                        const newEnemy = this.scene.enemyManager.spawnEnemy(product.substance, this.gridRow);
+                        if (newEnemy) {
+                            newEnemy.substanceAmount = currentAmount;
+                            newEnemy.maxSubstanceAmount = currentAmount;
+                            newEnemy.updateAmountDisplay();
+                            this.setEnemyPosition(newEnemy);
+
+                            console.log(`✅ 生成批次产物敌人 ${i+1}/${enemyCount}: ${product.substance} ×${currentAmount}`);
+                        }
+                    }, i * 200); // 每200ms生成一个
                 }
 
-                console.log(`✅ 生成产物敌人: ${product.substance} ×${product.amount} 在位置 (${this.gridRow}, ${this.gridCol})`);
-            } else {
-                console.error(`❌ 生成产物敌人失败: ${product.substance}`);
+                console.log(`✅ 计划生成 ${enemyCount} 个产物敌人，总数量: ${product.amount}`);
             }
+        }
+    }
+
+    // 设置敌人位置的辅助方法
+    setEnemyPosition(enemy) {
+        if (this.scene.gridSystem) {
+            enemy.currentCol = this.gridCol;
+            enemy.gridCol = this.gridCol;
+
+            // 计算新敌人的进度，使其从反应器位置开始移动
+            const totalCols = enemy.startCol - enemy.endCol;
+            const passedCols = enemy.startCol - this.gridCol;
+            enemy.progress = passedCols / totalCols;
+
+            // 更新敌人的视觉位置
+            enemy.updatePosition();
         }
     }
 
