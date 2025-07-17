@@ -120,6 +120,96 @@ export const ChemicalSubstances = {
         molarMass: 16.04,
         substanceAmount: 2,
         description: '天然气的主要成分'
+    },
+
+    // 碳
+    C: {
+        id: 'C',
+        name: '碳',
+        formula: 'C',
+        state: 'solid',
+        color: 0x8B4513,
+        speed: 30,
+        health: 90,
+        elements: ['C'],
+        molarMass: 12.01,
+        substanceAmount: 1,
+        description: '碳元素，黑色固体'
+    },
+
+    // 氨气
+    NH3: {
+        id: 'NH3',
+        name: '氨气',
+        formula: 'NH₃',
+        state: 'gas',
+        color: 0x87CEEB,
+        speed: 88,
+        health: 35,
+        elements: ['N', 'H', 'H', 'H'],
+        molarMass: 17.03,
+        substanceAmount: 3,
+        description: '刺激性气体，用于制肥料'
+    },
+
+    // 钠
+    Na: {
+        id: 'Na',
+        name: '钠',
+        formula: 'Na',
+        state: 'solid',
+        color: 0x8B4513,
+        speed: 25,
+        health: 100,
+        elements: ['Na'],
+        molarMass: 22.99,
+        substanceAmount: 1,
+        description: '活泼金属，遇水剧烈反应'
+    },
+
+    // 氯气
+    Cl2: {
+        id: 'Cl2',
+        name: '氯气',
+        formula: 'Cl₂',
+        state: 'gas',
+        color: 0x87CEEB,
+        speed: 75,
+        health: 55,
+        elements: ['Cl', 'Cl'],
+        molarMass: 70.90,
+        substanceAmount: 4,
+        description: '黄绿色有毒气体'
+    },
+
+    // 钙
+    Ca: {
+        id: 'Ca',
+        name: '钙',
+        formula: 'Ca',
+        state: 'solid',
+        color: 0x8B4513,
+        speed: 20,
+        health: 120,
+        elements: ['Ca'],
+        molarMass: 40.08,
+        substanceAmount: 1,
+        description: '碱土金属，银白色'
+    },
+
+    // 氧化钙
+    CaO: {
+        id: 'CaO',
+        name: '氧化钙',
+        formula: 'CaO',
+        state: 'solid',
+        color: 0x8B4513,
+        speed: 35,
+        health: 85,
+        elements: ['Ca', 'O'],
+        molarMass: 56.08,
+        substanceAmount: 5,
+        description: '生石灰，遇水放热'
     }
 };
 

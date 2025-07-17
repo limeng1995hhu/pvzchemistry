@@ -155,9 +155,14 @@ export class Building {
             'N2': 'N₂',
             'H2O': 'H₂O',
             'CO2': 'CO₂',
-            'NaCl': 'NaCl',
-            'NaOH': 'NaOH',
             'CH4': 'CH₄',
+            'NH3': 'NH₃',
+            'Na': 'Na',
+            'Cl2': 'Cl₂',
+            'NaCl': 'NaCl',
+            'Ca': 'Ca',
+            'CaO': 'CaO',
+            'NaOH': 'NaOH',
             // 兼容旧的名称映射
             '氢气': 'H₂',
             '氧气': 'O₂',
@@ -676,6 +681,14 @@ export class Reactor extends Building {
             'H2O': 'H₂O',
             'C': 'C',
             'N2': 'N₂',
+            'CO2': 'CO₂',
+            'CH4': 'CH₄',
+            'NH3': 'NH₃',
+            'Na': 'Na',
+            'Cl2': 'Cl₂',
+            'NaCl': 'NaCl',
+            'Ca': 'Ca',
+            'CaO': 'CaO',
             'H': 'H',
             'O': 'O',
             'N': 'N'
@@ -716,10 +729,13 @@ export class Reactor extends Building {
 
     // 查找可用的反应
     findAvailableReaction(enemy) {
-        // 简单的反应规则：
+        // 化学反应规则：
         // H2 + O2 → H2O (需要2个H2和1个O2)
         // C + O2 → CO2 (需要1个C和1个O2)
+        // C + H2 → CH4 (需要1个C和2个H2)
         // N2 + H2 → NH3 (需要1个N2和3个H2)
+        // Na + Cl2 → NaCl (需要2个Na和1个Cl2)
+        // Ca + O2 → CaO (需要2个Ca和1个O2)
 
         const reactions = [
             {
@@ -739,6 +755,24 @@ export class Reactor extends Building {
                 reactants: [{ elementId: 'C', amount: 1 }, { elementId: 'H2', amount: 2 }],
                 products: [{ substance: 'CH4', amount: 1 }],
                 condition: (enemy) => enemy.substance === 'C' || enemy.substance === 'H2'
+            },
+            {
+                id: 'ammonia_synthesis',
+                reactants: [{ elementId: 'N2', amount: 1 }, { elementId: 'H2', amount: 3 }],
+                products: [{ substance: 'NH3', amount: 2 }],
+                condition: (enemy) => enemy.substance === 'N2' || enemy.substance === 'H2'
+            },
+            {
+                id: 'salt_synthesis',
+                reactants: [{ elementId: 'Na', amount: 2 }, { elementId: 'Cl2', amount: 1 }],
+                products: [{ substance: 'NaCl', amount: 2 }],
+                condition: (enemy) => enemy.substance === 'Na' || enemy.substance === 'Cl2'
+            },
+            {
+                id: 'lime_synthesis',
+                reactants: [{ elementId: 'Ca', amount: 2 }, { elementId: 'O2', amount: 1 }],
+                products: [{ substance: 'CaO', amount: 2 }],
+                condition: (enemy) => enemy.substance === 'Ca' || enemy.substance === 'O2'
             }
         ];
 
@@ -1011,6 +1045,21 @@ export class Reactor extends Building {
                 id: 'methane_synthesis',
                 name: 'CH₄',
                 reactants: [{ elementId: 'C', amount: 1 }, { elementId: 'H2', amount: 2 }]
+            },
+            {
+                id: 'ammonia_synthesis',
+                name: 'NH₃',
+                reactants: [{ elementId: 'N2', amount: 1 }, { elementId: 'H2', amount: 3 }]
+            },
+            {
+                id: 'salt_synthesis',
+                name: 'NaCl',
+                reactants: [{ elementId: 'Na', amount: 2 }, { elementId: 'Cl2', amount: 1 }]
+            },
+            {
+                id: 'lime_synthesis',
+                name: 'CaO',
+                reactants: [{ elementId: 'Ca', amount: 2 }, { elementId: 'O2', amount: 1 }]
             }
         ];
 
