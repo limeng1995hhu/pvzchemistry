@@ -142,14 +142,14 @@
     },
     "level_03": {
       "id": "level_03",
-      "name": "氮气反应",
-      "description": "掌握三种化学反应：水合成、二氧化碳合成、氨气合成",
+      "name": "碳氧反应",
+      "description": "掌握两种化学反应：水合成、二氧化碳合成",
       "difficulty": 3,
       "initialEnergy": 150,
       "gridRows": 6,
       "gridCols": 12,
       "availableBuildings": ["recycler", "reactor"],
-      "availableReactions": ["water_synthesis", "co2_synthesis", "ammonia_synthesis"],
+      "availableReactions": ["water_synthesis", "co2_synthesis"],
       "objectives": [
         {
           "type": "survive",
@@ -158,15 +158,15 @@
         },
         {
           "type": "perform_reactions",
-          "reaction": "ammonia_synthesis",
+          "reaction": "co2_synthesis",
           "amount": 3,
-          "description": "执行3次氨气合成反应"
+          "description": "执行3次二氧化碳合成反应"
         },
         {
           "type": "recycle",
-          "target": "N2",
+          "target": "C",
           "amount": 5,
-          "description": "回收5个氮气敌人"
+          "description": "回收5个碳敌人"
         }
       ],
       "waves": [
@@ -231,14 +231,14 @@
     },
     "level_04": {
       "id": "level_04",
-      "name": "盐类合成",
-      "description": "掌握四种化学反应：水合成、二氧化碳合成、氨气合成、氯化钠合成",
+      "name": "氮气反应",
+      "description": "掌握三种化学反应：水合成、二氧化碳合成、氨气合成",
       "difficulty": 4,
       "initialEnergy": 180,
       "gridRows": 6,
       "gridCols": 12,
       "availableBuildings": ["recycler", "reactor"],
-      "availableReactions": ["water_synthesis", "co2_synthesis", "ammonia_synthesis", "salt_synthesis"],
+      "availableReactions": ["water_synthesis", "co2_synthesis", "ammonia_synthesis"],
       "objectives": [
         {
           "type": "survive",
@@ -247,15 +247,15 @@
         },
         {
           "type": "perform_reactions",
-          "reaction": "salt_synthesis",
+          "reaction": "ammonia_synthesis",
           "amount": 4,
-          "description": "执行4次氯化钠合成反应"
+          "description": "执行4次氨气合成反应"
         },
         {
           "type": "recycle",
-          "target": "Na",
+          "target": "N2",
           "amount": 8,
-          "description": "回收8个钠敌人"
+          "description": "回收8个氮气敌人"
         }
       ],
       "waves": [
@@ -264,11 +264,11 @@
           "startTime": 3000,
           "enemies": [
             {
-              "substance": "Na",
-              "state": "solid",
+              "substance": "N2",
+              "state": "gas",
               "count": 2,
               "interval": 2000,
-              "amount": 2
+              "amount": 1
             }
           ]
         },
@@ -277,11 +277,11 @@
           "startTime": 25000,
           "enemies": [
             {
-              "substance": "Cl2",
+              "substance": "H2",
               "state": "gas",
-              "count": 1,
-              "interval": 0,
-              "amount": 1
+              "count": 3,
+              "interval": 1500,
+              "amount": 3
             }
           ]
         },
@@ -303,11 +303,11 @@
           "startTime": 75000,
           "enemies": [
             {
-              "substance": "N2",
+              "substance": "O2",
               "state": "gas",
               "count": 2,
               "interval": 3000,
-              "amount": 2
+              "amount": 1
             }
           ]
         },
@@ -316,8 +316,8 @@
           "startTime": 110000,
           "enemies": [
             {
-              "substance": "O2",
-              "state": "gas",
+              "substance": "C",
+              "state": "solid",
               "count": 2,
               "interval": 4000,
               "amount": 1
@@ -333,14 +333,14 @@
     },
     "level_05": {
       "id": "level_05",
-      "name": "氧化钙挑战",
-      "description": "掌握五种化学反应：水合成、二氧化碳合成、氨气合成、氯化钠合成、氧化钙合成",
+      "name": "盐类合成",
+      "description": "掌握四种化学反应：水合成、二氧化碳合成、氨气合成、氯化钠合成",
       "difficulty": 5,
       "initialEnergy": 200,
       "gridRows": 6,
       "gridCols": 12,
       "availableBuildings": ["recycler", "reactor"],
-      "availableReactions": ["water_synthesis", "co2_synthesis", "ammonia_synthesis", "salt_synthesis", "lime_synthesis"],
+      "availableReactions": ["water_synthesis", "co2_synthesis", "ammonia_synthesis", "salt_synthesis"],
       "objectives": [
         {
           "type": "survive",
@@ -349,15 +349,15 @@
         },
         {
           "type": "perform_reactions",
-          "reaction": "lime_synthesis",
+          "reaction": "salt_synthesis",
           "amount": 5,
-          "description": "执行5次氧化钙合成反应"
+          "description": "执行5次氯化钠合成反应"
         },
         {
           "type": "recycle",
-          "target": "Ca",
+          "target": "Na",
           "amount": 10,
-          "description": "回收10个钙敌人"
+          "description": "回收10个钠敌人"
         },
         {
           "type": "energy_threshold",
@@ -371,7 +371,7 @@
           "startTime": 3000,
           "enemies": [
             {
-              "substance": "Ca",
+              "substance": "Na",
               "state": "solid",
               "count": 2,
               "interval": 2500,
@@ -384,7 +384,7 @@
           "startTime": 30000,
           "enemies": [
             {
-              "substance": "O2",
+              "substance": "Cl2",
               "state": "gas",
               "count": 1,
               "interval": 0,
@@ -397,11 +397,11 @@
           "startTime": 50000,
           "enemies": [
             {
-              "substance": "Na",
-              "state": "solid",
+              "substance": "N2",
+              "state": "gas",
               "count": 3,
               "interval": 3000,
-              "amount": 2
+              "amount": 1
             }
           ]
         },
@@ -410,7 +410,7 @@
           "startTime": 80000,
           "enemies": [
             {
-              "substance": "Cl2",
+              "substance": "O2",
               "state": "gas",
               "count": 2,
               "interval": 4000,
@@ -436,11 +436,11 @@
           "startTime": 150000,
           "enemies": [
             {
-              "substance": "N2",
-              "state": "gas",
+              "substance": "C",
+              "state": "solid",
               "count": 3,
               "interval": 3500,
-              "amount": 2
+              "amount": 1
             }
           ]
         }

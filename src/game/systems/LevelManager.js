@@ -200,15 +200,15 @@ export class LevelManager {
         } else if (levelId === 'level_03') {
             return {
                 id: 'level_03',
-                name: '氮气反应',
-                description: '掌握三种化学反应：水合成、二氧化碳合成、氨气合成',
+                name: '碳氧反应',
+                description: '掌握两种化学反应：水合成、二氧化碳合成',
                 initialEnergy: 150,
                 availableBuildings: ['recycler', 'reactor'],
-                availableReactions: ['water_synthesis', 'co2_synthesis', 'ammonia_synthesis'],
+                availableReactions: ['water_synthesis', 'co2_synthesis'],
                 objectives: [
                     { type: 'survive', duration: 120000, description: '生存120秒' },
-                    { type: 'perform_reactions', reaction: 'ammonia_synthesis', amount: 3, description: '执行3次氨气合成反应' },
-                    { type: 'recycle', target: 'N2', amount: 5, description: '回收5个氮气敌人' }
+                    { type: 'perform_reactions', reaction: 'co2_synthesis', amount: 3, description: '执行3次二氧化碳合成反应' },
+                    { type: 'recycle', target: 'C', amount: 5, description: '回收5个碳敌人' }
                 ],
                 waves: [
                     {
@@ -236,26 +236,26 @@ export class LevelManager {
         } else if (levelId === 'level_04') {
             return {
                 id: 'level_04',
-                name: '盐类合成',
-                description: '掌握四种化学反应：水合成、二氧化碳合成、氨气合成、氯化钠合成',
+                name: '氮气反应',
+                description: '掌握三种化学反应：水合成、二氧化碳合成、氨气合成',
                 initialEnergy: 180,
                 availableBuildings: ['recycler', 'reactor'],
-                availableReactions: ['water_synthesis', 'co2_synthesis', 'ammonia_synthesis', 'salt_synthesis'],
+                availableReactions: ['water_synthesis', 'co2_synthesis', 'ammonia_synthesis'],
                 objectives: [
                     { type: 'survive', duration: 150000, description: '生存150秒' },
-                    { type: 'perform_reactions', reaction: 'salt_synthesis', amount: 4, description: '执行4次氯化钠合成反应' },
-                    { type: 'recycle', target: 'Na', amount: 8, description: '回收8个钠敌人' }
+                    { type: 'perform_reactions', reaction: 'ammonia_synthesis', amount: 4, description: '执行4次氨气合成反应' },
+                    { type: 'recycle', target: 'N2', amount: 8, description: '回收8个氮气敌人' }
                 ],
                 waves: [
                     {
                         id: 'wave1',
                         startTime: 3000,
-                        enemies: [{ substance: 'Na', amount: 2, count: 2, interval: 2000 }]
+                        enemies: [{ substance: 'N2', amount: 1, count: 2, interval: 2000 }]
                     },
                     {
                         id: 'wave2',
                         startTime: 25000,
-                        enemies: [{ substance: 'Cl2', amount: 1, count: 1, interval: 0 }]
+                        enemies: [{ substance: 'H2', amount: 3, count: 3, interval: 1500 }]
                     },
                     {
                         id: 'wave3',
@@ -265,49 +265,49 @@ export class LevelManager {
                     {
                         id: 'wave4',
                         startTime: 75000,
-                        enemies: [{ substance: 'N2', amount: 2, count: 2, interval: 3000 }]
+                        enemies: [{ substance: 'O2', amount: 1, count: 2, interval: 3000 }]
                     },
                     {
                         id: 'wave5',
                         startTime: 110000,
-                        enemies: [{ substance: 'O2', amount: 1, count: 2, interval: 4000 }]
+                        enemies: [{ substance: 'C', amount: 1, count: 2, interval: 4000 }]
                     }
                 ]
             };
         } else if (levelId === 'level_05') {
             return {
                 id: 'level_05',
-                name: '氧化钙挑战',
-                description: '掌握五种化学反应：水合成、二氧化碳合成、氨气合成、氯化钠合成、氧化钙合成',
+                name: '盐类合成',
+                description: '掌握四种化学反应：水合成、二氧化碳合成、氨气合成、氯化钠合成',
                 initialEnergy: 200,
                 availableBuildings: ['recycler', 'reactor'],
-                availableReactions: ['water_synthesis', 'co2_synthesis', 'ammonia_synthesis', 'salt_synthesis', 'lime_synthesis'],
+                availableReactions: ['water_synthesis', 'co2_synthesis', 'ammonia_synthesis', 'salt_synthesis'],
                 objectives: [
                     { type: 'survive', duration: 180000, description: '生存180秒' },
-                    { type: 'perform_reactions', reaction: 'lime_synthesis', amount: 5, description: '执行5次氧化钙合成反应' },
-                    { type: 'recycle', target: 'Ca', amount: 10, description: '回收10个钙敌人' },
+                    { type: 'perform_reactions', reaction: 'salt_synthesis', amount: 5, description: '执行5次氯化钠合成反应' },
+                    { type: 'recycle', target: 'Na', amount: 10, description: '回收10个钠敌人' },
                     { type: 'energy_threshold', amount: 300, description: '累积能量达到300' }
                 ],
                 waves: [
                     {
                         id: 'wave1',
                         startTime: 3000,
-                        enemies: [{ substance: 'Ca', amount: 2, count: 2, interval: 2500 }]
+                        enemies: [{ substance: 'Na', amount: 2, count: 2, interval: 2500 }]
                     },
                     {
                         id: 'wave2',
                         startTime: 30000,
-                        enemies: [{ substance: 'O2', amount: 1, count: 1, interval: 0 }]
+                        enemies: [{ substance: 'Cl2', amount: 1, count: 1, interval: 0 }]
                     },
                     {
                         id: 'wave3',
                         startTime: 50000,
-                        enemies: [{ substance: 'Na', amount: 2, count: 3, interval: 3000 }]
+                        enemies: [{ substance: 'N2', amount: 1, count: 3, interval: 3000 }]
                     },
                     {
                         id: 'wave4',
                         startTime: 80000,
-                        enemies: [{ substance: 'Cl2', amount: 1, count: 2, interval: 4000 }]
+                        enemies: [{ substance: 'O2', amount: 1, count: 2, interval: 4000 }]
                     },
                     {
                         id: 'wave5',
@@ -317,7 +317,7 @@ export class LevelManager {
                     {
                         id: 'wave6',
                         startTime: 150000,
-                        enemies: [{ substance: 'N2', amount: 2, count: 3, interval: 3500 }]
+                        enemies: [{ substance: 'C', amount: 1, count: 3, interval: 3500 }]
                     }
                 ]
             };
@@ -389,15 +389,20 @@ export class LevelManager {
                 availableItems.unshift('water');
             }
         } else if (this.currentLevel.id === 'level_03') {
-            // 关卡三：添加氮气、氨气元素
+            // 关卡三：添加碳元素
+            if (!availableItems.includes('carbon')) {
+                availableItems.unshift('carbon');
+            }
+        } else if (this.currentLevel.id === 'level_04') {
+            // 关卡四：添加氮气、氨气元素
             if (!availableItems.includes('nitrogen')) {
                 availableItems.unshift('nitrogen');
             }
             if (!availableItems.includes('ammonia')) {
                 availableItems.unshift('ammonia');
             }
-        } else if (this.currentLevel.id === 'level_04') {
-            // 关卡四：添加钠、氯气、氯化钠元素
+        } else if (this.currentLevel.id === 'level_05') {
+            // 关卡五：添加钠、氯气、氯化钠元素
             if (!availableItems.includes('sodium')) {
                 availableItems.unshift('sodium');
             }
@@ -406,14 +411,6 @@ export class LevelManager {
             }
             if (!availableItems.includes('salt')) {
                 availableItems.unshift('salt');
-            }
-        } else if (this.currentLevel.id === 'level_05') {
-            // 关卡五：添加钙、氧化钙元素
-            if (!availableItems.includes('calcium')) {
-                availableItems.unshift('calcium');
-            }
-            if (!availableItems.includes('lime')) {
-                availableItems.unshift('lime');
             }
         }
 
