@@ -63,7 +63,7 @@ export class Building {
         // 创建元素标签（初始为空）
         this.elementLabel = this.scene.add.text(0, -size/2 - 15, '', {
             fontFamily: 'Arial Bold',
-            fontSize: '21px', // 从14px增大50%到21px
+            fontSize: '24px', // 增大字体，使其更清晰可见
             color: '#ffffff',
             resolution: 2
         }).setOrigin(0.5);
@@ -339,7 +339,7 @@ export class Recycler extends Building {
             // 显示化学式
             this.elementLabel = this.scene.add.text(0, -this.config.size/2 - 25, formula, {
                 fontFamily: 'Arial',
-                fontSize: '16px',
+                fontSize: '24px', // 与反应器字体大小保持一致
                 color: color,
                 resolution: 2
             }).setOrigin(0.5);
@@ -534,6 +534,7 @@ export class Reactor extends Building {
 
         // 创建元素显示
         this.updateElementsDisplay();
+        this.updateReactorElementLabel(); // 初始化上方元素标签
     }
 
     // 添加元素（储能）
@@ -566,6 +567,7 @@ export class Reactor extends Building {
             if (this.scene.hud && this.scene.hud.spendEnergy(this.energyCostPerCharge)) {
                 existingElement.amount++;
                 this.updateElementsDisplay();
+                this.updateReactorElementLabel(); // 更新上方元素标签
                 console.log('✅ 元素数量增加成功，新数量:', existingElement.amount);
                 return {
                     success: true,
@@ -590,6 +592,7 @@ export class Reactor extends Building {
             if (this.scene.hud && this.scene.hud.spendEnergy(this.energyCostPerCharge)) {
                 this.elements.push({ elementId, amount: 1 });
                 this.updateElementsDisplay();
+                this.updateReactorElementLabel(); // 更新上方元素标签
                 console.log('✅ 新元素添加成功:', { elementId, amount: 1 });
                 console.log('反应器当前所有元素:', this.elements);
                 return {
@@ -622,9 +625,23 @@ export class Reactor extends Building {
         }
 
         this.updateElementsDisplay();
+        this.updateReactorElementLabel(); // 更新上方元素标签
         return actualRemoved;
     }
-    
+
+    // 更新反应器上方元素标签
+    updateReactorElementLabel() {
+        if (this.elements.length > 0) {
+            // 显示第一个元素的名称
+            const firstElement = this.elements[0];
+            const elementName = this.getElementName(firstElement.elementId);
+            this.showElementLabel(elementName);
+        } else {
+            // 没有元素时隐藏标签
+            this.hideElementLabel();
+        }
+    }
+
     // 更新元素显示
     updateElementsDisplay() {
         // 清除旧的显示
