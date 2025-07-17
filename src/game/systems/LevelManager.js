@@ -127,11 +127,12 @@ export class LevelManager {
     // 获取默认关卡配置（后备方案）
     getDefaultLevelConfigs() {
         return {
-            'level_01': this.getDefaultLevelConfig('level_01')
+            'level_01': this.getDefaultLevelConfig('level_01'),
+            'level_02': this.getDefaultLevelConfig('level_02')
         };
     }
 
-    // 获取默认关卡一配置
+    // 获取默认关卡配置
     getDefaultLevelConfig(levelId) {
         if (levelId === 'level_01') {
             return {
@@ -160,6 +161,36 @@ export class LevelManager {
                         id: 'wave3',
                         startTime: 20000,
                         enemies: [{ substance: 'H2', amount: 3, count: 1, interval: 0 }]
+                    }
+                ]
+            };
+        } else if (levelId === 'level_02') {
+            return {
+                id: 'level_02',
+                name: '氧气挑战',
+                description: '学习氢氧反应生成水',
+                initialEnergy: 120,
+                availableBuildings: ['recycler', 'reactor'],
+                availableReactions: ['water_synthesis'],
+                objectives: [
+                    { type: 'survive', duration: 90000, description: '生存90秒' },
+                    { type: 'perform_reactions', reaction: 'water_synthesis', amount: 2, description: '执行2次水合成反应' }
+                ],
+                waves: [
+                    {
+                        id: 'wave1',
+                        startTime: 3000,
+                        enemies: [{ substance: 'H2', amount: 2, count: 2, interval: 1000 }]
+                    },
+                    {
+                        id: 'wave2',
+                        startTime: 15000,
+                        enemies: [{ substance: 'O2', amount: 1, count: 1, interval: 0 }]
+                    },
+                    {
+                        id: 'wave3',
+                        startTime: 30000,
+                        enemies: [{ substance: 'H2', amount: 1, count: 2, interval: 2000 }]
                     }
                 ]
             };
@@ -216,10 +247,19 @@ export class LevelManager {
             availableItems = [...this.currentLevel.availableItems];
         }
 
-        // 添加氢气元素（关卡一需要）
+        // 根据关卡添加特定元素
         if (this.currentLevel.id === 'level_01') {
+            // 关卡一：添加氢气元素
             if (!availableItems.includes('hydrogen')) {
                 availableItems.unshift('hydrogen');
+            }
+        } else if (this.currentLevel.id === 'level_02') {
+            // 关卡二：添加氧气、水元素
+            if (!availableItems.includes('oxygen')) {
+                availableItems.unshift('oxygen');
+            }
+            if (!availableItems.includes('water')) {
+                availableItems.unshift('water');
             }
         }
 
@@ -372,6 +412,10 @@ export class LevelManager {
                     break;
                 case 'collect_energy':
                     completed = this.stats.energyCollected >= objective.amount;
+                    break;
+                case 'perform_reactions':
+                    // 检查是否执行了足够次数的反应
+                    completed = this.stats.reactionsPerformed >= objective.amount;
                     break;
             }
             

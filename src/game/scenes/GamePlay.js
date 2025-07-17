@@ -15,9 +15,14 @@ export class GamePlay extends Scene
         super('GamePlay');
     }
 
-    create ()
+    create (data)
     {
-        console.log('GamePlay - create开始');
+        console.log('GamePlay - create开始', data);
+
+        // 获取传入的关卡数据
+        this.levelData = data?.levelData || null;
+        console.log('接收到的关卡数据:', this.levelData);
+
         // 获取屏幕尺寸
         const { width, height } = this.cameras.main;
         
@@ -76,9 +81,9 @@ export class GamePlay extends Scene
         // 重置游戏状态，确保从干净状态开始
         this.resetGameState();
 
-        // 延迟加载关卡一，确保场景完全初始化
+        // 延迟加载关卡，确保场景完全初始化
         this.time.delayedCall(100, () => {
-            this.loadLevel1();
+            this.loadLevel();
         });
     }
 
@@ -104,25 +109,33 @@ export class GamePlay extends Scene
         console.log('游戏状态重置完成');
     }
 
-    // 加载关卡一
-    async loadLevel1() {
-        console.log('加载关卡一');
+    // 加载关卡
+    async loadLevel() {
+        console.log('加载关卡');
 
         try {
             // 等待关卡管理器初始化完成
             await this.levelManager.init();
 
+            // 确定要加载的关卡ID
+            let levelId = 'level_01'; // 默认关卡一
+            if (this.levelData && this.levelData.id) {
+                levelId = this.levelData.id;
+            }
+
+            console.log('准备加载关卡:', levelId);
+
             // 加载关卡配置
-            if (this.levelManager.loadLevel('level_01')) {
+            if (this.levelManager.loadLevel(levelId)) {
                 // 延迟启动关卡，给玩家时间阅读信息
                 this.time.delayedCall(6000, () => {
                     this.levelManager.startLevel();
                 });
             } else {
-                console.error('关卡一加载失败');
+                console.error('关卡加载失败:', levelId);
             }
         } catch (error) {
-            console.error('关卡一初始化失败:', error);
+            console.error('关卡初始化失败:', error);
         }
     }
     
