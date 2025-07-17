@@ -93,21 +93,24 @@ export class LevelManager {
     // 加载关卡
     loadLevel(levelId) {
         console.log(`加载关卡: ${levelId}`);
-        
+
+        // 完全重置关卡管理器状态
+        this.resetLevelManager();
+
         this.levelId = levelId;
         this.currentLevel = this.getLevelConfig(levelId);
-        
+
         if (!this.currentLevel) {
             console.error(`关卡配置未找到: ${levelId}`);
             return false;
         }
-        
+
         // 重置统计数据
         this.resetStats();
-        
+
         // 配置关卡
         this.setupLevel();
-        
+
         return true;
     }
     
@@ -167,23 +170,33 @@ export class LevelManager {
     // 设置关卡
     setupLevel() {
         console.log('设置关卡:', this.currentLevel.name);
-        
+
         // 设置初始能量
         if (this.scene.hud) {
             this.scene.hud.setEnergy(this.currentLevel.initialEnergy);
         }
-        
+
         // 配置可用道具
         this.configureAvailableItems();
-        
+
         // 设置关卡目标
         this.objectives = [...this.currentLevel.objectives];
         this.completedObjectives = [];
-        
-        // 设置敌人波次
-        this.waves = [...this.currentLevel.waves];
+
+        // 设置敌人波次 - 深度复制并重置状态
+        this.waves = this.currentLevel.waves.map(wave => ({
+            ...wave,
+            started: false,
+            completed: false,
+            totalEnemies: 0,
+            spawnedEnemies: 0,
+            enemies: [...wave.enemies] // 深度复制敌人配置
+        }));
         this.currentWaveIndex = 0;
-        
+
+        // 重置关卡状态
+        this.isLevelActive = false;
+
         // 显示关卡信息
         this.showLevelInfo();
     }
@@ -517,6 +530,45 @@ export class LevelManager {
         };
     }
     
+    // 完全重置关卡管理器状态
+    resetLevelManager() {
+        console.log('完全重置关卡管理器状态');
+
+        // 重置关卡状态
+        this.isLevelActive = false;
+
+        // 重置波次管理
+        this.waves = [];
+        this.currentWaveIndex = 0;
+        this.waveStartTime = 0;
+
+        // 重置关卡目标
+        this.objectives = [];
+        this.completedObjectives = [];
+
+        // 清理关卡完成弹窗（如果存在）
+        this.clearLevelCompleteDialog();
+
+        // 重置统计数据
+        this.resetStats();
+    }
+
+    // 清理关卡完成弹窗
+    clearLevelCompleteDialog() {
+        if (this.levelCompleteDialog) {
+            console.log('清理关卡完成弹窗');
+
+            // 销毁所有弹窗元素
+            Object.values(this.levelCompleteDialog).forEach(element => {
+                if (element && element.destroy) {
+                    element.destroy();
+                }
+            });
+
+            this.levelCompleteDialog = null;
+        }
+    }
+
     // 重置统计数据
     resetStats() {
         this.stats = {

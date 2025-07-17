@@ -307,18 +307,44 @@ export class EnemyManager {
     // 清除所有敌人
     clearAllEnemies() {
         console.log('清除所有敌人');
-        
+
         // 销毁所有敌人
         for (const enemy of this.activeEnemies) {
             enemy.destroy();
         }
-        
+
         // 清空管理器
         this.enemies.clear();
         this.activeEnemies.length = 0;
-        
+
         // 重置统计
         this.stats.currentAlive = 0;
+    }
+
+    // 完全重置敌人管理器状态
+    resetEnemyManager() {
+        console.log('完全重置敌人管理器状态');
+
+        // 停止生成
+        this.stopSpawning();
+
+        // 清除所有敌人
+        this.clearAllEnemies();
+
+        // 重置所有状态
+        this.isSpawning = false;
+        this.wavePaused = false;
+        this.spawnInterval = 2000;
+        this.lastSpawnTime = 0;
+
+        // 重置统计数据
+        this.stats = {
+            totalSpawned: 0,
+            totalKilled: 0,
+            currentAlive: 0
+        };
+
+        console.log('敌人管理器状态已完全重置');
     }
     
     // 暂停/恢复敌人更新

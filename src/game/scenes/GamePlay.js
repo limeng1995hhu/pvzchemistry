@@ -73,10 +73,35 @@ export class GamePlay extends Scene
         EventBus.emit('current-scene-ready', this);
         console.log('GamePlay - create完成');
 
+        // 重置游戏状态，确保从干净状态开始
+        this.resetGameState();
+
         // 延迟加载关卡一，确保场景完全初始化
         this.time.delayedCall(100, () => {
             this.loadLevel1();
         });
+    }
+
+    // 重置游戏状态
+    resetGameState() {
+        console.log('重置游戏状态');
+
+        // 重置敌人管理器状态
+        if (this.enemyManager) {
+            this.enemyManager.resetEnemyManager();
+        }
+
+        // 清理建筑放置系统状态
+        if (this.buildingPlacementSystem) {
+            // 可以添加建筑系统的重置逻辑
+        }
+
+        // 重置网格系统状态
+        if (this.gridSystem) {
+            // 可以添加网格系统的重置逻辑
+        }
+
+        console.log('游戏状态重置完成');
     }
 
     // 加载关卡一
