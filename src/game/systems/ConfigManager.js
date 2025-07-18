@@ -61,16 +61,23 @@ export class ConfigManager {
      * 从JSON文件加载配置
      */
     async loadJSONConfigs() {
+        // 获取基础路径，考虑GitHub Pages部署
+        const basePath = import.meta.env.BASE_URL || '/';
+
         // 尝试加载配置文件
         const configUrls = [
-            './src/assets/data/levels.json'
+            `${basePath}assets/data/levels.json`,
+            './assets/data/levels.json', // 备用路径
+            '/assets/data/levels.json'   // 绝对路径备用
         ];
 
         for (const jsonUrl of configUrls) {
             try {
+                console.log(`ConfigManager: 尝试加载配置文件 ${jsonUrl}`);
                 const response = await fetch(jsonUrl);
 
                 if (!response.ok) {
+                    console.log(`ConfigManager: ${jsonUrl} 响应状态: ${response.status}`);
                     continue; // 尝试下一个文件
                 }
 

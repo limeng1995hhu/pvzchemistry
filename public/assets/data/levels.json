@@ -1,0 +1,695 @@
+{
+  "levels": {
+    "level_01": {
+      "id": "level_01",
+      "name": "氢气入门",
+      "description": "学习使用回收器回收氢气敌人",
+      "difficulty": 1,
+      "initialEnergy": 100,
+      "gridRows": 6,
+      "gridCols": 12,
+      "availableBuildings": ["recycler"],
+      "availableReactions": [],
+      "objectives": [
+        {
+          "type": "survive",
+          "duration": 60000,
+          "description": "生存60秒"
+        },
+        {
+          "type": "recycle",
+          "target": "H2",
+          "amount": 6,
+          "description": "回收6个氢气敌人"
+        }
+      ],
+      "waves": [
+        {
+          "id": "wave1",
+          "startTime": 2000,
+          "enemies": [
+            {
+              "substance": "H2",
+              "state": "gas",
+              "count": 1,
+              "interval": 0,
+              "amount": 1
+            }
+          ]
+        },
+        {
+          "id": "wave2",
+          "startTime": 10000,
+          "enemies": [
+            {
+              "substance": "H2",
+              "state": "gas",
+              "count": 1,
+              "interval": 0,
+              "amount": 2
+            }
+          ]
+        },
+        {
+          "id": "wave3",
+          "startTime": 20000,
+          "enemies": [
+            {
+              "substance": "H2",
+              "state": "gas",
+              "count": 1,
+              "interval": 0,
+              "amount": 3
+            }
+          ]
+        }
+      ],
+      "rewards": {
+        "energy": 50,
+        "unlockElements": ["oxygen"],
+        "unlockReactions": ["water_synthesis"]
+      }
+    },
+    "level_02": {
+      "id": "level_02",
+      "name": "氧气挑战",
+      "description": "学习氢氧反应生成水",
+      "difficulty": 2,
+      "initialEnergy": 120,
+      "gridRows": 6,
+      "gridCols": 12,
+      "availableBuildings": ["recycler", "reactor"],
+      "availableReactions": ["water_synthesis"],
+      "objectives": [
+        {
+          "type": "survive",
+          "duration": 90000,
+          "description": "生存90秒"
+        },
+        {
+          "type": "perform_reactions",
+          "reaction": "water_synthesis",
+          "amount": 2,
+          "description": "执行2次水合成反应"
+        }
+      ],
+      "waves": [
+        {
+          "id": "wave1",
+          "startTime": 3000,
+          "enemies": [
+            {
+              "substance": "H2",
+              "state": "gas",
+              "count": 2,
+              "interval": 1000,
+              "amount": 2
+            }
+          ]
+        },
+        {
+          "id": "wave2",
+          "startTime": 15000,
+          "enemies": [
+            {
+              "substance": "O2",
+              "state": "gas",
+              "count": 1,
+              "interval": 0,
+              "amount": 1
+            }
+          ]
+        },
+        {
+          "id": "wave3",
+          "startTime": 30000,
+          "enemies": [
+            {
+              "substance": "H2",
+              "state": "gas",
+              "count": 2,
+              "interval": 2000,
+              "amount": 1
+            }
+          ]
+        }
+      ],
+      "rewards": {
+        "energy": 80,
+        "unlockElements": ["carbon"],
+        "unlockReactions": ["co2_synthesis"]
+      }
+    },
+    "level_03": {
+      "id": "level_03",
+      "name": "碳氧反应",
+      "description": "掌握两种化学反应：水合成、二氧化碳合成",
+      "difficulty": 3,
+      "initialEnergy": 150,
+      "gridRows": 6,
+      "gridCols": 12,
+      "availableBuildings": ["recycler", "reactor"],
+      "availableReactions": ["water_synthesis", "co2_synthesis", "co_oxidation"],
+      "objectives": [
+        {
+          "type": "survive",
+          "duration": 120000,
+          "description": "生存120秒"
+        },
+        {
+          "type": "perform_reactions",
+          "reaction": "co2_synthesis",
+          "amount": 3,
+          "description": "执行3次二氧化碳合成反应"
+        },
+        {
+          "type": "recycle",
+          "target": "C",
+          "amount": 5,
+          "description": "回收5个碳敌人"
+        }
+      ],
+      "waves": [
+        {
+          "id": "wave1",
+          "startTime": 3000,
+          "enemies": [
+            {
+              "substance": "H2",
+              "state": "gas",
+              "count": 3,
+              "interval": 1500,
+              "amount": 2
+            }
+          ]
+        },
+        {
+          "id": "wave2",
+          "startTime": 20000,
+          "enemies": [
+            {
+              "substance": "CO",
+              "state": "gas",
+              "count": 2,
+              "interval": 2000,
+              "amount": 2
+            }
+          ]
+        },
+        {
+          "id": "wave3",
+          "startTime": 40000,
+          "enemies": [
+            {
+              "substance": "O2",
+              "state": "gas",
+              "count": 2,
+              "interval": 3000,
+              "amount": 1
+            }
+          ]
+        },
+        {
+          "id": "wave4",
+          "startTime": 70000,
+          "enemies": [
+            {
+              "substance": "C",
+              "state": "solid",
+              "count": 2,
+              "interval": 2500,
+              "amount": 1
+            }
+          ]
+        }
+      ],
+      "rewards": {
+        "energy": 100,
+        "unlockElements": ["sodium", "chlorine"],
+        "unlockReactions": ["salt_synthesis"]
+      }
+    },
+    "level_04": {
+      "id": "level_04",
+      "name": "氮气反应",
+      "description": "掌握三种化学反应：水合成、二氧化碳合成、氨气合成",
+      "difficulty": 4,
+      "initialEnergy": 180,
+      "gridRows": 6,
+      "gridCols": 12,
+      "availableBuildings": ["recycler", "reactor"],
+      "availableReactions": ["water_synthesis", "co2_synthesis", "ammonia_synthesis", "ammonia_oxidation"],
+      "objectives": [
+        {
+          "type": "survive",
+          "duration": 150000,
+          "description": "生存150秒"
+        },
+        {
+          "type": "perform_reactions",
+          "reaction": "ammonia_synthesis",
+          "amount": 4,
+          "description": "执行4次氨气合成反应"
+        },
+        {
+          "type": "recycle",
+          "target": "N2",
+          "amount": 8,
+          "description": "回收8个氮气敌人"
+        }
+      ],
+      "waves": [
+        {
+          "id": "wave1",
+          "startTime": 3000,
+          "enemies": [
+            {
+              "substance": "NH3",
+              "state": "gas",
+              "count": 2,
+              "interval": 2000,
+              "amount": 1
+            }
+          ]
+        },
+        {
+          "id": "wave2",
+          "startTime": 25000,
+          "enemies": [
+            {
+              "substance": "H2",
+              "state": "gas",
+              "count": 3,
+              "interval": 1500,
+              "amount": 1
+            }
+          ]
+        },
+        {
+          "id": "wave3",
+          "startTime": 45000,
+          "enemies": [
+            {
+              "substance": "H2",
+              "state": "gas",
+              "count": 3,
+              "interval": 2500,
+              "amount": 1
+            }
+          ]
+        },
+        {
+          "id": "wave4",
+          "startTime": 75000,
+          "enemies": [
+            {
+              "substance": "O2",
+              "state": "gas",
+              "count": 2,
+              "interval": 3000,
+              "amount": 1
+            }
+          ]
+        }
+      ],
+      "rewards": {
+        "energy": 120,
+        "unlockElements": ["calcium"],
+        "unlockReactions": ["lime_synthesis"]
+      }
+    },
+    "level_05": {
+      "id": "level_05",
+      "name": "氯气水解",
+      "description": "利用氯气和水的反应产生氢氧化钠和氯化钠",
+      "difficulty": 5,
+      "initialEnergy": 180,
+      "gridRows": 6,
+      "gridCols": 12,
+      "availableBuildings": ["recycler", "reactor"],
+      "availableReactions": ["water_synthesis", "chlorine_water_reaction", "chlorine_hydrogen_reaction", "hypochlorous_acid_decomposition", "acid_base_neutralization"],
+      "objectives": [
+        {
+          "type": "survive",
+          "duration": 180000,
+          "description": "生存180秒"
+        },
+        {
+          "type": "perform_reactions",
+          "reaction": "salt_synthesis",
+          "amount": 5,
+          "description": "执行5次氯化钠合成反应"
+        },
+        {
+          "type": "recycle",
+          "target": "Na",
+          "amount": 10,
+          "description": "回收10个钠敌人"
+        },
+        {
+          "type": "energy_threshold",
+          "amount": 300,
+          "description": "累积能量达到300"
+        }
+      ],
+      "waves": [
+        {
+          "id": "wave1",
+          "startTime": 3000,
+          "enemies": [
+            {
+              "substance": "Cl2",
+              "state": "gas",
+              "count": 3,
+              "interval": 3000,
+              "amount": 1
+            }
+          ]
+        }
+      ],
+      "rewards": {
+        "energy": 150,
+        "unlockElements": [],
+        "unlockReactions": []
+      }
+    }
+  },
+  "elements": {
+    "H2": {
+      "id": "H2",
+      "symbol": "H₂",
+      "name": "氢气",
+      "atomicNumber": 1,
+      "color": "#87CEEB",
+      "price": 10,
+      "rarity": 1,
+      "unlockLevel": "level_01"
+    },
+    "O2": {
+      "id": "O2",
+      "symbol": "O₂",
+      "name": "氧气",
+      "atomicNumber": 8,
+      "color": "#4169E1",
+      "price": 10,
+      "rarity": 1,
+      "unlockLevel": "level_01"
+    },
+    "H2O": {
+      "id": "H2O",
+      "symbol": "H₂O",
+      "name": "水",
+      "atomicNumber": 0,
+      "color": "#4169E1",
+      "price": 15,
+      "rarity": 2,
+      "unlockLevel": "level_02"
+    },
+    "C": {
+      "id": "C",
+      "symbol": "C",
+      "name": "碳",
+      "atomicNumber": 6,
+      "color": "#8B4513",
+      "price": 15,
+      "rarity": 2,
+      "unlockLevel": "level_02"
+    },
+    "N2": {
+      "id": "N2",
+      "symbol": "N₂",
+      "name": "氮气",
+      "atomicNumber": 7,
+      "color": "#90EE90",
+      "price": 15,
+      "rarity": 2,
+      "unlockLevel": "level_03"
+    },
+    "CO2": {
+      "id": "CO2",
+      "symbol": "CO₂",
+      "name": "二氧化碳",
+      "atomicNumber": 0,
+      "color": "#696969",
+      "price": 20,
+      "rarity": 2,
+      "unlockLevel": "level_02"
+    },
+    "CH4": {
+      "id": "CH4",
+      "symbol": "CH₄",
+      "name": "甲烷",
+      "atomicNumber": 0,
+      "color": "#FFD700",
+      "price": 25,
+      "rarity": 3,
+      "unlockLevel": "level_02"
+    },
+    "NH3": {
+      "id": "NH3",
+      "symbol": "NH₃",
+      "name": "氨气",
+      "atomicNumber": 0,
+      "color": "#98FB98",
+      "price": 30,
+      "rarity": 3,
+      "unlockLevel": "level_03"
+    },
+    "NaCl": {
+      "id": "NaCl",
+      "symbol": "NaCl",
+      "name": "氯化钠",
+      "atomicNumber": 0,
+      "color": "#F0F8FF",
+      "price": 35,
+      "rarity": 3,
+      "unlockLevel": "level_04"
+    },
+    "Na": {
+      "id": "Na",
+      "symbol": "Na",
+      "name": "钠",
+      "atomicNumber": 11,
+      "color": "#FFE4B5",
+      "price": 25,
+      "rarity": 3,
+      "unlockLevel": "level_04"
+    },
+    "Cl2": {
+      "id": "Cl2",
+      "symbol": "Cl₂",
+      "name": "氯气",
+      "atomicNumber": 17,
+      "color": "#ADFF2F",
+      "price": 25,
+      "rarity": 3,
+      "unlockLevel": "level_04"
+    },
+    "CaO": {
+      "id": "CaO",
+      "symbol": "CaO",
+      "name": "氧化钙",
+      "atomicNumber": 0,
+      "color": "#F5F5DC",
+      "price": 40,
+      "rarity": 4,
+      "unlockLevel": "level_05"
+    },
+    "Ca": {
+      "id": "Ca",
+      "symbol": "Ca",
+      "name": "钙",
+      "atomicNumber": 20,
+      "color": "#DDA0DD",
+      "price": 30,
+      "rarity": 3,
+      "unlockLevel": "level_05"
+    }
+  },
+  "reactions": {
+    "water_synthesis": {
+      "id": "water_synthesis",
+      "name": "水合成反应",
+      "equation": "2H₂ + O₂ → 2H₂O",
+      "reactants": [
+        { "elementId": "H2", "amount": 2 },
+        { "elementId": "O2", "amount": 1 }
+      ],
+      "products": [
+        { "substance": "H2O", "amount": 2 }
+      ],
+      "energyCost": 10,
+      "energyGain": 20,
+      "unlockLevel": 1
+    },
+    "co2_synthesis": {
+      "id": "co2_synthesis",
+      "name": "二氧化碳合成",
+      "equation": "C + O₂ → CO₂",
+      "reactants": [
+        { "elementId": "C", "amount": 1 },
+        { "elementId": "O2", "amount": 1 }
+      ],
+      "products": [
+        { "substance": "CO2", "amount": 1 }
+      ],
+      "energyCost": 10,
+      "energyGain": 25,
+      "unlockLevel": 2
+    },
+    "methane_synthesis": {
+      "id": "methane_synthesis",
+      "name": "甲烷合成",
+      "equation": "C + 2H₂ → CH₄",
+      "reactants": [
+        { "elementId": "C", "amount": 1 },
+        { "elementId": "H2", "amount": 2 }
+      ],
+      "products": [
+        { "substance": "CH4", "amount": 1 }
+      ],
+      "energyCost": 10,
+      "energyGain": 30,
+      "unlockLevel": 2
+    },
+    "co_oxidation": {
+      "id": "co_oxidation",
+      "name": "一氧化碳氧化",
+      "equation": "2CO + O₂ → 2CO₂",
+      "reactants": [
+        { "elementId": "CO", "amount": 2 },
+        { "elementId": "O2", "amount": 1 }
+      ],
+      "products": [
+        { "substance": "CO2", "amount": 2 }
+      ],
+      "energyCost": 10,
+      "energyGain": 25,
+      "unlockLevel": 3
+    },
+    "ammonia_synthesis": {
+      "id": "ammonia_synthesis",
+      "name": "氨气合成",
+      "equation": "N₂ + 3H₂ → 2NH₃",
+      "reactants": [
+        { "elementId": "N2", "amount": 1 },
+        { "elementId": "H2", "amount": 3 }
+      ],
+      "products": [
+        { "substance": "NH3", "amount": 2 }
+      ],
+      "energyCost": 10,
+      "energyGain": 35,
+      "unlockLevel": 3
+    },
+    "salt_synthesis": {
+      "id": "salt_synthesis",
+      "name": "氯化钠合成",
+      "equation": "2Na + Cl₂ → 2NaCl",
+      "reactants": [
+        { "elementId": "Na", "amount": 2 },
+        { "elementId": "Cl2", "amount": 1 }
+      ],
+      "products": [
+        { "substance": "NaCl", "amount": 2 }
+      ],
+      "energyCost": 10,
+      "energyGain": 40,
+      "unlockLevel": 4
+    },
+    "lime_synthesis": {
+      "id": "lime_synthesis",
+      "name": "氧化钙合成",
+      "equation": "2Ca + O₂ → 2CaO",
+      "reactants": [
+        { "elementId": "Ca", "amount": 2 },
+        { "elementId": "O2", "amount": 1 }
+      ],
+      "products": [
+        { "substance": "CaO", "amount": 2 }
+      ],
+      "energyCost": 10,
+      "energyGain": 45,
+      "unlockLevel": 5
+    },
+    "ammonia_oxidation": {
+      "id": "ammonia_oxidation",
+      "name": "氨气氧化",
+      "equation": "4NH₃ + 3O₂ → 6H₂O + 2N₂",
+      "reactants": [
+        { "elementId": "NH3", "amount": 4 },
+        { "elementId": "O2", "amount": 3 }
+      ],
+      "products": [
+        { "substance": "H2O", "amount": 6 },
+        { "substance": "N2", "amount": 2 }
+      ],
+      "energyCost": 10,
+      "energyGain": 40,
+      "unlockLevel": 4
+    },
+    "chlorine_water_reaction": {
+      "id": "chlorine_water_reaction",
+      "name": "氯气水反应",
+      "equation": "Cl₂ + H₂O → HClO + HCl",
+      "reactants": [
+        { "elementId": "Cl2", "amount": 1 },
+        { "elementId": "H2O", "amount": 1 }
+      ],
+      "products": [
+        { "substance": "HClO", "amount": 1 },
+        { "substance": "HCl", "amount": 1 }
+      ],
+      "energyCost": 10,
+      "energyGain": 30,
+      "unlockLevel": 5
+    },
+
+    "chlorine_hydrogen_reaction": {
+      "id": "chlorine_hydrogen_reaction",
+      "name": "氯气氢气反应",
+      "equation": "Cl₂ + H₂ → 2HCl",
+      "reactants": [
+        { "elementId": "Cl2", "amount": 1 },
+        { "elementId": "H2", "amount": 1 }
+      ],
+      "products": [
+        { "substance": "HCl", "amount": 2 }
+      ],
+      "energyCost": 10,
+      "energyGain": 30,
+      "unlockLevel": 5
+    },
+    "hypochlorous_acid_decomposition": {
+      "id": "hypochlorous_acid_decomposition",
+      "name": "次氯酸分解制盐酸",
+      "equation": "HClO → HCl + O₂",
+      "reactants": [
+        { "elementId": "HClO", "amount": 1 }
+      ],
+      "products": [
+        { "substance": "HCl", "amount": 1 },
+        { "substance": "O2", "amount": 1 }
+      ],
+      "energyCost": 0,
+      "energyGain": 35,
+      "unlockLevel": 5
+    },
+    "acid_base_neutralization": {
+      "id": "acid_base_neutralization",
+      "name": "酸碱中和反应",
+      "equation": "NaOH + HCl → NaCl + H₂O",
+      "reactants": [
+        { "elementId": "NaOH", "amount": 1 },
+        { "elementId": "HCl", "amount": 1 }
+      ],
+      "products": [
+        { "substance": "NaCl", "amount": 1 },
+        { "substance": "H2O", "amount": 1 }
+      ],
+      "energyCost": 10,
+      "energyGain": 40,
+      "unlockLevel": 5
+    }
+  }
+}
