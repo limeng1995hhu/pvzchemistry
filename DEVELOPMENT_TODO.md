@@ -1,4 +1,4 @@
-# Lab Defenders - 开发任务清单
+# PVZ Chemistry - 开发任务清单
 
 ## 当前状态
 - 项目基础框架已搭建 ✅

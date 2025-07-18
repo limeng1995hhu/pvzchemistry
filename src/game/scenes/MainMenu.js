@@ -17,20 +17,13 @@ export class MainMenu extends Scene
         this.cameras.main.setBackgroundColor(0x1a1a2e);
 
         // 游戏标题
-        this.add.text(width / 2, height / 2 - 150, 'Lab Defenders', {
+        this.add.text(width / 2, height / 2 - 150, 'PVZ Chemistry', {
             fontFamily: 'Arial Black',
             fontSize: 64,
             color: '#ffffff',
             stroke: '#000000',
             strokeThickness: 8,
             align: 'center'
-        }).setOrigin(0.5);
-
-        // 副标题
-        this.add.text(width / 2, height / 2 - 100, '实验室守卫者', {
-            fontFamily: 'Arial',
-            fontSize: 24,
-            color: '#cccccc'
         }).setOrigin(0.5);
 
         // 按钮样式
@@ -73,16 +66,11 @@ export class MainMenu extends Scene
         // 重新定位和缩放所有元素
         this.children.list.forEach(child => {
             if (child.type === 'Text') {
-                if (child.text === 'Lab Defenders') {
+                if (child.text === 'PVZ Chemistry') {
                     // 标题文字
                     child.setPosition(centerX, centerY - 150);
                     const titleFontSize = Math.min(gameSize.width, gameSize.height) * 0.08;
                     child.setFontSize(Math.max(titleFontSize, 32));
-                } else if (child.text === '实验室守卫者') {
-                    // 副标题
-                    child.setPosition(centerX, centerY - 100);
-                    const subtitleFontSize = Math.min(gameSize.width, gameSize.height) * 0.03;
-                    child.setFontSize(Math.max(subtitleFontSize, 18));
                 } else if (child.text === '选择关卡') {
                     // 关卡选择按钮
                     child.setPosition(centerX, centerY + 20);
