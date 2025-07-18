@@ -195,8 +195,8 @@ export class LevelManager {
         if (levelId === 'level_01') {
             return {
                 id: 'level_01',
-                name: '氢气入门',
-                description: '学习使用回收器回收氢气敌人',
+                name: '回收氢气',
+                description: '使用回收器回收氢气敌人',
                 initialEnergy: 100,
                 availableBuildings: ['recycler'],
                 availableItems: ['hydrogen', 'recycler'], // 兼容旧版本
@@ -225,7 +225,7 @@ export class LevelManager {
         } else if (levelId === 'level_02') {
             return {
                 id: 'level_02',
-                name: '氧气挑战',
+                name: '水生成反应',
                 description: '学习氢氧反应生成水',
                 initialEnergy: 120,
                 availableBuildings: ['recycler', 'reactor'],
@@ -255,7 +255,7 @@ export class LevelManager {
         } else if (levelId === 'level_03') {
             return {
                 id: 'level_03',
-                name: '碳氧反应',
+                name: '碳与氧',
                 description: '掌握两种化学反应：水合成、二氧化碳合成',
                 initialEnergy: 150,
                 availableBuildings: ['recycler', 'reactor'],
@@ -291,8 +291,8 @@ export class LevelManager {
         } else if (levelId === 'level_04') {
             return {
                 id: 'level_04',
-                name: '氮气反应',
-                description: '掌握三种化学反应：水合成、二氧化碳合成、氨气合成',
+                name: '氮气回收',
+                description: '学习氨气反应',
                 initialEnergy: 180,
                 availableBuildings: ['recycler', 'reactor'],
                 availableReactions: ['water_synthesis', 'co2_synthesis', 'ammonia_synthesis', 'ammonia_oxidation'],
