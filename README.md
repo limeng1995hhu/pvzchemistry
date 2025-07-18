@@ -39,6 +39,51 @@ This template has been updated for:
 | `npm run build` | Create a production build in the `dist` folder |
 | `npm run dev-nolog` | Launch a development web server without sending anonymous data (see "About log.js" below) |
 | `npm run build-nolog` | Create a production build in the `dist` folder without sending anonymous data (see "About log.js" below) |
+| `node scripts/verify-deployment.js` | Verify deployment configuration before deploying |
+
+## 🚀 GitHub Pages 部署
+
+本项目已配置自动部署到 GitHub Pages。
+
+### 自动部署设置
+
+1. **启用 GitHub Pages**：
+   - 进入 GitHub 仓库设置页面
+   - 找到 "Pages" 选项
+   - 在 "Source" 中选择 "GitHub Actions"
+
+2. **自动触发部署**：
+   - 推送代码到 `main` 分支会自动触发部署
+   - 也可以在 Actions 页面手动触发 "Deploy to GitHub Pages" 工作流
+
+3. **验证部署配置**：
+   ```bash
+   node scripts/verify-deployment.js
+   ```
+
+### 部署流程
+
+GitHub Actions 工作流会自动执行以下步骤：
+1. 检出代码
+2. 设置 Node.js 环境
+3. 安装依赖
+4. 验证数据文件存在
+5. 构建项目
+6. 验证构建输出
+7. 部署到 GitHub Pages
+
+### 访问地址
+
+部署成功后，可通过以下地址访问：
+- **GitHub Pages**: `https://[您的用户名].github.io/pvzchemistry/`
+
+### 故障排除
+
+如果遇到 404 错误（特别是 JSON 文件加载失败）：
+1. 确保 `public/assets/data/levels.json` 文件存在
+2. 检查 `vite/config.prod.mjs` 中的 `base` 路径配置
+3. 验证 GitHub 仓库名与配置中的路径匹配
+4. 查看 GitHub Actions 构建日志
 
 ## Writing Code
 
