@@ -33,7 +33,9 @@ export class LevelManager {
             energyCollected: 0,
             reactionsPerformed: 0,
             levelStartTime: 0,
-            levelDuration: 0
+            levelDuration: 0,
+            // 新增：化学反应统计
+            reactionStats: new Map() // 存储每种反应的触发次数和详细信息
         };
         
         this.init();
@@ -87,9 +89,62 @@ export class LevelManager {
         
         EventBus.on('reaction-occurred', (data) => {
             this.stats.reactionsPerformed++;
+
+            // 记录化学反应的详细统计信息
+            this.recordReactionStats(data);
         });
     }
-    
+
+    // 记录化学反应统计信息
+    recordReactionStats(reactionData) {
+        const reactionId = reactionData.reactionId;
+
+        if (!this.stats.reactionStats.has(reactionId)) {
+            // 初始化反应统计信息
+            this.stats.reactionStats.set(reactionId, {
+                id: reactionId,
+                name: this.getReactionName(reactionId),
+                equation: this.getReactionEquation(reactionId),
+                count: 0,
+                totalEnergyConsumed: 0,
+                totalEnergyGained: 0,
+                products: new Map() // 记录产物统计
+            });
+        }
+
+        const reactionStats = this.stats.reactionStats.get(reactionId);
+        reactionStats.count++;
+        reactionStats.totalEnergyConsumed += reactionData.energyCost || 0;
+
+        // 记录产物统计
+        if (reactionData.products) {
+            reactionData.products.forEach(product => {
+                const productKey = product.substance;
+                if (!reactionStats.products.has(productKey)) {
+                    reactionStats.products.set(productKey, 0);
+                }
+                reactionStats.products.set(productKey,
+                    reactionStats.products.get(productKey) + product.amount);
+            });
+        }
+
+        console.log(`记录反应统计: ${reactionId}, 总次数: ${reactionStats.count}`);
+    }
+
+    // 获取反应名称
+    getReactionName(reactionId) {
+        // 从配置管理器获取反应名称
+        const reactionConfig = configManager.getReactionConfig(reactionId);
+        return reactionConfig ? reactionConfig.name : reactionId;
+    }
+
+    // 获取反应方程式
+    getReactionEquation(reactionId) {
+        // 从配置管理器获取反应方程式
+        const reactionConfig = configManager.getReactionConfig(reactionId);
+        return reactionConfig ? reactionConfig.equation : '';
+    }
+
     // 加载关卡
     loadLevel(levelId) {
         console.log(`加载关卡: ${levelId}`);
@@ -228,7 +283,7 @@ export class LevelManager {
                     },
                     {
                         id: 'wave4',
-                        startTime: 70000,
+                        startTime: 42000,
                         enemies: [{ substance: 'C', amount: 1, count: 2, interval: 2500 }]
                     }
                 ]
@@ -254,17 +309,17 @@ export class LevelManager {
                     },
                     {
                         id: 'wave2',
-                        startTime: 25000,
+                        startTime: 15000,
                         enemies: [{ substance: 'H2', amount: 1, count: 3, interval: 1500 }]
                     },
                     {
                         id: 'wave3',
-                        startTime: 45000,
+                        startTime: 25000,
                         enemies: [{ substance: 'H2', amount: 1, count: 3, interval: 2500 }]
                     },
                     {
                         id: 'wave4',
-                        startTime: 55000,
+                        startTime: 40000,
                         enemies: [{ substance: 'O2', amount: 1, count: 2, interval: 3000 }]
                     }
                 ]
@@ -272,8 +327,8 @@ export class LevelManager {
         } else if (levelId === 'level_05') {
             return {
                 id: 'level_05',
-                name: '氯气水解',
-                description: '利用氯气和水的反应产生氢氧化钠和氯化钠',
+                name: '中和反应',
+                description: '利用酸和碱的反应产生盐',
                 initialEnergy: 180,
                 availableBuildings: ['recycler', 'reactor'],
                 availableReactions: ['water_synthesis', 'chlorine_water_reaction', 'chlorine_hydrogen_reaction', 'hypochlorous_acid_decomposition', 'acid_base_neutralization'],
@@ -381,7 +436,7 @@ export class LevelManager {
                 availableItems.unshift('water');
             }
         } else if (this.currentLevel.id === 'level_05') {
-            // 关卡五：添加水、氢气、氯化钠、氢氧化钠、次氯酸、盐酸元素
+            // 关卡五：添加水、氢气、氯化钠、氢氧化钠元素
             if (!availableItems.includes('water')) {
                 availableItems.unshift('water');
             }
@@ -393,12 +448,6 @@ export class LevelManager {
             }
             if (!availableItems.includes('naoh')) {
                 availableItems.unshift('naoh');
-            }
-            if (!availableItems.includes('hclo')) {
-                availableItems.unshift('hclo');
-            }
-            if (!availableItems.includes('hcl')) {
-                availableItems.unshift('hcl');
             }
         }
 
@@ -649,20 +698,20 @@ export class LevelManager {
             resolution: 2
         }).setOrigin(0.5).setDepth(1002);
 
-        // 统计信息
-        const statsText = [
+        // 基础统计信息
+        const basicStatsText = [
             `关卡：${this.currentLevel.name}`,
             `用时：${Math.floor(this.stats.levelDuration / 1000)}秒`,
             `消灭敌人：${this.stats.enemiesKilled}`,
             `收集能量：${this.stats.energyCollected}`
         ].join('\n');
 
-        const stats = this.scene.add.text(width / 2, height / 2 - 20, statsText, {
+        const basicStats = this.scene.add.text(width / 2, height / 2 - 80, basicStatsText, {
             fontFamily: 'Arial',
-            fontSize: '24px',
+            fontSize: '20px',
             color: '#ffffff',
             align: 'center',
-            lineSpacing: 10,
+            lineSpacing: 8,
             resolution: 2
         }).setOrigin(0.5).setDepth(1002);
 
@@ -696,17 +745,52 @@ export class LevelManager {
             this.scene.scene.start('MainMenu');
         });
 
+        // 化学反应统计信息
+        const reactionStatsText = this.generateReactionStatsText();
+        let reactionStats = null;
+        if (reactionStatsText) {
+            reactionStats = this.scene.add.text(width / 2, height / 2 + 20, reactionStatsText, {
+                fontFamily: 'Arial',
+                fontSize: '18px',
+                color: '#4ecdc4',
+                align: 'center',
+                lineSpacing: 6,
+                resolution: 2
+            }).setOrigin(0.5).setDepth(1002);
+        }
+
         // 存储弹窗元素以便后续清理
         this.levelCompleteDialog = {
             overlay,
             dialogBg,
             title,
-            stats,
+            basicStats,
+            reactionStats,
             buttonBg,
             buttonText
         };
     }
-    
+
+    // 生成化学反应统计文本
+    generateReactionStatsText() {
+        if (this.stats.reactionStats.size === 0) {
+            return null; // 没有反应发生
+        }
+
+        const reactionLines = ['🧪 化学反应统计：'];
+
+        // 按反应次数排序
+        const sortedReactions = Array.from(this.stats.reactionStats.values())
+            .sort((a, b) => b.count - a.count);
+
+        sortedReactions.forEach(reaction => {
+            // 显示反应方程式和次数
+            reactionLines.push(`${reaction.equation} ×${reaction.count}`);
+        });
+
+        return reactionLines.join('\n');
+    }
+
     // 完全重置关卡管理器状态
     resetLevelManager() {
         console.log('完全重置关卡管理器状态');
@@ -754,7 +838,9 @@ export class LevelManager {
             energyCollected: 0,
             reactionsPerformed: 0,
             levelStartTime: 0,
-            levelDuration: 0
+            levelDuration: 0,
+            // 重置化学反应统计
+            reactionStats: new Map()
         };
     }
     
