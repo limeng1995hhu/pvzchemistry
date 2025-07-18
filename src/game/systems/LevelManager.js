@@ -461,9 +461,9 @@ export class LevelManager {
     
     // 显示关卡信息
     showLevelInfo() {
-        if (this.scene.hud) {
-            this.scene.hud.showMessage(`关卡: ${this.currentLevel.name}`, '#4ecdc4', 3000);
-        }
+        // 不再显示关卡目标信息，只在控制台记录
+        console.log(`关卡加载完成: ${this.currentLevel.name}`);
+        console.log('关卡目标:', this.objectives.map(obj => obj.description));
     }
     
     // 开始关卡
@@ -645,9 +645,10 @@ export class LevelManager {
         this.completedObjectives.push(index);
         console.log(`目标完成: ${objective.description}`);
 
-        if (this.scene.hud) {
-            this.scene.hud.showMessage(`✅ ${objective.description}`, '#00ff00', 3000);
-        }
+        // 不再显示目标完成消息，只在控制台记录
+        // if (this.scene.hud) {
+        //     this.scene.hud.showMessage(`✅ ${objective.description}`, '#00ff00', 3000);
+        // }
 
         EventBus.emit('objective-completed', {
             objectiveIndex: index,
