@@ -341,7 +341,7 @@ export class LevelManager {
                 waves: [
                     {
                         id: 'wave1',
-                        startTime: 3000,
+                        startTime: 2000,
                         enemies: [{ substance: 'Cl2', amount: 1, count: 3, interval: 3000 }]
                     }
                 ]
